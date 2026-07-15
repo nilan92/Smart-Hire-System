@@ -1,0 +1,348 @@
+<header class="site-header">
+  <div class="container navigation">
+    <a routerLink="/" class="logo" aria-label="Smart Hire home">
+      Smart<span>Hire</span>
+    </a>
+
+    <nav class="nav-links" aria-label="Main navigation">
+      <a routerLink="/">Home</a>
+      <a routerLink="/services" class="active">Services</a>
+      <a routerLink="/categories">Categories</a>
+      <a routerLink="/favorites">Favourites</a>
+    </nav>
+
+    <div class="nav-actions">
+      <a routerLink="/login" class="login-link">Log in</a>
+      <a routerLink="/register" class="primary-button">Get Started</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="search-hero">
+    <div class="container">
+      <span class="eyebrow">Find trusted professionals</span>
+      <h1>Search services</h1>
+      <p>
+        Search and compare verified service providers available near you.
+      </p>
+
+      <form
+        class="main-search"
+        (submit)="$event.preventDefault(); search()"
+      >
+        <div class="search-input">
+          <label for="main-keyword">Service keyword</label>
+
+          <div>
+            <span aria-hidden="true">⌕</span>
+            <input
+              #mainKeyword
+              id="main-keyword"
+              type="search"
+              placeholder="What service do you need?"
+              [value]="keyword"
+              (input)="updateKeyword(mainKeyword.value)"
+            />
+          </div>
+        </div>
+
+        <div class="search-input">
+          <label for="main-location">Location</label>
+
+          <div>
+            <span aria-hidden="true">⌖</span>
+            <select
+              #mainLocation
+              id="main-location"
+              [value]="selectedLocation"
+              (change)="updateLocation(mainLocation.value)"
+            >
+              <option value="">All locations</option>
+
+              @for (location of locations; track location) {
+                <option [value]="location">{{ location }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <button type="submit">Search</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="results-section">
+    <div class="container results-layout">
+      <aside class="filters-panel">
+        <div class="filters-heading">
+          <div>
+            <span aria-hidden="true">☷</span>
+            <h2>Filters</h2>
+          </div>
+
+          <button type="button" (click)="clearFilters()">
+            Clear all
+          </button>
+        </div>
+
+        <div class="filter-group">
+          <label for="category-filter">Category</label>
+
+          <select
+            #categoryFilter
+            id="category-filter"
+            [value]="selectedCategory"
+            (change)="updateCategory(categoryFilter.value)"
+          >
+            <option value="">All categories</option>
+
+            @for (category of categories; track category) {
+              <option [value]="category">{{ category }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="location-filter">Location</label>
+
+          <select
+            #locationFilter
+            id="location-filter"
+            [value]="selectedLocation"
+            (change)="updateLocation(locationFilter.value)"
+          >
+            <option value="">All locations</option>
+
+            @for (location of locations; track location) {
+              <option [value]="location">{{ location }}</option>
+            }
+          </select>
+        </div>
+
+        <fieldset class="filter-group price-filter">
+          <legend>Price range</legend>
+
+          <label>
+            <input
+              type="radio"
+              name="price"
+              value=""
+              [checked]="selectedPrice === ''"
+              (change)="updatePrice('')"
+            />
+            <span>Any price</span>
+          </label>
+
+          <label>
+            <input
+              type="radio"
+              name="price"
+              value="under-3000"
+              [checked]="selectedPrice === 'under-3000'"
+              (change)="updatePrice('under-3000')"
+            />
+            <span>Under Rs. 3,000</span>
+          </label>
+
+          <label>
+            <input
+              type="radio"
+              name="price"
+              value="3000-5000"
+              [checked]="selectedPrice === '3000-5000'"
+              (change)="updatePrice('3000-5000')"
+            />
+            <span>Rs. 3,000 – 5,000</span>
+          </label>
+
+          <label>
+            <input
+              type="radio"
+              name="price"
+              value="over-5000"
+              [checked]="selectedPrice === 'over-5000'"
+              (change)="updatePrice('over-5000')"
+            />
+            <span>Over Rs. 5,000</span>
+          </label>
+        </fieldset>
+
+        <div class="verified-note">
+          <span aria-hidden="true">✓</span>
+
+          <div>
+            <strong>Verified professionals</strong>
+            <p>
+              Look for the verified badge when selecting a provider.
+            </p>
+          </div>
+        </div>
+      </aside>
+
+      <div class="results-content">
+        <div class="results-toolbar">
+          <div>
+            <h2>Available Services</h2>
+            <p>
+              {{ filteredServices.length }}
+              {{ filteredServices.length === 1 ? 'service' : 'services' }}
+              found
+            </p>
+          </div>
+
+          <div class="sort-control">
+            <label for="sort-services">Sort by</label>
+
+            <select
+              #sortServices
+              id="sort-services"
+              [value]="sortBy"
+              (change)="updateSort(sortServices.value)"
+            >
+              <option value="recommended">Recommended</option>
+              <option value="rating">Highest rating</option>
+              <option value="price-low">Price: low to high</option>
+              <option value="price-high">Price: high to low</option>
+            </select>
+          </div>
+        </div>
+
+        @if (
+          keyword ||
+          selectedCategory ||
+          selectedLocation ||
+          selectedPrice
+        ) {
+          <div class="active-filters">
+            <span>Active filters:</span>
+
+            @if (keyword) {
+              <button type="button" (click)="updateKeyword('')">
+                “{{ keyword }}” ×
+              </button>
+            }
+
+            @if (selectedCategory) {
+              <button type="button" (click)="updateCategory('')">
+                {{ selectedCategory }} ×
+              </button>
+            }
+
+            @if (selectedLocation) {
+              <button type="button" (click)="updateLocation('')">
+                {{ selectedLocation }} ×
+              </button>
+            }
+
+            @if (selectedPrice) {
+              <button type="button" (click)="updatePrice('')">
+                Price filter ×
+              </button>
+            }
+          </div>
+        }
+
+        @if (filteredServices.length > 0) {
+          <div class="service-list">
+            @for (service of filteredServices; track service.id) {
+              <article class="service-card">
+                <div class="service-image">
+                  <span aria-hidden="true">{{ service.icon }}</span>
+
+                  <button
+                    type="button"
+                    class="favourite-button"
+                    aria-label="Save service to favourites"
+                  >
+                    ♡
+                  </button>
+                </div>
+
+                <div class="service-details">
+                  <div class="service-meta">
+                    <span class="category-badge">
+                      {{ service.category }}
+                    </span>
+
+                    @if (service.verified) {
+                      <span class="verified-badge">
+                        ✓ Verified
+                      </span>
+                    }
+                  </div>
+
+                  <h3>{{ service.title }}</h3>
+
+                  <p class="provider">
+                    By <strong>{{ service.provider }}</strong>
+                  </p>
+
+                  <p class="description">
+                    {{ service.description }}
+                  </p>
+
+                  <div class="detail-row">
+                    <span>⌖ {{ service.location }}</span>
+
+                    <span class="rating">
+                      ★ {{ service.rating }}
+                      <small>({{ service.reviewCount }} reviews)</small>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="service-action">
+                  <p>Starting from</p>
+                  <strong>Rs. {{ service.price }}</strong>
+
+                  <a [routerLink]="['/services', service.id]">
+                    View Details
+                  </a>
+                </div>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <span aria-hidden="true">⌕</span>
+            <h2>No services found</h2>
+            <p>
+              Try changing your keyword, category, location or price filter.
+            </p>
+
+            <button type="button" (click)="clearFilters()">
+              Clear All Filters
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-content">
+    <div>
+      <a routerLink="/" class="logo footer-logo">
+        Smart<span>Hire</span>
+      </a>
+
+      <p>
+        Connecting customers with trusted service professionals across
+        Sri Lanka.
+      </p>
+    </div>
+
+    <div class="footer-links">
+      <a routerLink="/">Home</a>
+      <a routerLink="/services">Services</a>
+      <a routerLink="/categories">Categories</a>
+      <a routerLink="/favorites">Favourites</a>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <p>© 2026 Smart Hire. All rights reserved.</p>
+  </div>
+</footer>

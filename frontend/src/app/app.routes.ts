@@ -17,6 +17,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'services',
+    loadComponent: () =>
+      import('./features/services/service-search/service-search').then(
+        (m) => m.ServiceSearch,
+      ),
+  },
+  {
     path: 'login',
     loadComponent: () =>
       import('./features/auth/login/login').then((m) => m.Login),
@@ -24,7 +31,9 @@ export const routes: Routes = [
   {
     path: 'register',
     loadComponent: () =>
-      import('./features/auth/register/register').then((m) => m.Register),
+      import('./features/auth/register/register').then(
+        (m) => m.Register,
+      ),
   },
   {
     path: 'unauthorized',
@@ -36,7 +45,9 @@ export const routes: Routes = [
   {
     path: 'customer/profile',
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['customer'] },
+    data: {
+      roles: ['customer'],
+    },
     loadComponent: () =>
       import('./features/customer/profile/profile').then(
         (m) => m.CustomerProfile,
@@ -45,7 +56,9 @@ export const routes: Routes = [
   {
     path: 'provider/profile',
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['provider'] },
+    data: {
+      roles: ['provider'],
+    },
     loadComponent: () =>
       import('./features/provider/profile/profile').then(
         (m) => m.ProviderProfile,
@@ -54,7 +67,9 @@ export const routes: Routes = [
   {
     path: 'admin',
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['admin'] },
+    data: {
+      roles: ['admin'],
+    },
     loadComponent: () =>
       import('./features/admin/admin-layout/admin-layout').then(
         (m) => m.AdminLayoutComponent,
@@ -124,7 +139,7 @@ export const routes: Routes = [
     ],
   },
 
-  // Wildcard route must always remain last.
+  // Wildcard route must always be the final route.
   {
     path: '**',
     redirectTo: 'login',
