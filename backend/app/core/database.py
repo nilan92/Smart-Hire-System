@@ -6,13 +6,20 @@ from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 from app.core.config import settings
 
 
+connect_args = (
+    {"check_same_thread": False}
+    if settings.database_url.startswith("sqlite")
+    else {
+        "sslmode": "require",
+        "connect_timeout": 15,
+    }
+)
+
+
 engine = create_engine(
     settings.database_url,
     pool_pre_ping=True,
-    connect_args={
-        "sslmode": "require",
-        "connect_timeout": 15,
-    },
+    connect_args=connect_args,
 )
 
 

@@ -1,0 +1,98 @@
+:host {
+  display: block;
+}
+
+.profile-page {
+  min-height: 100dvh;
+  padding: 32px;
+  background: #f5f7fb;
+}
+
+header,
+section {
+  width: min(100%, 780px);
+  margin: 0 auto;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+h1 {
+  margin: 0 0 6px;
+}
+
+p {
+  margin: 0;
+  color: #5e6a7d;
+}
+
+section {
+  background: #ffffff;
+  border: 1px solid #dde3ee;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin: 0 0 24px;
+}
+
+dt {
+  color: #5e6a7d;
+  font-size: 0.875rem;
+}
+
+dd {
+  margin: 4px 0 0;
+  font-weight: 700;
+}
+
+form {
+  display: grid;
+  gap: 14px;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+}
+
+input,
+textarea,
+button {
+  border-radius: 6px;
+  font: inherit;
+}
+
+input,
+textarea {
+  border: 1px solid #c7d0df;
+  padding: 10px 12px;
+}
+
+button {
+  min-height: 42px;
+  border: 0;
+  background: #166534;
+  color: #ffffff;
+  font-weight: 700;
+  padding: 0 18px;
+}
+
+.secondary {
+  background: #334155;
+}
+
+.message {
+  color: #14532d;
+  font-weight: 700;
+}
