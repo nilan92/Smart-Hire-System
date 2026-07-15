@@ -1,0 +1,28 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="brand">
+      <div class="logo">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7z"/></svg>
+      </div>
+      <h2>Secure Portal</h2>
+      <p>Enter 4-Digit Admin PIN (0000)</p>
+    </div>
+    
+    <div class="pin-display" [class.error-shake]="error">
+      <div class="pin-dot" *ngFor="let dot of [1,2,3,4]; let i = index" [class.filled]="pin.length > i"></div>
+    </div>
+    
+    <div *ngIf="error" class="error-msg">
+      Incorrect PIN. Try again.
+    </div>
+    
+    <div class="keypad">
+      <button *ngFor="let num of [1,2,3,4,5,6,7,8,9]" (click)="addNumber(num)">{{ num }}</button>
+      <button class="empty-btn"></button>
+      <button (click)="addNumber(0)">0</button>
+      <button class="delete-btn" (click)="deleteNumber()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>

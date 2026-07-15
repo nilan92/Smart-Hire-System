@@ -1,0 +1,34 @@
+<div class="admin-page-container">
+  <div class="admin-header">
+    <h2>Service Moderation</h2>
+    <p>Review and moderate provider listings to ensure platform quality.</p>
+  </div>
+
+  <div class="table-container">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Service ID</th>
+          <th>Title</th>
+          <th>Provider</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let service of services">
+          <td>#{{ service.id }}</td>
+          <td class="font-medium">{{ service.title }}</td>
+          <td>{{ service.provider }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="service.status">{{ service.status }}</span>
+          </td>
+          <td class="actions-cell">
+            <button class="action-btn" (click)="updateStatus(service, 'active')" *ngIf="service.status !== 'active'">Approve</button>
+            <button class="action-btn text-red" (click)="updateStatus(service, 'rejected')" *ngIf="service.status !== 'rejected'">Reject</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

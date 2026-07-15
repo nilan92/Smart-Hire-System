@@ -1,0 +1,60 @@
+<div class="review-container">
+  <div class="review-card">
+    <header class="review-header">
+      <h2>Leave a Review</h2>
+      <p>How was your experience with the service?</p>
+    </header>
+
+    <div *ngIf="status !== 'success'" class="review-body">
+      
+      <div *ngIf="status === 'error'" class="error-banner">
+        {{ errorMessage }}
+      </div>
+
+      <div class="rating-section" (mouseleave)="setHover(0)">
+        <p class="label">Rate your experience</p>
+        <div class="stars">
+          <button 
+            *ngFor="let star of [1, 2, 3, 4, 5]" 
+            type="button" 
+            class="star-btn"
+            [class.active]="star <= (hoverRating || rating)"
+            (mouseenter)="setHover(star)"
+            (click)="setRating(star)"
+            [disabled]="status === 'submitting'"
+          >
+            ★
+          </button>
+        </div>
+      </div>
+
+      <div class="comment-section">
+        <label for="comment">Tell us more about it (optional)</label>
+        <textarea 
+          id="comment" 
+          rows="4" 
+          placeholder="What did you like or dislike?" 
+          [(ngModel)]="comment"
+          [disabled]="status === 'submitting'"
+        ></textarea>
+      </div>
+
+      <button 
+        class="submit-btn" 
+        (click)="submitReview()" 
+        [disabled]="status === 'submitting'"
+      >
+        <span *ngIf="status !== 'submitting'">Submit Review</span>
+        <span *ngIf="status === 'submitting'">Submitting...</span>
+      </button>
+    </div>
+
+    <div *ngIf="status === 'success'" class="success-state">
+      <div class="success-icon">✓</div>
+      <h3>Thank You!</h3>
+      <p>Your review has been submitted successfully. It helps our community make better decisions.</p>
+      <button class="submit-btn outline">Back to Bookings</button>
+    </div>
+
+  </div>
+</div>
