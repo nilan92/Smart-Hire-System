@@ -1,6 +1,6 @@
 .admin-wrapper {
   display: flex;
-  min-height: 100vh;
+  min-height: calc(100vh - 64px);
   background-color: #f3f4f6;
   font-family: 'Inter', sans-serif;
 }
