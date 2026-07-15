@@ -10,14 +10,10 @@
   gap: 2px;
 }
 
-.star {
-  color: #e5e7eb;
-  font-size: 1.25rem;
-  line-height: 1;
-
-  &.filled {
-    color: #fbbf24;
-  }
+.star-svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  display: block;
 }
 
 .rating-text {

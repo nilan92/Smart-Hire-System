@@ -2,11 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-submit-review-form',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './submit-review-form.html',
   styleUrls: ['./submit-review-form.scss']
 })
@@ -59,7 +61,7 @@ export class SubmitReviewFormComponent implements OnInit {
       comment: this.comment
     };
 
-    this.http.post('http://localhost:8000/api/reviews/', payload).subscribe({
+    this.http.post(`${environment.apiUrl}/reviews/`, payload).subscribe({
       next: () => {
         this.status = 'success';
       },

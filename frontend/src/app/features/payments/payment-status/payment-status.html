@@ -1,69 +1,89 @@
 <div class="payment-container">
   <div class="payment-card">
     <div class="academic-notice">
-      <svg class="icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <svg class="icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
       <span>This is a simulated payment gateway for academic demonstration.</span>
     </div>
 
     <header class="payment-header">
       <h2>Complete Your Payment</h2>
-      <p class="amount">Total: <strong>${{ amount.toFixed(2) }}</strong></p>
+      <p class="amount">Total: <strong>LKR {{ amount.toFixed(2) }}</strong></p>
     </header>
 
-    <div *ngIf="paymentStatus === 'pending'" class="payment-methods">
-      <h3>Select Payment Method</h3>
-      
-      <label class="method-option" [class.selected]="selectedMethod === 'card'">
-        <input type="radio" name="method" value="card" [(ngModel)]="selectedMethod">
-        <div class="method-details">
-          <svg class="icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-          <span>Credit / Debit Card (Simulated)</span>
-        </div>
-      </label>
+    @if (paymentStatus === 'pending') {
+      <div class="payment-methods">
+        <h3>Select Payment Method</h3>
+        
+        <label class="method-option" [class.selected]="selectedMethod === 'card'">
+          <input type="radio" name="method" value="card" [(ngModel)]="selectedMethod">
+          <div class="method-details">
+            <svg class="icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+            </svg>
+            <span>Credit / Debit Card (Simulated)</span>
+          </div>
+        </label>
 
-      <label class="method-option" [class.selected]="selectedMethod === 'bank'">
-        <input type="radio" name="method" value="bank" [(ngModel)]="selectedMethod">
-        <div class="method-details">
-          <svg class="icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-          <span>Bank Transfer (Simulated)</span>
-        </div>
-      </label>
+        <label class="method-option" [class.selected]="selectedMethod === 'bank'">
+          <input type="radio" name="method" value="bank" [(ngModel)]="selectedMethod">
+          <div class="method-details">
+            <svg class="icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+            <span>Bank Transfer (Simulated)</span>
+          </div>
+        </label>
 
-      <label class="method-option" [class.selected]="selectedMethod === 'cash'">
-        <input type="radio" name="method" value="cash" [(ngModel)]="selectedMethod">
-        <div class="method-details">
-          <svg class="icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-          <span>Cash on Delivery</span>
-        </div>
-      </label>
+        <label class="method-option" [class.selected]="selectedMethod === 'cash'">
+          <input type="radio" name="method" value="cash" [(ngModel)]="selectedMethod">
+          <div class="method-details">
+            <svg class="icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            <span>Cash on Delivery</span>
+          </div>
+        </label>
 
-      <button class="pay-btn" (click)="processPayment()">
-        Confirm Payment
-      </button>
-    </div>
-
-    <div *ngIf="paymentStatus === 'processing'" class="processing-state">
-      <div class="spinner"></div>
-      <p>Processing your payment...</p>
-    </div>
-
-    <div *ngIf="paymentStatus === 'completed'" class="success-state">
-      <div class="success-icon">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <button class="pay-btn" (click)="processPayment()">
+          Confirm Payment
+        </button>
       </div>
-      <h3>Payment Successful!</h3>
-      <p>Your payment of <strong>${{ amount.toFixed(2) }}</strong> was received.</p>
-      <p class="transaction-id">Transaction ID: {{ transactionId }}</p>
-      <button class="pay-btn outline">Return to Bookings</button>
-    </div>
+    }
 
-    <div *ngIf="paymentStatus === 'failed'" class="error-state">
-      <div class="error-icon">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    @if (paymentStatus === 'processing') {
+      <div class="processing-state">
+        <div class="spinner"></div>
+        <p>Processing your payment...</p>
       </div>
-      <h3>Payment Failed</h3>
-      <p>There was an issue processing your payment. Please try again.</p>
-      <button class="pay-btn outline" (click)="paymentStatus = 'pending'">Try Again</button>
-    </div>
+    }
+
+    @if (paymentStatus === 'completed') {
+      <div class="success-state">
+        <div class="success-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" class="icon-svg">
+            <path d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+        <h3>Payment Successful!</h3>
+        <p>Your payment of <strong>LKR {{ amount.toFixed(2) }}</strong> was received.</p>
+        <p class="transaction-id">Transaction ID: {{ transactionId }}</p>
+        <button class="pay-btn outline" [routerLink]="['/customer/profile']">Return to Bookings</button>
+      </div>
+    }
+
+    @if (paymentStatus === 'failed') {
+      <div class="error-state">
+        <div class="error-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" class="icon-svg">
+            <path d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </div>
+        <h3>Payment Failed</h3>
+        <p>There was an issue processing your payment. Please try again.</p>
+        <button class="pay-btn outline" (click)="paymentStatus = 'pending'">Try Again</button>
+      </div>
+    }
   </div>
 </div>

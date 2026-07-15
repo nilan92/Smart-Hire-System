@@ -1,44 +1,145 @@
-<div class="payments-container">
-  <header class="page-header">
-    <div class="header-content">
-      <div>
-        <h1>Payment Ledger</h1>
-        <p>Monitor all incoming transactions and platform revenue.</p>
+<div class="page-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+          <line x1="1" y1="10" x2="23" y2="10"></line>
+        </svg>
       </div>
-      <div class="search-box">
-        <input type="text" placeholder="Search payments..." [(ngModel)]="searchTerm">
+      <div>
+        <h1>Payment Management</h1>
+        <p>Monitor and manage all platform payments</p>
       </div>
     </div>
-  </header>
-
-  <div class="table-card">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Transaction ID</th>
-          <th>Booking ID</th>
-          <th>Customer</th>
-          <th>Amount</th>
-          <th>Method</th>
-          <th>Date</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let p of filteredPayments">
-          <td class="font-mono text-gray">{{ p.id }}</td>
-          <td><span class="booking-badge">#{{ p.bookingId }}</span></td>
-          <td class="font-medium">{{ p.customer }}</td>
-          <td class="amount">${{ p.amount.toFixed(2) }}</td>
-          <td>{{ p.method }}</td>
-          <td class="text-gray">{{ p.date | date:'short' }}</td>
-          <td>
-            <span class="status-badge" [ngClass]="p.status.toLowerCase()">
-              {{ p.status }}
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <button class="btn-refresh" id="refresh-payments-btn" (click)="fetchPayments()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <polyline points="1 20 1 14 7 14"></polyline>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      </svg>
+      Refresh
+    </button>
   </div>
+
+  @if (loading) {
+    <div class="state-container">
+      <div class="spinner"></div>
+      <p>Loading payments...</p>
+    </div>
+  }
+
+  @if (!loading && error) {
+    <div class="state-container error-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <p>{{ error }}</p>
+      <button class="btn-primary" (click)="fetchPayments()">Try Again</button>
+    </div>
+  }
+
+  @if (!loading && !error) {
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+      <div class="summary-card border-blue">
+        <div class="summary-icon bg-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+            <line x1="1" y1="10" x2="23" y2="10"></line>
+          </svg>
+        </div>
+        <div class="summary-content">
+          <p class="summary-label">Total Transactions</p>
+          <p class="summary-value">{{ totalCount }}</p>
+        </div>
+      </div>
+      <div class="summary-card border-green">
+        <div class="summary-icon bg-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+        </div>
+        <div class="summary-content">
+          <p class="summary-label">Total Revenue (Completed)</p>
+          <p class="summary-value">LKR {{ totalRevenue | number:'1.2-2' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+      <div class="table-header">
+        <h2>All Payments</h2>
+        <span class="count-badge">{{ totalCount }} records</span>
+      </div>
+      <div class="table-wrapper">
+        <table id="payments-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Booking ID</th>
+              <th>Customer ID</th>
+              <th>Amount (LKR)</th>
+              <th>Status</th>
+              <th>Method</th>
+              <th>Transaction ID</th>
+              <th>Date</th>
+              <th>Change Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (payment of payments; track payment.id) {
+              <tr>
+                <td class="id-cell">#{{ payment.id }}</td>
+                <td>#{{ payment.booking_id }}</td>
+                <td>#{{ payment.customer_id }}</td>
+                <td class="amount-cell">{{ payment.amount | number:'1.2-2' }}</td>
+                <td>
+                  <span class="badge" [ngClass]="getStatusClass(payment.status)">
+                    {{ payment.status | titlecase }}
+                  </span>
+                </td>
+                <td class="method-cell">{{ payment.payment_method }}</td>
+                <td class="txn-cell">{{ payment.transaction_id }}</td>
+                <td class="date-cell">{{ formatDate(payment.created_at) }}</td>
+                <td>
+                  <div class="select-wrapper" [class.updating]="payment.updatingStatus">
+                    <select
+                      [value]="payment.status"
+                      [disabled]="payment.updatingStatus"
+                      (change)="onStatusChange(payment, $any($event.target).value)"
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="completed">Completed</option>
+                      <option value="failed">Failed</option>
+                      <option value="refunded">Refunded</option>
+                    </select>
+                    @if (payment.updatingStatus) {
+                      <div class="select-spinner"></div>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+            @empty {
+              <tr>
+                <td colspan="9" class="empty-row">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                    <line x1="1" y1="10" x2="23" y2="10"></line>
+                  </svg>
+                  <p>No payments found</p>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
 </div>

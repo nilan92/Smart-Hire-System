@@ -1,56 +1,227 @@
-<main class="profile-page">
-  <header>
-    <div>
-      <h1>Provider profile</h1>
-      <p>{{ user?.email }}</p>
+<div class="dashboard-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo-mark">SH</div>
+      <span>Smart Hire</span>
     </div>
-  </header>
 
-  @if (loading) {
-    <p>Loading provider profile...</p>
-  } @else {
-    <section>
-      <dl>
-        <div>
-          <dt>Status</dt>
-          <dd>{{ user?.status }}</dd>
-        </div>
-        <div>
-          <dt>Verification</dt>
-          <dd>{{ providerProfile?.verification_status }}</dd>
-        </div>
-        <div>
-          <dt>Rating</dt>
-          <dd>{{ providerProfile?.avg_rating }} / 5</dd>
-        </div>
-        <div>
-          <dt>Reviews</dt>
-          <dd>{{ providerProfile?.total_reviews }}</dd>
-        </div>
-      </dl>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" id="nav-dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item" id="nav-services">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        My Services
+      </a>
+      <a class="nav-item" id="nav-bookings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Incoming Jobs
+      </a>
+      <a class="nav-item" id="nav-earnings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Earnings
+      </a>
+      <a class="nav-item" id="nav-reviews">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Reviews
+      </a>
+    </nav>
 
-      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
-        <label>
-          Full name
-          <input type="text" formControlName="full_name" />
-        </label>
-        <label>
-          Phone
-          <input type="tel" formControlName="phone" />
-        </label>
-        <label>
-          Bio
-          <textarea formControlName="bio" rows="5"></textarea>
-        </label>
-        <label>
-          Years of experience
-          <input type="number" formControlName="years_experience" min="0" />
-        </label>
-        @if (message) {
-          <p class="message">{{ message }}</p>
-        }
-        <button type="submit" [disabled]="saving">{{ saving ? 'Saving...' : 'Save changes' }}</button>
-      </form>
-    </section>
-  }
-</main>
+    <div class="sidebar-footer">
+      <button class="logout-btn" id="logout-btn" (click)="logout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main-content">
+    @if (loading) {
+      <div class="loading-state">
+        <div class="loader-ring"></div>
+        <p>Loading your provider dashboard…</p>
+      </div>
+    } @else {
+
+      <!-- Top bar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1>Provider Dashboard</h1>
+          <p>Welcome back, <strong>{{ user?.full_name || user?.email }}</strong> 👷</p>
+        </div>
+        <div class="topbar-right">
+          <div class="verification-badge {{ providerProfile?.verification_status }}">
+            {{ providerProfile?.verification_status === 'verified' ? '✅ Verified' : '⏳ ' + (providerProfile?.verification_status || 'Unverified') }}
+          </div>
+          <div class="avatar" id="provider-avatar">{{ (user?.full_name || user?.email || 'P')[0].toUpperCase() }}</div>
+        </div>
+      </header>
+
+      <!-- Stats strip -->
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-icon">📦</div>
+          <div class="stat-info">
+            <span class="stat-value">2</span>
+            <span class="stat-label">Active Jobs</span>
+          </div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon">✅</div>
+          <div class="stat-info">
+            <span class="stat-value">47</span>
+            <span class="stat-label">Completed Jobs</span>
+          </div>
+        </div>
+        <div class="stat-card gold">
+          <div class="stat-icon">💰</div>
+          <div class="stat-info">
+            <span class="stat-value">LKR 142,500</span>
+            <span class="stat-label">Total Earned</span>
+          </div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-icon">⭐</div>
+          <div class="stat-info">
+            <span class="stat-value">{{ providerProfile?.avg_rating || '—' }} / 5</span>
+            <span class="stat-label">Avg Rating ({{ providerProfile?.total_reviews || 0 }} reviews)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile + Jobs -->
+      <div class="content-grid">
+
+        <!-- Profile card -->
+        <div class="card profile-card">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Provider Profile
+          </div>
+
+          <div class="profile-avatar-lg">{{ (user?.full_name || user?.email || 'P')[0].toUpperCase() }}</div>
+
+          <div class="rating-row">
+            <span class="stars">
+              @for (s of [1,2,3,4,5]; track s) {
+                <span [class.filled]="s <= +(providerProfile?.avg_rating || 0)">★</span>
+              }
+            </span>
+            <span class="rating-text">{{ providerProfile?.avg_rating || '0.0' }} ({{ providerProfile?.total_reviews || 0 }} reviews)</span>
+          </div>
+
+          <form [formGroup]="form" (ngSubmit)="save()" novalidate id="provider-profile-form">
+            <div class="field-group">
+              <label for="prov-name">Full Name</label>
+              <input id="prov-name" type="text" formControlName="full_name" placeholder="Your full name" />
+              @if (form.controls.full_name.touched && form.controls.full_name.invalid) {
+                <small class="field-error">Name must be at least 2 characters.</small>
+              }
+            </div>
+            <div class="field-group">
+              <label for="prov-phone">Phone Number</label>
+              <input id="prov-phone" type="tel" formControlName="phone" placeholder="+94 7X XXX XXXX" />
+            </div>
+            <div class="field-group">
+              <label for="prov-bio">Bio / Description</label>
+              <textarea id="prov-bio" formControlName="bio" rows="3" placeholder="Describe your expertise and services…"></textarea>
+            </div>
+            <div class="field-group">
+              <label for="prov-experience">Years of Experience</label>
+              <input id="prov-experience" type="number" formControlName="years_experience" min="0" />
+            </div>
+
+            <div class="readonly-field">
+              <label>Email</label>
+              <div class="readonly-value">{{ user?.email }}</div>
+            </div>
+            <div class="readonly-field">
+              <label>Status</label>
+              <div class="status-badge {{ user?.status }}">{{ user?.status }}</div>
+            </div>
+
+            @if (message) {
+              <div class="save-msg {{ message.includes('Unable') ? 'error' : 'success' }}">{{ message }}</div>
+            }
+            <button id="save-provider-btn" type="submit" class="btn-save" [disabled]="saving">
+              {{ saving ? 'Saving...' : '💾 Save Profile' }}
+            </button>
+          </form>
+        </div>
+
+        <!-- Jobs + Performance -->
+        <div class="right-col">
+          <div class="card">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              Incoming Job Requests
+            </div>
+
+            <div class="booking-list">
+              <div class="booking-item">
+                <div class="booking-icon electrical">⚡</div>
+                <div class="booking-info">
+                  <span class="booking-service">Electrical Wiring – 3 Rooms</span>
+                  <span class="booking-meta">Nilan Tharaka • Colombo 07 • Jul 17, 2026</span>
+                </div>
+                <div class="job-actions">
+                  <button class="accept-btn" id="accept-job-1">✓ Accept</button>
+                  <button class="decline-btn" id="decline-job-1">✗</button>
+                </div>
+              </div>
+              <div class="booking-item">
+                <div class="booking-icon plumbing">🔧</div>
+                <div class="booking-info">
+                  <span class="booking-service">Pipe Leak Repair</span>
+                  <span class="booking-meta">Saman Kumara • Nugegoda • Jul 18, 2026</span>
+                </div>
+                <div class="job-actions">
+                  <button class="accept-btn" id="accept-job-2">✓ Accept</button>
+                  <button class="decline-btn" id="decline-job-2">✗</button>
+                </div>
+              </div>
+              <div class="booking-item in-progress">
+                <div class="booking-icon cleaning">🧹</div>
+                <div class="booking-info">
+                  <span class="booking-service">Deep Cleaning – 4BHK</span>
+                  <span class="booking-meta">Malini Perera • Kandy • In Progress</span>
+                </div>
+                <span class="booking-status active">In Progress</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Earnings summary -->
+          <div class="card" style="margin-top: 20px;">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              Earnings Overview
+            </div>
+            <div class="earnings-grid">
+              <div class="earn-item">
+                <span class="earn-label">This Month</span>
+                <span class="earn-value">LKR 24,500</span>
+              </div>
+              <div class="earn-item">
+                <span class="earn-label">Last Month</span>
+                <span class="earn-value">LKR 31,200</span>
+              </div>
+              <div class="earn-item">
+                <span class="earn-label">Pending Payout</span>
+                <span class="earn-value pend">LKR 8,750</span>
+              </div>
+              <div class="earn-item">
+                <span class="earn-label">Total All Time</span>
+                <span class="earn-value total">LKR 142,500</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </main>
+</div>

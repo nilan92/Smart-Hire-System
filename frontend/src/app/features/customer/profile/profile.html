@@ -1,40 +1,189 @@
-<main class="profile-page">
-  <header>
-    <div>
-      <h1>Customer profile</h1>
-      <p>{{ user?.email }}</p>
+<div class="dashboard-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo-mark">SH</div>
+      <span>Smart Hire</span>
     </div>
-  </header>
 
-  @if (loading) {
-    <p>Loading profile...</p>
-  } @else {
-    <section>
-      <dl>
-        <div>
-          <dt>Role</dt>
-          <dd>{{ user?.role }}</dd>
-        </div>
-        <div>
-          <dt>Status</dt>
-          <dd>{{ user?.status }}</dd>
-        </div>
-      </dl>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" id="nav-dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item" id="nav-browse">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Browse Services
+      </a>
+      <a class="nav-item" id="nav-bookings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        My Bookings
+      </a>
+      <a class="nav-item" id="nav-payments">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Payments
+      </a>
+      <a class="nav-item" id="nav-reviews">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        My Reviews
+      </a>
+    </nav>
 
-      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
-        <label>
-          Full name
-          <input type="text" formControlName="full_name" />
-        </label>
-        <label>
-          Phone
-          <input type="tel" formControlName="phone" />
-        </label>
-        @if (message) {
-          <p class="message">{{ message }}</p>
-        }
-        <button type="submit" [disabled]="saving">{{ saving ? 'Saving...' : 'Save changes' }}</button>
-      </form>
-    </section>
-  }
-</main>
+    <div class="sidebar-footer">
+      <button class="logout-btn" id="logout-btn" (click)="logout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main-content">
+    @if (loading) {
+      <div class="loading-state">
+        <div class="loader-ring"></div>
+        <p>Loading your dashboard…</p>
+      </div>
+    } @else {
+
+      <!-- Top bar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1>My Dashboard</h1>
+          <p>Welcome back, <strong>{{ user?.full_name || user?.email }}</strong> 👋</p>
+        </div>
+        <div class="topbar-right">
+          <div class="avatar" id="user-avatar">{{ (user?.full_name || user?.email || 'C')[0].toUpperCase() }}</div>
+        </div>
+      </header>
+
+      <!-- Stats strip -->
+      <div class="stats-grid">
+        <div class="stat-card teal">
+          <div class="stat-icon">📋</div>
+          <div class="stat-info">
+            <span class="stat-value">3</span>
+            <span class="stat-label">Active Bookings</span>
+          </div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon">✅</div>
+          <div class="stat-info">
+            <span class="stat-value">12</span>
+            <span class="stat-label">Completed Jobs</span>
+          </div>
+        </div>
+        <div class="stat-card gold">
+          <div class="stat-icon">💰</div>
+          <div class="stat-info">
+            <span class="stat-value">LKR 28,500</span>
+            <span class="stat-label">Total Spent</span>
+          </div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-icon">⭐</div>
+          <div class="stat-info">
+            <span class="stat-value">5</span>
+            <span class="stat-label">Reviews Given</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile + Activity -->
+      <div class="content-grid">
+
+        <!-- Profile card -->
+        <div class="card profile-card">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Profile Details
+          </div>
+
+          <div class="profile-avatar-lg">{{ (user?.full_name || user?.email || 'C')[0].toUpperCase() }}</div>
+
+          <form [formGroup]="form" (ngSubmit)="save()" novalidate id="profile-form">
+            <div class="field-group">
+              <label for="profile-name">Full Name</label>
+              <input id="profile-name" type="text" formControlName="full_name" placeholder="Your full name" />
+              @if (form.controls.full_name.touched && form.controls.full_name.invalid) {
+                <small class="field-error">Name must be at least 2 characters.</small>
+              }
+            </div>
+            <div class="field-group">
+              <label for="profile-phone">Phone Number</label>
+              <input id="profile-phone" type="tel" formControlName="phone" placeholder="+94 7X XXX XXXX" />
+            </div>
+            <div class="readonly-field">
+              <label>Email</label>
+              <div class="readonly-value">{{ user?.email }}</div>
+            </div>
+            <div class="readonly-field">
+              <label>Account Status</label>
+              <div class="status-badge {{ user?.status }}">{{ user?.status }}</div>
+            </div>
+            @if (message) {
+              <div class="save-msg {{ message.includes('Unable') ? 'error' : 'success' }}">{{ message }}</div>
+            }
+            <button id="save-profile-btn" type="submit" class="btn-save" [disabled]="saving">
+              {{ saving ? 'Saving...' : '💾 Save Changes' }}
+            </button>
+          </form>
+        </div>
+
+        <!-- Recent activity -->
+        <div class="card activity-card">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Recent Bookings
+          </div>
+
+          <div class="booking-list">
+            <div class="booking-item">
+              <div class="booking-icon electrical">⚡</div>
+              <div class="booking-info">
+                <span class="booking-service">Electrical Repair</span>
+                <span class="booking-meta">Kamal Silva • Jul 12, 2026</span>
+              </div>
+              <span class="booking-status completed">Completed</span>
+            </div>
+            <div class="booking-item">
+              <div class="booking-icon plumbing">🔧</div>
+              <div class="booking-info">
+                <span class="booking-service">Plumbing Fix</span>
+                <span class="booking-meta">Sunil Perera • Jul 10, 2026</span>
+              </div>
+              <span class="booking-status completed">Completed</span>
+            </div>
+            <div class="booking-item">
+              <div class="booking-icon cleaning">🧹</div>
+              <div class="booking-info">
+                <span class="booking-service">Home Cleaning</span>
+                <span class="booking-meta">Nirmala De Silva • Jul 15, 2026</span>
+              </div>
+              <span class="booking-status active">Scheduled</span>
+            </div>
+            <div class="booking-item">
+              <div class="booking-icon paint">🎨</div>
+              <div class="booking-info">
+                <span class="booking-service">Wall Painting</span>
+                <span class="booking-meta">Roshan Fernando • Jul 18, 2026</span>
+              </div>
+              <span class="booking-status active">Upcoming</span>
+            </div>
+          </div>
+
+          <div class="card-title" style="margin-top:28px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Quick Actions
+          </div>
+          <div class="quick-actions">
+            <button class="action-btn" id="action-browse">🔍 Find a Provider</button>
+            <button class="action-btn" id="action-payment" [routerLink]="['/payments/status']">💳 Dummy Payment</button>
+          </div>
+        </div>
+
+      </div>
+    }
+  </main>
+</div>

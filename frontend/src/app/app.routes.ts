@@ -80,5 +80,10 @@ export const routes: Routes = [
       },
     ],
   },
+  {
+    path: 'payments/status',
+    loadComponent: () =>
+      import('./features/payments/payment-status/payment-status').then((m) => m.PaymentStatusComponent),
+  },
   { path: '**', redirectTo: 'login' },
 ];

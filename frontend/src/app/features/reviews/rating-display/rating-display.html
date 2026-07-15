@@ -1,7 +1,19 @@
 <div class="rating-display">
   <div class="stars">
-    <span *ngFor="let filled of stars" class="star" [class.filled]="filled">★</span>
+    @for (filled of stars; track $index) {
+      <svg viewBox="0 0 24 24" 
+           [attr.fill]="filled ? '#fbbf24' : 'none'" 
+           [attr.stroke]="filled ? '#fbbf24' : '#d1d5db'" 
+           stroke-width="1.5" 
+           class="star-svg">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+      </svg>
+    }
   </div>
-  <span class="rating-text" *ngIf="rating > 0">{{ rating.toFixed(1) }}</span>
-  <span class="review-count" *ngIf="showCount">({{ reviewCount }} reviews)</span>
+  @if (rating > 0) {
+    <span class="rating-text">{{ rating.toFixed(1) }}</span>
+  }
+  @if (showCount) {
+    <span class="review-count">({{ reviewCount }} reviews)</span>
+  }
 </div>

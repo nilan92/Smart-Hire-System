@@ -1,6 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
+
+interface Payment {
+  id: number;
+  booking_id: number;
+  customer_id: number;
+  amount: number;
+  status: 'pending' | 'completed' | 'failed' | 'refunded';
+  payment_method: string;
+  transaction_id: string;
+  created_at: string;
+  updatingStatus?: boolean;
+}
 
 @Component({
   selector: 'app-payment-management',
@@ -10,27 +24,75 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./payment-management.scss']
 })
 export class PaymentManagementComponent implements OnInit {
-  payments = [
-    { id: 'TXN-1001', bookingId: 301, customer: 'Alice', amount: 150.00, method: 'Credit Card', status: 'Completed', date: '2026-07-15T10:06:00Z' },
-    { id: 'TXN-1002', bookingId: 302, customer: 'Alice', amount: 89.99, method: 'PayPal', status: 'Pending', date: '2026-07-15T10:10:00Z' },
-    { id: 'TXN-1003', bookingId: 303, customer: 'Charlie', amount: 250.00, method: 'Stripe', status: 'Completed', date: '2026-07-15T09:45:00Z' },
-    { id: 'TXN-1004', bookingId: 304, customer: 'Charlie', amount: 12.50, method: 'Credit Card', status: 'Failed', date: '2026-07-14T16:20:00Z' }
-  ];
+  payments: Payment[] = [];
+  loading = true;
+  error = '';
 
-  searchTerm: string = '';
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
-  get filteredPayments() {
-    if (!this.searchTerm) return this.payments;
-    const lower = this.searchTerm.toLowerCase();
-    return this.payments.filter(p => 
-      p.customer.toLowerCase().includes(lower) || 
-      p.id.toLowerCase().includes(lower) ||
-      p.status.toLowerCase().includes(lower) ||
-      p.method.toLowerCase().includes(lower)
-    );
+  ngOnInit(): void {
+    this.fetchPayments();
   }
 
-  constructor() {}
+  fetchPayments(): void {
+    this.loading = true;
+    this.error = '';
+    this.http.get<Payment[]>(`${environment.apiUrl}/admin/payments`).subscribe({
+      next: (data) => {
+        this.payments = data;
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load payments:', err);
+        this.error = 'Failed to load payment data. Please try again.';
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
-  ngOnInit(): void {}
+  get totalCount(): number {
+    return this.payments.length;
+  }
+
+  get totalRevenue(): number {
+    return this.payments
+      .filter(p => p.status === 'completed')
+      .reduce((sum, p) => sum + p.amount, 0);
+  }
+
+  onStatusChange(payment: Payment, newStatus: string): void {
+    payment.updatingStatus = true;
+    this.http
+      .put(`${environment.apiUrl}/admin/payments/${payment.id}/status`, { status: newStatus })
+      .subscribe({
+        next: () => {
+          payment.status = newStatus as Payment['status'];
+          payment.updatingStatus = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to update payment status:', err);
+          payment.updatingStatus = false;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  getStatusClass(status: string): string {
+    const map: Record<string, string> = {
+      completed: 'badge-success',
+      pending: 'badge-warning',
+      failed: 'badge-danger',
+      refunded: 'badge-grey'
+    };
+    return map[status] ?? 'badge-grey';
+  }
+
+  formatDate(dateStr: string): string {
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'short', day: 'numeric'
+    });
+  }
 }

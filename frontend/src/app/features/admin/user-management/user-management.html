@@ -1,39 +1,157 @@
-<div class="admin-page-container">
-  <div class="admin-header">
-    <h2>User Management</h2>
-    <p>Manage customers and service providers on the platform.</p>
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+      </div>
+      <div>
+        <h1>User Management</h1>
+        <p>Manage all platform users and their access</p>
+      </div>
+    </div>
+    <button class="btn-refresh" id="refresh-users-btn" (click)="fetchUsers()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <polyline points="1 20 1 14 7 14"></polyline>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      </svg>
+      Refresh
+    </button>
   </div>
 
-  <div class="table-container">
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Role</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let user of users">
-          <td>#{{ user.id }}</td>
-          <td class="font-medium">{{ user.name }}</td>
-          <td>{{ user.email }}</td>
-          <td>
-            <span class="role-badge" [ngClass]="user.role">{{ user.role }}</span>
-          </td>
-          <td>
-            <span class="status-badge" [ngClass]="user.status">{{ user.status }}</span>
-          </td>
-          <td>
-            <button class="action-btn" (click)="toggleStatus(user)">
-              {{ user.status === 'active' ? 'Suspend' : 'Activate' }}
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  @if (loading) {
+    <div class="state-container">
+      <div class="spinner"></div>
+      <p>Loading users...</p>
+    </div>
+  }
+
+  @if (!loading && error) {
+    <div class="state-container error-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <p>{{ error }}</p>
+      <button class="btn-primary" (click)="fetchUsers()">Try Again</button>
+    </div>
+  }
+
+  @if (!loading && !error) {
+    <div class="controls-row">
+      <div class="search-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input
+          id="user-search-input"
+          type="text"
+          class="search-input"
+          placeholder="Search by name or email..."
+          [(ngModel)]="searchQuery"
+        />
+        @if (searchQuery) {
+          <button class="search-clear" id="clear-search-btn" (click)="clearSearch()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        }
+      </div>
+      <div class="role-tabs">
+        @for (tab of [{value:'all',label:'All'},{value:'admin',label:'Admin'},{value:'provider',label:'Provider'},{value:'customer',label:'Customer'}]; track tab.value) {
+          <button class="role-tab" [class.active]="selectedRole === tab.value" (click)="setRoleFilter(tab.value)" [id]="'role-tab-' + tab.value">
+            {{ tab.label }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <h2>Users</h2>
+        <span class="count-badge">{{ filteredUsers.length }} of {{ totalCount }}</span>
+      </div>
+      <div class="table-wrapper">
+        <table id="users-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Email Verified</th>
+              <th>Joined</th>
+              <th>Change Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of filteredUsers; track user.id) {
+              <tr>
+                <td class="id-cell">#{{ user.id }}</td>
+                <td>
+                  <div class="user-name-cell">
+                    <div class="avatar">{{ getInitial(user) }}</div>
+                    <span>{{ user.full_name }}</span>
+                  </div>
+                </td>
+                <td class="email-cell">{{ user.email }}</td>
+                <td><span class="badge" [ngClass]="getRoleBadgeClass(user.role)">{{ user.role | titlecase }}</span></td>
+                <td><span class="badge" [ngClass]="getStatusBadgeClass(user.status)">{{ user.status | titlecase }}</span></td>
+                <td>
+                  @if (user.email_verified) {
+                    <span class="verified-chip verified">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      Verified
+                    </span>
+                  } @else {
+                    <span class="verified-chip unverified">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                      Not Verified
+                    </span>
+                  }
+                </td>
+                <td class="date-cell">{{ formatDate(user.created_at) }}</td>
+                <td>
+                  <div class="select-wrapper" [class.updating]="user.updatingStatus">
+                    <select [value]="user.status" [disabled]="user.updatingStatus" (change)="onStatusChange(user, $any($event.target).value)">
+                      <option value="active">Active</option>
+                      <option value="suspended">Suspended</option>
+                      <option value="deactivated">Deactivated</option>
+                    </select>
+                    @if (user.updatingStatus) {
+                      <div class="select-spinner"></div>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+            @empty {
+              <tr>
+                <td colspan="8" class="empty-row">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                  </svg>
+                  <p>No users match your search</p>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
 </div>
