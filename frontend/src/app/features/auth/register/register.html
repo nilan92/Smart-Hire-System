@@ -1,0 +1,87 @@
+<main class="auth-shell">
+  <section class="auth-panel">
+    <h1>Create account</h1>
+    <p>Register as a customer or service provider.</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <label>
+        Full name
+        <input type="text" formControlName="full_name" autocomplete="name" />
+        @if (form.controls.full_name.touched && form.controls.full_name.invalid) {
+          <small>Enter at least 2 characters.</small>
+        }
+      </label>
+
+      <label>
+        Email
+        <input type="email" formControlName="email" autocomplete="email" />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <small>Enter a valid email address.</small>
+        }
+      </label>
+
+      <label>
+        Phone
+        <input type="tel" formControlName="phone" autocomplete="tel" />
+        @if (form.controls.phone.touched && form.controls.phone.invalid) {
+          <small>Use 20 characters or fewer.</small>
+        }
+      </label>
+
+      <div class="role-row">
+        <label>
+          <input type="radio" formControlName="role" value="customer" />
+          Customer
+        </label>
+        <label>
+          <input type="radio" formControlName="role" value="provider" />
+          Provider
+        </label>
+      </div>
+
+      @if (isProvider()) {
+        <fieldset formGroupName="provider_profile">
+          <legend>Provider profile</legend>
+          <label>
+            Bio
+            <textarea formControlName="bio" rows="4"></textarea>
+          </label>
+          <label>
+            Years of experience
+            <input type="number" formControlName="years_experience" min="0" />
+            @if (
+              form.controls.provider_profile.controls.years_experience.touched &&
+              form.controls.provider_profile.controls.years_experience.invalid
+            ) {
+              <small>Enter 0 or more years.</small>
+            }
+          </label>
+        </fieldset>
+      }
+
+      <label>
+        Password
+        <input type="password" formControlName="password" autocomplete="new-password" />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <small>Use at least 8 characters.</small>
+        }
+      </label>
+
+      <label>
+        Confirm password
+        <input type="password" formControlName="confirm_password" autocomplete="new-password" />
+        @if (form.controls.confirm_password.touched && form.controls.confirm_password.invalid) {
+          <small>Confirm your password with at least 8 characters.</small>
+        }
+      </label>
+
+      @if (errorMessage) {
+        <div class="alert">{{ errorMessage }}</div>
+      }
+
+      <button type="submit" [disabled]="loading">{{ loading ? 'Creating...' : 'Create account' }}</button>
+    </form>
+
+    <a routerLink="/login">I already have an account</a>
+  </section>
+</main>

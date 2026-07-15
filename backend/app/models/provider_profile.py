@@ -34,7 +34,11 @@ class ProviderProfile(Base):
     bio: Mapped[str | None] = mapped_column(Text, nullable=True)
     years_experience: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     verification_status: Mapped[VerificationStatus] = mapped_column(
-        Enum(VerificationStatus, name="verification_status"),
+        Enum(
+            VerificationStatus,
+            name="verification_status",
+            values_callable=lambda enum_cls: [item.value for item in enum_cls],
+        ),
         nullable=False,
         default=VerificationStatus.UNVERIFIED,
     )

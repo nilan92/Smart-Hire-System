@@ -55,13 +55,13 @@ class User(Base):
     )
 
     role: Mapped[UserRole] = mapped_column(
-        Enum(UserRole, name="user_role"),
+        Enum(UserRole, name="user_role", values_callable=lambda enum_cls: [item.value for item in enum_cls]),
         nullable=False,
         default=UserRole.CUSTOMER,
     )
 
     status: Mapped[AccountStatus] = mapped_column(
-        Enum(AccountStatus, name="account_status"),
+        Enum(AccountStatus, name="account_status", values_callable=lambda enum_cls: [item.value for item in enum_cls]),
         nullable=False,
         default=AccountStatus.ACTIVE,
     )

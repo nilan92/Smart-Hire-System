@@ -1,0 +1,57 @@
+<main class="profile-page">
+  <header>
+    <div>
+      <h1>Provider profile</h1>
+      <p>{{ user?.email }}</p>
+    </div>
+    <button type="button" class="secondary" (click)="logout()">Logout</button>
+  </header>
+
+  @if (loading) {
+    <p>Loading provider profile...</p>
+  } @else {
+    <section>
+      <dl>
+        <div>
+          <dt>Status</dt>
+          <dd>{{ user?.status }}</dd>
+        </div>
+        <div>
+          <dt>Verification</dt>
+          <dd>{{ providerProfile?.verification_status }}</dd>
+        </div>
+        <div>
+          <dt>Rating</dt>
+          <dd>{{ providerProfile?.avg_rating }} / 5</dd>
+        </div>
+        <div>
+          <dt>Reviews</dt>
+          <dd>{{ providerProfile?.total_reviews }}</dd>
+        </div>
+      </dl>
+
+      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <label>
+          Full name
+          <input type="text" formControlName="full_name" />
+        </label>
+        <label>
+          Phone
+          <input type="tel" formControlName="phone" />
+        </label>
+        <label>
+          Bio
+          <textarea formControlName="bio" rows="5"></textarea>
+        </label>
+        <label>
+          Years of experience
+          <input type="number" formControlName="years_experience" min="0" />
+        </label>
+        @if (message) {
+          <p class="message">{{ message }}</p>
+        }
+        <button type="submit" [disabled]="saving">{{ saving ? 'Saving...' : 'Save changes' }}</button>
+      </form>
+    </section>
+  }
+</main>
