@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -14,7 +13,7 @@ export class LoginComponent {
   pin = '';
   error = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private router: Router) {}
 
   addNumber(num: number) {
     if (this.pin.length < 4) {
@@ -34,9 +33,9 @@ export class LoginComponent {
   }
 
   validatePin() {
-    if (this.authService.login(this.pin)) {
+    if (this.pin === '0000') {
       this.error = false;
-      this.router.navigate(['/admin']);
+      this.router.navigate(['/admin/dashboard']);
     } else {
       this.error = true;
       setTimeout(() => this.pin = '', 500);

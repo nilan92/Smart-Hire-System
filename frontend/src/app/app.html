@@ -1,2 +1,19 @@
+@if (showNavbar()) {
+  <header class="app-navbar">
+    <a class="brand" [routerLink]="homeLink()">
+      <span class="brand-mark">SH</span>
+      <span>Smart Hire</span>
+    </a>
+
+    <div class="account-area">
+      <div class="account-text">
+        <strong>{{ displayName() }}</strong>
+        <span>{{ roleLabel() }}</span>
+      </div>
+      <button type="button" class="logout-button" (click)="logout()">Logout</button>
+    </div>
+  </header>
+}
+
 <router-outlet></router-outlet>
 <app-toast></app-toast>

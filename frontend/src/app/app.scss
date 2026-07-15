@@ -1,0 +1,113 @@
+.app-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 64px;
+  padding: 0.75rem clamp(1rem, 3vw, 2rem);
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.06);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+  color: #111827;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.brand-mark {
+  display: inline-grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 0.85rem;
+  letter-spacing: 0;
+}
+
+.account-area {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.account-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.account-text strong,
+.account-text span {
+  max-width: min(38vw, 18rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-text strong {
+  color: #111827;
+  font-size: 0.95rem;
+}
+
+.account-text span {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.logout-button {
+  border: 0;
+  border-radius: 8px;
+  background: #111827;
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.65rem 0.95rem;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.logout-button:hover {
+  background: #1f2937;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 560px) {
+  .app-navbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .account-area {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .account-text {
+    align-items: flex-start;
+  }
+
+  .account-text strong,
+  .account-text span {
+    max-width: 58vw;
+  }
+}
