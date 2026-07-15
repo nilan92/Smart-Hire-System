@@ -1,0 +1,25 @@
+<div class="test-container">
+  <div class="test-header">
+    <h1>Test System / Presentation Mode</h1>
+    <p>Use this area to trigger simulated workflows and populate data for presentations.</p>
+  </div>
+
+  <div class="action-panel">
+    <div class="panel-section">
+      <h3>Data Seeding</h3>
+      <p>The mock database has been successfully seeded for this presentation! To avoid overloading the instance or creating foreign-key duplicates, the manual seeder has been locked.</p>
+      <div class="btn-group">
+        <button class="btn-seed" disabled>
+          ✅ Database Populated
+        </button>
+        <button class="btn-seed secondary" routerLink="/payments/status">
+          Simulate Dummy Payment Flow
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="statusMessage" class="status-banner" [class.success]="statusMessage.includes('✅')">
+    {{ statusMessage }}
+  </div>
+</div>

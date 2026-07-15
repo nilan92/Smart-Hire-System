@@ -1,0 +1,39 @@
+<div class="admin-page-container">
+  <div class="admin-header">
+    <h2>User Management</h2>
+    <p>Manage customers and service providers on the platform.</p>
+  </div>
+
+  <div class="table-container">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>#{{ user.id }}</td>
+          <td class="font-medium">{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            <span class="role-badge" [ngClass]="user.role">{{ user.role }}</span>
+          </td>
+          <td>
+            <span class="status-badge" [ngClass]="user.status">{{ user.status }}</span>
+          </td>
+          <td>
+            <button class="action-btn" (click)="toggleStatus(user)">
+              {{ user.status === 'active' ? 'Suspend' : 'Activate' }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

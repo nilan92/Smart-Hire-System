@@ -8,6 +8,7 @@ from app.routers.users import router as users_router
 from app.routers.services import router as services_router
 from app.routers.bookings import router as bookings_router
 from app.routers.reviews import router as reviews_router
+from app.routers.payments import router as payments_router
 from app.routers.notifications import router as notifications_router
 from app.routers.admin import router as admin_router
 from app.routers.ai import router as ai_router
@@ -39,6 +40,7 @@ app.include_router(users_router)
 app.include_router(services_router)
 app.include_router(bookings_router)
 app.include_router(reviews_router)
+app.include_router(payments_router)
 app.include_router(notifications_router)
 app.include_router(admin_router)
 app.include_router(ai_router)

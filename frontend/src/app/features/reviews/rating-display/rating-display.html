@@ -1,0 +1,7 @@
+<div class="rating-display">
+  <div class="stars">
+    <span *ngFor="let filled of stars" class="star" [class.filled]="filled">★</span>
+  </div>
+  <span class="rating-text" *ngIf="rating > 0">{{ rating.toFixed(1) }}</span>
+  <span class="review-count" *ngIf="showCount">({{ reviewCount }} reviews)</span>
+</div>

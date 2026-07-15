@@ -1,0 +1,44 @@
+<div class="payments-container">
+  <header class="page-header">
+    <div class="header-content">
+      <div>
+        <h1>Payment Ledger</h1>
+        <p>Monitor all incoming transactions and platform revenue.</p>
+      </div>
+      <div class="search-box">
+        <input type="text" placeholder="Search payments..." [(ngModel)]="searchTerm">
+      </div>
+    </div>
+  </header>
+
+  <div class="table-card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Transaction ID</th>
+          <th>Booking ID</th>
+          <th>Customer</th>
+          <th>Amount</th>
+          <th>Method</th>
+          <th>Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of filteredPayments">
+          <td class="font-mono text-gray">{{ p.id }}</td>
+          <td><span class="booking-badge">#{{ p.bookingId }}</span></td>
+          <td class="font-medium">{{ p.customer }}</td>
+          <td class="amount">${{ p.amount.toFixed(2) }}</td>
+          <td>{{ p.method }}</td>
+          <td class="text-gray">{{ p.date | date:'short' }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="p.status.toLowerCase()">
+              {{ p.status }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

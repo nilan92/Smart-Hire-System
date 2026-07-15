@@ -1,0 +1,126 @@
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #0f172a;
+  padding: 1rem;
+}
+
+.login-card {
+  background: white;
+  width: 100%;
+  max-width: 360px;
+  padding: 2.5rem 2rem;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+}
+
+.brand {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  
+  .logo {
+    width: 3.5rem;
+    height: 3.5rem;
+    background: #f1f5f9;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    
+    svg {
+      width: 1.75rem;
+      height: 1.75rem;
+    }
+  }
+  
+  h2 { font-size: 1.5rem; color: #0f172a; margin: 0 0 0.5rem 0; font-weight: 700; }
+  p { color: #64748b; font-size: 0.9rem; margin: 0; }
+}
+
+.pin-display {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  
+  .pin-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #cbd5e1;
+    transition: all 0.2s ease;
+    
+    &.filled {
+      background-color: #3b82f6;
+      border-color: #3b82f6;
+      transform: scale(1.1);
+    }
+  }
+}
+
+.error-shake {
+  animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+.error-msg {
+  color: #ef4444;
+  text-align: center;
+  font-size: 0.85rem;
+  margin-top: -1rem;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  
+  button {
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    background: #f8fafc;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    cursor: pointer;
+    transition: all 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &:active, &:hover {
+      background: #e2e8f0;
+      transform: scale(0.95);
+    }
+    
+    &.empty-btn {
+      background: transparent;
+      pointer-events: none;
+    }
+    
+    &.delete-btn {
+      background: transparent;
+      color: #64748b;
+      
+      svg {
+        width: 1.75rem;
+        height: 1.75rem;
+      }
+      
+      &:hover { color: #334155; }
+    }
+  }
+}

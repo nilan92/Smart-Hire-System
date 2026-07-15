@@ -1,0 +1,36 @@
+<div class="reviews-container">
+  <header class="page-header">
+    <div class="header-content">
+      <div>
+        <h1>Reviews & Sentiments</h1>
+        <p>Monitor platform feedback and AI-analyzed sentiments.</p>
+      </div>
+      <div class="search-box">
+        <input type="text" placeholder="Search reviews..." [(ngModel)]="searchTerm">
+      </div>
+    </div>
+  </header>
+
+  <div class="reviews-list">
+    <div *ngFor="let review of filteredReviews" class="review-card">
+      <div class="review-header">
+        <span class="customer-name">{{ review.customer }}</span>
+        <div class="review-meta">
+          <span *ngIf="review.bookingId" class="booking-ref">Booking #{{ review.bookingId }}</span>
+          <span class="review-date">{{ review.date | date:'medium' }}</span>
+        </div>
+      </div>
+      <div class="rating-row">
+        <span class="rating">
+          <ng-container *ngFor="let star of [1,2,3,4,5]">
+            <i class="star" [class.filled]="star <= review.rating">★</i>
+          </ng-container>
+        </span>
+      </div>
+      <p class="comment">"{{ review.comment }}"</p>
+      <div class="sentiment-badge" [ngClass]="review.sentiment.toLowerCase()">
+        {{ review.sentiment }}
+      </div>
+    </div>
+  </div>
+</div>
