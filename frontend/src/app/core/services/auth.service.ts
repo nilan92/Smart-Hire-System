@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, timeout } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import {
@@ -42,6 +42,7 @@ export class AuthService {
 
   loadCurrentUser(): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/auth/me`).pipe(
+      timeout(10000),
       tap((user) => {
         localStorage.setItem(USER_KEY, JSON.stringify(user));
         this.currentUserSignal.set(user);
@@ -59,7 +60,7 @@ export class AuthService {
   }
 
   loadProviderProfile(): Observable<ProviderProfile> {
-    return this.http.get<ProviderProfile>(`${this.apiUrl}/users/provider-profile`);
+    return this.http.get<ProviderProfile>(`${this.apiUrl}/users/provider-profile`).pipe(timeout(10000));
   }
 
   updateProviderProfile(payload: ProviderProfileUpdate): Observable<ProviderProfile> {

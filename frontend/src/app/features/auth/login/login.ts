@@ -39,7 +39,7 @@ export class Login {
             : user.role === 'provider'
               ? '/provider/profile'
               : '/customer/profile';
-        this.router.navigateByUrl(target);
+        this.router.navigateByUrl(target, { replaceUrl: true });
       },
       error: () => {
         this.errorMessage = 'Invalid email or password.';

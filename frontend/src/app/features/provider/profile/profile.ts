@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { forkJoin } from 'rxjs';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 
 import { ProviderProfile as ProviderProfileModel, User } from '../../../core/models/auth.models';
 import { AuthService } from '../../../core/services/auth.service';
@@ -14,10 +15,11 @@ import { AuthService } from '../../../core/services/auth.service';
 export class ProviderProfile implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
-  user: User | null = null;
+  user: User | null = this.authService.currentUser();
   providerProfile: ProviderProfileModel | null = null;
-  loading = true;
+  loading = !this.user;
   saving = false;
   message = '';
 
@@ -29,6 +31,15 @@ export class ProviderProfile implements OnInit {
   });
 
   ngOnInit(): void {
+    if (!this.authService.getToken()) {
+      this.router.navigateByUrl('/login', { replaceUrl: true });
+      return;
+    }
+
+    if (this.user) {
+      this.patchUserForm(this.user);
+    }
+
     forkJoin({
       user: this.authService.loadCurrentUser(),
       providerProfile: this.authService.loadProviderProfile(),
@@ -36,18 +47,28 @@ export class ProviderProfile implements OnInit {
       next: ({ user, providerProfile }) => {
         this.user = user;
         this.providerProfile = providerProfile;
-        this.form.patchValue({
-          full_name: user.full_name,
-          phone: user.phone ?? '',
-          bio: providerProfile.bio ?? '',
-          years_experience: providerProfile.years_experience,
-        });
+        this.patchUserForm(user);
+        this.patchProviderForm(providerProfile);
         this.loading = false;
       },
       error: () => {
-        this.message = 'Unable to load provider profile.';
+        this.message = this.user ? 'Showing your saved profile.' : 'Unable to load provider profile.';
         this.loading = false;
       },
+    });
+  }
+
+  private patchUserForm(user: User): void {
+    this.form.patchValue({
+      full_name: user.full_name,
+      phone: user.phone ?? '',
+    });
+  }
+
+  private patchProviderForm(providerProfile: ProviderProfileModel): void {
+    this.form.patchValue({
+      bio: providerProfile.bio ?? '',
+      years_experience: providerProfile.years_experience,
     });
   }
 
@@ -84,6 +105,6 @@ export class ProviderProfile implements OnInit {
 
   logout(): void {
     this.authService.logout();
-    location.assign('/login');
+    location.replace('/login');
   }
 }

@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 
 import { AuthService } from '../../../core/services/auth.service';
 import { User } from '../../../core/models/auth.models';
@@ -13,9 +14,10 @@ import { User } from '../../../core/models/auth.models';
 export class CustomerProfile implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
-  user: User | null = null;
-  loading = true;
+  user: User | null = this.authService.currentUser();
+  loading = !this.user;
   saving = false;
   message = '';
 
@@ -25,19 +27,32 @@ export class CustomerProfile implements OnInit {
   });
 
   ngOnInit(): void {
+    if (!this.authService.getToken()) {
+      this.router.navigateByUrl('/login', { replaceUrl: true });
+      return;
+    }
+
+    if (this.user) {
+      this.patchForm(this.user);
+    }
+
     this.authService.loadCurrentUser().subscribe({
       next: (user) => {
         this.user = user;
-        this.form.patchValue({
-          full_name: user.full_name,
-          phone: user.phone ?? '',
-        });
+        this.patchForm(user);
         this.loading = false;
       },
       error: () => {
-        this.message = 'Unable to load profile.';
+        this.message = this.user ? 'Showing your saved profile.' : 'Unable to load profile.';
         this.loading = false;
       },
+    });
+  }
+
+  private patchForm(user: User): void {
+    this.form.patchValue({
+      full_name: user.full_name,
+      phone: user.phone ?? '',
     });
   }
 
@@ -62,6 +77,6 @@ export class CustomerProfile implements OnInit {
 
   logout(): void {
     this.authService.logout();
-    location.assign('/login');
+    location.replace('/login');
   }
 }
