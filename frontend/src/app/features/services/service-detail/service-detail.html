@@ -1,0 +1,268 @@
+<header class="site-header">
+  <div class="container navigation">
+    <a routerLink="/" class="logo" aria-label="Smart Hire home">
+      Smart<span>Hire</span>
+    </a>
+
+    <nav class="nav-links" aria-label="Main navigation">
+      <a routerLink="/">Home</a>
+      <a routerLink="/services" class="active">Services</a>
+      <a routerLink="/categories">Categories</a>
+      <a routerLink="/favorites">Favourites</a>
+    </nav>
+
+    <div class="nav-actions">
+      <a routerLink="/login" class="login-link">Log in</a>
+      <a routerLink="/register" class="primary-button">Get Started</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  @if (service) {
+    <section class="breadcrumb-section">
+      <div class="container breadcrumbs">
+        <a routerLink="/">Home</a>
+        <span>›</span>
+        <a routerLink="/services">Services</a>
+        <span>›</span>
+        <span>{{ service.title }}</span>
+      </div>
+    </section>
+
+    <section class="service-hero">
+      <div class="container hero-grid">
+        <div class="service-visual">
+          <span class="service-icon" aria-hidden="true">
+            {{ service.icon }}
+          </span>
+
+          <span class="category-label">{{ service.category }}</span>
+        </div>
+
+        <div class="hero-details">
+          <div class="badge-row">
+            @if (service.verified) {
+              <span class="verified-badge">✓ Verified Provider</span>
+            }
+
+            <span class="location-badge">
+              ⌖ {{ service.location }}
+            </span>
+          </div>
+
+          <h1>{{ service.title }}</h1>
+
+          <p class="provider-name">
+            Provided by <strong>{{ service.provider }}</strong>
+          </p>
+
+          <div class="rating-row">
+            <span class="stars">★★★★★</span>
+            <strong>{{ service.rating }}</strong>
+            <span>({{ service.reviewCount }} reviews)</span>
+            <span class="separator">•</span>
+            <span>{{ service.completedJobs }} completed jobs</span>
+          </div>
+
+          <p class="hero-description">
+            {{ service.description }}
+          </p>
+
+          <div class="hero-actions">
+            <a routerLink="/login" class="book-button">
+              Book This Service
+            </a>
+
+            <button
+              type="button"
+              class="favourite-button"
+              [class.saved]="isFavourite"
+              (click)="toggleFavourite()"
+            >
+              {{ isFavourite ? '♥ Saved to Favourites' : '♡ Save to Favourites' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="details-section">
+      <div class="container details-layout">
+        <div class="main-content">
+          <article class="content-card">
+            <h2>About This Service</h2>
+
+            <p>{{ service.description }}</p>
+
+            <p>
+              Every job is completed with professional tools and careful
+              attention to safety and quality. Contact the provider through
+              Smart Hire to discuss your requirements before confirming the
+              booking.
+            </p>
+          </article>
+
+          <article class="content-card">
+            <h2>Services Included</h2>
+
+            <div class="features-grid">
+              @for (feature of service.features; track feature) {
+                <div class="feature-item">
+                  <span aria-hidden="true">✓</span>
+                  <p>{{ feature }}</p>
+                </div>
+              }
+            </div>
+          </article>
+
+          <article class="content-card">
+            <h2>Available Service Areas</h2>
+
+            <div class="areas-list">
+              @for (area of service.availableAreas; track area) {
+                <span>⌖ {{ area }}</span>
+              }
+            </div>
+          </article>
+
+          <article class="content-card reviews-card">
+            <div class="section-heading">
+              <div>
+                <h2>Customer Reviews</h2>
+                <p>
+                  Feedback from customers who used this service.
+                </p>
+              </div>
+
+              <div class="review-summary">
+                <strong>{{ service.rating }}</strong>
+                <span>★★★★★</span>
+                <small>{{ service.reviewCount }} reviews</small>
+              </div>
+            </div>
+
+            <div class="sample-review">
+              <div class="review-avatar">AM</div>
+
+              <div>
+                <div class="review-header">
+                  <div>
+                    <strong>Amali Fernando</strong>
+                    <span>★★★★★</span>
+                  </div>
+
+                  <small>2 weeks ago</small>
+                </div>
+
+                <p>
+                  Excellent and professional service. The provider arrived on
+                  time, clearly explained the issue and completed the work
+                  carefully.
+                </p>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <aside class="booking-card">
+          <span class="booking-label">Starting from</span>
+
+          <div class="price">
+            <strong>Rs. {{ service.price }}</strong>
+            <span>/ service</span>
+          </div>
+
+          <div class="booking-detail">
+            <span aria-hidden="true">⚡</span>
+
+            <div>
+              <strong>Response time</strong>
+              <p>{{ service.responseTime }}</p>
+            </div>
+          </div>
+
+          <div class="booking-detail">
+            <span aria-hidden="true">✓</span>
+
+            <div>
+              <strong>Verified professional</strong>
+              <p>Identity and profile verified</p>
+            </div>
+          </div>
+
+          <div class="booking-detail">
+            <span aria-hidden="true">★</span>
+
+            <div>
+              <strong>Highly rated</strong>
+              <p>{{ service.rating }} average customer rating</p>
+            </div>
+          </div>
+
+          <a routerLink="/login" class="booking-button">
+            Continue to Booking
+          </a>
+
+          <p class="safe-message">
+            🔒 Your booking information is protected.
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="provider-cta">
+      <div class="container cta-content">
+        <div>
+          <span>Need more options?</span>
+          <h2>Explore similar {{ service.category }} services</h2>
+        </div>
+
+        <a
+          routerLink="/services"
+          [queryParams]="{ category: service.category }"
+        >
+          View Similar Services →
+        </a>
+      </div>
+    </section>
+  } @else {
+    <section class="not-found">
+      <div class="container">
+        <span aria-hidden="true">⌕</span>
+        <h1>Service not found</h1>
+        <p>
+          The requested service does not exist or may no longer be available.
+        </p>
+
+        <a routerLink="/services">Return to Services</a>
+      </div>
+    </section>
+  }
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-content">
+    <div>
+      <a routerLink="/" class="logo footer-logo">
+        Smart<span>Hire</span>
+      </a>
+
+      <p>
+        Connecting customers with trusted service professionals across
+        Sri Lanka.
+      </p>
+    </div>
+
+    <div class="footer-links">
+      <a routerLink="/">Home</a>
+      <a routerLink="/services">Services</a>
+      <a routerLink="/categories">Categories</a>
+      <a routerLink="/favorites">Favourites</a>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <p>© 2026 Smart Hire. All rights reserved.</p>
+  </div>
+</footer>

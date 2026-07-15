@@ -24,6 +24,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'services/:id',
+    loadComponent: () =>
+      import('./features/services/service-detail/service-detail').then(
+        (m) => m.ServiceDetail,
+      ),
+  },
+  {
     path: 'login',
     loadComponent: () =>
       import('./features/auth/login/login').then((m) => m.Login),
@@ -139,7 +146,7 @@ export const routes: Routes = [
     ],
   },
 
-  // Wildcard route must always be the final route.
+  // Wildcard route must always remain last.
   {
     path: '**',
     redirectTo: 'login',
