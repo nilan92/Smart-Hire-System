@@ -1,0 +1,161 @@
+<header class="site-header">
+  <div class="container navigation">
+    <a routerLink="/" class="logo" aria-label="Smart Hire home">
+      Smart<span>Hire</span>
+    </a>
+
+    <nav class="nav-links" aria-label="Main navigation">
+      <a routerLink="/">Home</a>
+      <a routerLink="/services">Services</a>
+      <a routerLink="/categories" class="active">Categories</a>
+      <a routerLink="/favorites">Favourites</a>
+    </nav>
+
+    <div class="nav-actions">
+      <a routerLink="/login" class="login-link">Log in</a>
+      <a routerLink="/register" class="primary-button">Get Started</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="page-hero">
+    <div class="container hero-content">
+      <div>
+        <span class="eyebrow">Explore Smart Hire</span>
+        <h1>Find services by category</h1>
+        <p>
+          Browse trusted professionals across a wide range of service
+          categories and find the right expert for your needs.
+        </p>
+      </div>
+
+      <div class="hero-icon" aria-hidden="true">🛠️</div>
+    </div>
+  </section>
+
+  <section class="categories-section">
+    <div class="container">
+      <div class="toolbar">
+        <div>
+          <h2>All Categories</h2>
+          <p>{{ filteredCategories.length }} categories available</p>
+        </div>
+
+        <div class="search-box">
+          <label for="category-search">Search categories</label>
+
+          <div class="search-control">
+            <span aria-hidden="true">⌕</span>
+            <input
+              #categorySearch
+              id="category-search"
+              type="search"
+              placeholder="Search categories..."
+              [value]="searchTerm"
+              (input)="updateSearch(categorySearch.value)"
+            />
+
+            @if (searchTerm) {
+              <button
+                type="button"
+                aria-label="Clear category search"
+                (click)="updateSearch(''); categorySearch.value = ''"
+              >
+                ×
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      @if (filteredCategories.length > 0) {
+        <div class="category-grid">
+          @for (category of filteredCategories; track category.id) {
+            <article
+              class="category-card"
+              [class]="'category-card ' + category.color"
+            >
+              <div class="card-top">
+                <span class="category-icon">{{ category.icon }}</span>
+
+                <span class="service-count">
+                  {{ category.serviceCount }} services
+                </span>
+              </div>
+
+              <h3>{{ category.name }}</h3>
+              <p>{{ category.description }}</p>
+
+              <button
+                type="button"
+                class="browse-button"
+                (click)="browseCategory(category)"
+              >
+                Browse services
+                <span aria-hidden="true">→</span>
+              </button>
+            </article>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <span aria-hidden="true">⌕</span>
+          <h2>No categories found</h2>
+          <p>
+            No categories match “{{ searchTerm }}”. Try another search.
+          </p>
+
+          <button
+            type="button"
+            (click)="updateSearch(''); categorySearch.value = ''"
+          >
+            Clear Search
+          </button>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="help-section">
+    <div class="container help-content">
+      <div>
+        <span class="eyebrow light">Need assistance?</span>
+        <h2>Not sure which category to choose?</h2>
+        <p>
+          Search all available services using a keyword and your location.
+        </p>
+      </div>
+
+      <a routerLink="/services" class="light-button">
+        Search All Services →
+      </a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-content">
+    <div>
+      <a routerLink="/" class="logo footer-logo">
+        Smart<span>Hire</span>
+      </a>
+
+      <p>
+        Connecting customers with trusted service professionals across
+        Sri Lanka.
+      </p>
+    </div>
+
+    <div class="footer-links">
+      <a routerLink="/">Home</a>
+      <a routerLink="/services">Services</a>
+      <a routerLink="/categories">Categories</a>
+      <a routerLink="/favorites">Favourites</a>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <p>© 2026 Smart Hire. All rights reserved.</p>
+  </div>
+</footer>
