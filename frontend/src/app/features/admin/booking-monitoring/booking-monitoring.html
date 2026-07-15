@@ -1,0 +1,35 @@
+<div class="admin-page-container">
+  <div class="admin-header">
+    <h2>Booking Monitoring</h2>
+    <p>Monitor all booking activities across the platform.</p>
+  </div>
+
+  <div class="table-container">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Booking ID</th>
+          <th>Customer</th>
+          <th>Provider</th>
+          <th>Scheduled Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let booking of bookings">
+          <td>#{{ booking.id }}</td>
+          <td class="font-medium">{{ booking.customer }}</td>
+          <td>{{ booking.provider }}</td>
+          <td>{{ booking.date | date:'medium' }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="booking.status">{{ booking.status }}</span>
+          </td>
+          <td>
+            <button class="action-btn" (click)="viewDetails(booking)">View Details</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

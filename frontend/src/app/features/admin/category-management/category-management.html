@@ -1,0 +1,32 @@
+<div class="admin-page-container">
+  <div class="admin-header flex-between">
+    <div>
+      <h2>Category Management</h2>
+      <p>Manage service categories available on the platform.</p>
+    </div>
+    <button class="btn-primary" (click)="addCategory()">+ Add Category</button>
+  </div>
+
+  <div class="table-container">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Category Name</th>
+          <th>Total Services</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let cat of categories">
+          <td>#{{ cat.id }}</td>
+          <td class="font-medium">{{ cat.name }}</td>
+          <td>{{ cat.servicesCount }} services</td>
+          <td>
+            <button class="action-btn text-red" (click)="deleteCategory(cat.id)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
