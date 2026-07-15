@@ -4,7 +4,11 @@ import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'login' },
+  {
+  path: '',
+  loadComponent: () =>
+    import('./features/services/home/home').then((m) => m.Home),
+},
   {
     path: 'login',
     loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
