@@ -15,6 +15,12 @@ export class Unauthorized {
 
   goBack(): void {
     const role = this.authService.currentUser()?.role;
-    this.router.navigateByUrl(role === 'provider' ? '/provider/profile' : '/customer/profile');
+    const target =
+      role === 'admin'
+        ? '/admin/dashboard'
+        : role === 'provider'
+          ? '/provider/profile'
+          : '/customer/profile';
+    this.router.navigateByUrl(target);
   }
 }

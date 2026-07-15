@@ -1,0 +1,34 @@
+<main class="dashboard-page">
+  <header>
+    <div>
+      <h1>Admin dashboard</h1>
+      <p>{{ user?.email }}</p>
+    </div>
+    <button type="button" class="secondary" (click)="logout()">Logout</button>
+  </header>
+
+  @if (loading) {
+    <p>Loading dashboard...</p>
+  } @else {
+    <section>
+      <dl>
+        <div>
+          <dt>Role</dt>
+          <dd>{{ user?.role }}</dd>
+        </div>
+        <div>
+          <dt>Status</dt>
+          <dd>{{ user?.status }}</dd>
+        </div>
+        <div>
+          <dt>Email verified</dt>
+          <dd>{{ user?.email_verified ? 'Yes' : 'No' }}</dd>
+        </div>
+      </dl>
+
+      @if (message) {
+        <p class="message">{{ message }}</p>
+      }
+    </section>
+  }
+</main>

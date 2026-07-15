@@ -33,10 +33,13 @@ export class Login {
     this.loading = true;
     this.authService.login(this.form.getRawValue()).subscribe({
       next: ({ user }) => {
-        const fallback = user.role === 'provider' ? '/provider/profile' : '/customer/profile';
-        const target = user.role === 'admin' ? '/admin/dashboard' : fallback;
-        const adminExists = this.router.config.some((route) => route.path === 'admin/dashboard');
-        this.router.navigateByUrl(user.role === 'admin' && !adminExists ? '/customer/profile' : target);
+        const target =
+          user.role === 'admin'
+            ? '/admin/dashboard'
+            : user.role === 'provider'
+              ? '/provider/profile'
+              : '/customer/profile';
+        this.router.navigateByUrl(target);
       },
       error: () => {
         this.errorMessage = 'Invalid email or password.';

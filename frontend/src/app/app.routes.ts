@@ -32,5 +32,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/provider/profile/profile').then((m) => m.ProviderProfile),
   },
+  {
+    path: 'admin/dashboard',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['admin'] },
+    loadComponent: () =>
+      import('./features/admin/dashboard/dashboard').then((m) => m.AdminDashboard),
+  },
   { path: '**', redirectTo: 'login' },
 ];
