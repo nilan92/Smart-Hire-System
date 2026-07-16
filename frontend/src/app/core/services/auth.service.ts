@@ -12,8 +12,10 @@ import {
   User,
   UserProfileUpdate,
 } from '../models/auth.models';
+import { TokenService } from './token.service';
+import { API_ENDPOINTS } from '../utils/api-endpoints';
+import { APP_ROUTES } from '../utils/app-routes';
 
-const TOKEN_KEY = 'smart_hire_access_token';
 const USER_KEY = 'smart_hire_current_user';
 
 @Injectable({ providedIn: 'root' })
@@ -24,12 +26,15 @@ export class AuthService {
   readonly currentUser = this.currentUserSignal.asReadonly();
   readonly isAuthenticated = computed(() => Boolean(this.currentUserSignal()) || Boolean(this.getToken()));
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly tokenService: TokenService,
+  ) {}
 
   login(payload: LoginRequest): Observable<TokenResponse> {
-    return this.http.post<TokenResponse>(`${this.apiUrl}/auth/login`, payload).pipe(
+    return this.http.post<TokenResponse>(`${this.apiUrl}${API_ENDPOINTS.auth.login}`, payload).pipe(
       tap((response) => {
-        localStorage.setItem(TOKEN_KEY, response.access_token);
+        this.tokenService.setToken(response.access_token);
         localStorage.setItem(USER_KEY, JSON.stringify(response.user));
         this.currentUserSignal.set(response.user);
       }),
@@ -37,11 +42,11 @@ export class AuthService {
   }
 
   register(payload: RegisterRequest): Observable<User> {
-    return this.http.post<User>(`${this.apiUrl}/auth/register`, payload);
+    return this.http.post<User>(`${this.apiUrl}${API_ENDPOINTS.auth.register}`, payload);
   }
 
   loadCurrentUser(): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/auth/me`).pipe(
+    return this.http.get<User>(`${this.apiUrl}${API_ENDPOINTS.auth.me}`).pipe(
       timeout(10000),
       tap((user) => {
         localStorage.setItem(USER_KEY, JSON.stringify(user));
@@ -51,7 +56,7 @@ export class AuthService {
   }
 
   updateUserProfile(payload: UserProfileUpdate): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}/users/me`, payload).pipe(
+    return this.http.put<User>(`${this.apiUrl}${API_ENDPOINTS.users.me}`, payload).pipe(
       tap((user) => {
         localStorage.setItem(USER_KEY, JSON.stringify(user));
         this.currentUserSignal.set(user);
@@ -60,21 +65,34 @@ export class AuthService {
   }
 
   loadProviderProfile(): Observable<ProviderProfile> {
-    return this.http.get<ProviderProfile>(`${this.apiUrl}/users/provider-profile`).pipe(timeout(10000));
+    return this.http.get<ProviderProfile>(`${this.apiUrl}${API_ENDPOINTS.users.providerProfile}`).pipe(timeout(10000));
   }
 
   updateProviderProfile(payload: ProviderProfileUpdate): Observable<ProviderProfile> {
-    return this.http.put<ProviderProfile>(`${this.apiUrl}/users/provider-profile`, payload);
+    return this.http.put<ProviderProfile>(`${this.apiUrl}${API_ENDPOINTS.users.providerProfile}`, payload);
   }
 
   logout(): void {
-    localStorage.removeItem(TOKEN_KEY);
+    this.tokenService.clearToken();
     localStorage.removeItem(USER_KEY);
     this.currentUserSignal.set(null);
   }
 
   getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    return this.tokenService.getToken();
+  }
+
+  getRoleRedirect(user: User | null = this.currentUserSignal()): string {
+    if (user?.role === 'admin') {
+      return APP_ROUTES.admin.dashboard;
+    }
+    if (user?.role === 'provider') {
+      return APP_ROUTES.provider.profile;
+    }
+    if (user?.role === 'customer') {
+      return APP_ROUTES.customer.profile;
+    }
+    return APP_ROUTES.unauthorized;
   }
 
   private readStoredUser(): User | null {

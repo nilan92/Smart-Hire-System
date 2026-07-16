@@ -1,0 +1,7 @@
+<app-navbar [user]="user()" (menuToggle)="toggleMenu()" (logout)="logout()" />
+<div class="layout">
+  <app-sidebar [links]="links" [open]="menuOpen()" (closeMenu)="closeMenu()" />
+  <main class="content" [attr.aria-label]="'Customer dashboard for ' + subtitle()">
+    <router-outlet />
+  </main>
+</div>

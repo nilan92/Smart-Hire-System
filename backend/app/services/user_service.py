@@ -11,10 +11,14 @@ class UserService:
         self.db = db
 
     def update_profile(self, user: User, payload: UserProfileUpdate) -> User:
-        if payload.full_name is not None:
-            user.full_name = payload.full_name.strip()
-        if payload.phone is not None:
-            user.phone = payload.phone
-        self.users.save(user)
-        self.db.commit()
-        return self.users.get_by_id(user.id) or user
+        try:
+            if payload.full_name is not None:
+                user.full_name = payload.full_name.strip()
+            if payload.phone is not None:
+                user.phone = payload.phone
+            self.users.update(user)
+            self.db.commit()
+            return self.users.get_by_id(user.id) or user
+        except Exception:
+            self.db.rollback()
+            raise

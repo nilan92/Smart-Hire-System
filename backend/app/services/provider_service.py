@@ -24,14 +24,18 @@ class ProviderService:
         return profile
 
     def update_current_profile(self, user: User, payload: ProviderProfileUpdate) -> ProviderProfile:
-        profile = self.get_current_profile(user)
-        if payload.bio is not None:
-            profile.bio = payload.bio
-        if payload.years_experience is not None:
-            profile.years_experience = payload.years_experience
-        self.providers.save(profile)
-        self.db.commit()
-        return self.get_current_profile(user)
+        try:
+            profile = self.get_current_profile(user)
+            if payload.bio is not None:
+                profile.bio = payload.bio
+            if payload.years_experience is not None:
+                profile.years_experience = payload.years_experience
+            self.providers.update(profile)
+            self.db.commit()
+            return self.get_current_profile(user)
+        except Exception:
+            self.db.rollback()
+            raise
 
     def get_public_provider(self, provider_id: int) -> User:
         user = self.users.get_by_id(provider_id)

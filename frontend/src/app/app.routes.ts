@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
+import { APP_ROUTES } from './core/utils/app-routes';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -19,18 +20,39 @@ export const routes: Routes = [
       import('./features/auth/unauthorized/unauthorized').then((m) => m.Unauthorized),
   },
   {
-    path: 'customer/profile',
+    path: 'not-found',
+    loadComponent: () =>
+      import('./features/auth/not-found/not-found').then((m) => m.NotFound),
+  },
+  {
+    path: 'customer',
     canActivate: [authGuard, roleGuard],
     data: { roles: ['customer'] },
     loadComponent: () =>
-      import('./features/customer/profile/profile').then((m) => m.CustomerProfile),
+      import('./shared/layouts/customer-layout/customer-layout').then((m) => m.CustomerLayout),
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'profile' },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./features/customer/profile/profile').then((m) => m.CustomerProfile),
+      },
+    ],
   },
   {
-    path: 'provider/profile',
+    path: 'provider',
     canActivate: [authGuard, roleGuard],
     data: { roles: ['provider'] },
     loadComponent: () =>
-      import('./features/provider/profile/profile').then((m) => m.ProviderProfile),
+      import('./shared/layouts/provider-layout/provider-layout').then((m) => m.ProviderLayout),
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'profile' },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./features/provider/profile/profile').then((m) => m.ProviderProfile),
+      },
+    ],
   },
   {
     path: 'admin',
@@ -85,5 +107,5 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/payments/payment-status/payment-status').then((m) => m.PaymentStatusComponent),
   },
-  { path: '**', redirectTo: 'login' },
+  { path: '**', redirectTo: APP_ROUTES.notFound.slice(1) },
 ];

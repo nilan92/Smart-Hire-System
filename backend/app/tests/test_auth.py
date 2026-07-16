@@ -117,6 +117,20 @@ def test_suspended_account_cannot_log_in(client: TestClient, db: Session):
     assert response.status_code == 403
 
 
+def test_deactivated_account_cannot_log_in(client: TestClient, db: Session):
+    client.post("/api/auth/register", json=register_payload())
+    user = db.query(User).filter(User.email == "customer@example.com").one()
+    user.status = AccountStatus.DEACTIVATED
+    db.commit()
+
+    response = client.post(
+        "/api/auth/login",
+        json={"email": "customer@example.com", "password": "Password123"},
+    )
+
+    assert response.status_code == 403
+
+
 def test_protected_endpoint_without_token_returns_401(client: TestClient):
     response = client.get("/api/auth/me")
 

@@ -1,0 +1,12 @@
+<header class="navbar">
+  <button type="button" class="menu-button" aria-label="Open navigation" (click)="menuToggle.emit()">Menu</button>
+  <a class="brand" routerLink="/">
+    <span class="brand-mark">SH</span>
+    <span>Smart Hire</span>
+  </a>
+  <div class="account">
+    <span class="name">{{ user?.full_name || user?.email || 'Account' }}</span>
+    <span class="role">{{ user?.role || 'user' }}</span>
+    <button type="button" (click)="logout.emit()">Logout</button>
+  </div>
+</header>

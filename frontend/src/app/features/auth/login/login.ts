@@ -46,13 +46,7 @@ export class Login {
     this.loading = true;
     this.authService.login(this.form.getRawValue()).subscribe({
       next: ({ user }) => {
-        const target =
-          user.role === 'admin'
-            ? '/admin/dashboard'
-            : user.role === 'provider'
-              ? '/provider/profile'
-              : '/customer/profile';
-        this.router.navigateByUrl(target, { replaceUrl: true });
+        this.router.navigateByUrl(this.authService.getRoleRedirect(user), { replaceUrl: true });
       },
       error: () => {
         this.errorMessage = 'Invalid email or password. Please try again.';

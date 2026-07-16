@@ -1,0 +1,31 @@
+export const APP_ROUTES = {
+  login: '/login',
+  register: '/register',
+  unauthorized: '/unauthorized',
+  notFound: '/not-found',
+  customer: {
+    root: '/customer',
+    profile: '/customer/profile',
+    browseServices: '/customer/services',
+    favourites: '/customer/favourites',
+    bookings: '/customer/bookings',
+    notifications: '/customer/notifications',
+    reviews: '/customer/reviews',
+    aiAssistant: '/customer/ai-assistant',
+  },
+  provider: {
+    root: '/provider',
+    profile: '/provider/profile',
+    services: '/provider/services',
+    serviceAreas: '/provider/service-areas',
+    bookingRequests: '/provider/booking-requests',
+    availability: '/provider/availability',
+    notifications: '/provider/notifications',
+    reviews: '/provider/reviews',
+    payments: '/provider/payments',
+    aiInsights: '/provider/ai-insights',
+  },
+  admin: {
+    dashboard: '/admin/dashboard',
+  },
+} as const;

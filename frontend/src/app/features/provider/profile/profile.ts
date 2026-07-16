@@ -1,14 +1,18 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { forkJoin } from 'rxjs';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 
 import { ProviderProfile as ProviderProfileModel, User } from '../../../core/models/auth.models';
 import { AuthService } from '../../../core/services/auth.service';
+import { APP_ROUTES } from '../../../core/utils/app-routes';
+import { ErrorMessage } from '../../../shared/components/error-message/error-message';
+import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
+import { PageHeader } from '../../../shared/components/page-header/page-header';
 
 @Component({
   selector: 'app-provider-profile',
-  imports: [ReactiveFormsModule],
+  imports: [ErrorMessage, LoadingSpinner, PageHeader, ReactiveFormsModule],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
@@ -32,7 +36,7 @@ export class ProviderProfile implements OnInit {
 
   ngOnInit(): void {
     if (!this.authService.getToken()) {
-      this.router.navigateByUrl('/login', { replaceUrl: true });
+      this.router.navigateByUrl(APP_ROUTES.login, { replaceUrl: true });
       return;
     }
 
@@ -58,20 +62,6 @@ export class ProviderProfile implements OnInit {
     });
   }
 
-  private patchUserForm(user: User): void {
-    this.form.patchValue({
-      full_name: user.full_name,
-      phone: user.phone ?? '',
-    });
-  }
-
-  private patchProviderForm(providerProfile: ProviderProfileModel): void {
-    this.form.patchValue({
-      bio: providerProfile.bio ?? '',
-      years_experience: providerProfile.years_experience,
-    });
-  }
-
   save(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -93,7 +83,7 @@ export class ProviderProfile implements OnInit {
       next: ({ user, providerProfile }) => {
         this.user = user;
         this.providerProfile = providerProfile;
-        this.message = '✅ Provider profile updated successfully!';
+        this.message = 'Provider profile updated successfully.';
         this.saving = false;
       },
       error: () => {
@@ -103,9 +93,17 @@ export class ProviderProfile implements OnInit {
     });
   }
 
-  logout(): void {
-    this.authService.logout();
-    this.router.navigateByUrl('/login', { replaceUrl: true });
+  private patchUserForm(user: User): void {
+    this.form.patchValue({
+      full_name: user.full_name,
+      phone: user.phone ?? '',
+    });
+  }
+
+  private patchProviderForm(providerProfile: ProviderProfileModel): void {
+    this.form.patchValue({
+      bio: providerProfile.bio ?? '',
+      years_experience: providerProfile.years_experience,
+    });
   }
 }
-

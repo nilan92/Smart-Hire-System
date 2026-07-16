@@ -1,0 +1,80 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 64px;
+  padding: 0 24px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.brand,
+.account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand {
+  color: #0f172a;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #0f766e;
+  color: #ffffff;
+}
+
+.account {
+  color: #475569;
+}
+
+.name {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.role {
+  text-transform: capitalize;
+}
+
+button {
+  min-height: 36px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 12px;
+  background: #0f172a;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.menu-button {
+  display: none;
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+@media (max-width: 760px) {
+  .navbar {
+    padding: 0 14px;
+  }
+
+  .menu-button {
+    display: inline-grid;
+    place-items: center;
+  }
+
+  .account .role {
+    display: none;
+  }
+}

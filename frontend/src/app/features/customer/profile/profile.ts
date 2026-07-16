@@ -1,13 +1,17 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 
-import { AuthService } from '../../../core/services/auth.service';
 import { User } from '../../../core/models/auth.models';
+import { AuthService } from '../../../core/services/auth.service';
+import { APP_ROUTES } from '../../../core/utils/app-routes';
+import { ErrorMessage } from '../../../shared/components/error-message/error-message';
+import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
+import { PageHeader } from '../../../shared/components/page-header/page-header';
 
 @Component({
   selector: 'app-customer-profile',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ErrorMessage, LoadingSpinner, PageHeader, ReactiveFormsModule],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
@@ -28,7 +32,7 @@ export class CustomerProfile implements OnInit {
 
   ngOnInit(): void {
     if (!this.authService.getToken()) {
-      this.router.navigateByUrl('/login', { replaceUrl: true });
+      this.router.navigateByUrl(APP_ROUTES.login, { replaceUrl: true });
       return;
     }
 
@@ -49,23 +53,17 @@ export class CustomerProfile implements OnInit {
     });
   }
 
-  private patchForm(user: User): void {
-    this.form.patchValue({
-      full_name: user.full_name,
-      phone: user.phone ?? '',
-    });
-  }
-
   save(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
+
     this.saving = true;
     this.authService.updateUserProfile(this.form.getRawValue()).subscribe({
       next: (user) => {
         this.user = user;
-        this.message = '✅ Profile updated successfully!';
+        this.message = 'Profile updated successfully.';
         this.saving = false;
       },
       error: () => {
@@ -75,8 +73,10 @@ export class CustomerProfile implements OnInit {
     });
   }
 
-  logout(): void {
-    this.authService.logout();
-    this.router.navigateByUrl('/login', { replaceUrl: true });
+  private patchForm(user: User): void {
+    this.form.patchValue({
+      full_name: user.full_name,
+      phone: user.phone ?? '',
+    });
   }
 }
