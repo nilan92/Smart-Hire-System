@@ -1,0 +1,52 @@
+.dashboard-placeholder {
+  max-width: 960px;
+}
+
+p {
+  margin: 0 0 8px;
+  color: #0f766e;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0 0 22px;
+  color: #0f172a;
+  font-size: 2rem;
+}
+
+.placeholder-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+article {
+  border: 1px solid #dbe5dd;
+  border-radius: 8px;
+  padding: 20px;
+  background: #ffffff;
+}
+
+span,
+strong {
+  display: block;
+}
+
+span {
+  margin-bottom: 10px;
+  color: #0f766e;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+strong {
+  color: #0f172a;
+}
+
+@media (max-width: 760px) {
+  .placeholder-grid {
+    grid-template-columns: 1fr;
+  }
+}

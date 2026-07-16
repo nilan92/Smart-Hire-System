@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
+import { APP_ROUTES } from './core/utils/app-routes';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -19,18 +20,119 @@ export const routes: Routes = [
       import('./features/auth/unauthorized/unauthorized').then((m) => m.Unauthorized),
   },
   {
-    path: 'customer/profile',
+    path: 'not-found',
+    loadComponent: () =>
+      import('./features/auth/not-found/not-found').then((m) => m.NotFound),
+  },
+  {
+    path: 'customer',
     canActivate: [authGuard, roleGuard],
     data: { roles: ['customer'] },
     loadComponent: () =>
-      import('./features/customer/profile/profile').then((m) => m.CustomerProfile),
+      import('./shared/layouts/customer-layout/customer-layout').then((m) => m.CustomerLayout),
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/customer/dashboard/dashboard').then((m) => m.CustomerDashboard),
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./features/customer/profile/profile').then((m) => m.CustomerProfile),
+      },
+      {
+        path: 'services',
+        loadComponent: () =>
+          import('./features/customer/browse-services/browse-services').then((m) => m.CustomerBrowseServices),
+      },
+      {
+        path: 'favourites',
+        loadComponent: () =>
+          import('./features/customer/favourites/favourites').then((m) => m.CustomerFavourites),
+      },
+      {
+        path: 'bookings',
+        loadComponent: () =>
+          import('./features/customer/bookings/bookings').then((m) => m.CustomerBookings),
+      },
+      {
+        path: 'notifications',
+        loadComponent: () =>
+          import('./features/customer/notifications/notifications').then((m) => m.CustomerNotifications),
+      },
+      {
+        path: 'reviews',
+        loadComponent: () =>
+          import('./features/customer/reviews/reviews').then((m) => m.CustomerReviews),
+      },
+      {
+        path: 'ai-assistant',
+        loadComponent: () =>
+          import('./features/customer/ai-assistant/ai-assistant').then((m) => m.CustomerAiAssistant),
+      },
+    ],
   },
   {
-    path: 'provider/profile',
+    path: 'provider',
     canActivate: [authGuard, roleGuard],
     data: { roles: ['provider'] },
     loadComponent: () =>
-      import('./features/provider/profile/profile').then((m) => m.ProviderProfile),
+      import('./shared/layouts/provider-layout/provider-layout').then((m) => m.ProviderLayout),
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/provider/dashboard/dashboard').then((m) => m.ProviderDashboard),
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./features/provider/profile/profile').then((m) => m.ProviderProfile),
+      },
+      {
+        path: 'services',
+        loadComponent: () =>
+          import('./features/provider/services/services').then((m) => m.ProviderServices),
+      },
+      {
+        path: 'service-areas',
+        loadComponent: () =>
+          import('./features/provider/service-areas/service-areas').then((m) => m.ProviderServiceAreas),
+      },
+      {
+        path: 'booking-requests',
+        loadComponent: () =>
+          import('./features/provider/booking-requests/booking-requests').then((m) => m.ProviderBookingRequests),
+      },
+      {
+        path: 'availability',
+        loadComponent: () =>
+          import('./features/provider/availability/availability').then((m) => m.ProviderAvailability),
+      },
+      {
+        path: 'notifications',
+        loadComponent: () =>
+          import('./features/provider/notifications/notifications').then((m) => m.ProviderNotifications),
+      },
+      {
+        path: 'reviews',
+        loadComponent: () =>
+          import('./features/provider/reviews/reviews').then((m) => m.ProviderReviews),
+      },
+      {
+        path: 'payments',
+        loadComponent: () =>
+          import('./features/provider/payments/payments').then((m) => m.ProviderPayments),
+      },
+      {
+        path: 'ai-insights',
+        loadComponent: () =>
+          import('./features/provider/ai-insights/ai-insights').then((m) => m.ProviderAiInsights),
+      },
+    ],
   },
   {
     path: 'admin',
@@ -85,5 +187,5 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/payments/payment-status/payment-status').then((m) => m.PaymentStatusComponent),
   },
-  { path: '**', redirectTo: 'login' },
+  { path: '**', redirectTo: APP_ROUTES.notFound.slice(1) },
 ];

@@ -1,0 +1,119 @@
+{
+  "info": {
+    "name": "Smart Hire Auth And Users",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000/api"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "provider_id",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Register customer",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/auth/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"customer@example.com\",\n  \"password\": \"Password123\",\n  \"confirm_password\": \"Password123\",\n  \"full_name\": \"Customer User\",\n  \"phone\": \"0771234567\",\n  \"role\": \"customer\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Register provider",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/auth/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"provider@example.com\",\n  \"password\": \"Password123\",\n  \"confirm_password\": \"Password123\",\n  \"full_name\": \"Provider User\",\n  \"phone\": \"0777654321\",\n  \"role\": \"provider\",\n  \"provider_profile\": {\n    \"bio\": \"Home repair specialist.\",\n    \"years_experience\": 4\n  }\n}"
+        }
+      }
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"customer@example.com\",\n  \"password\": \"Password123\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Auth me",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/auth/me"
+      }
+    },
+    {
+      "name": "Users me GET",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/users/me"
+      }
+    },
+    {
+      "name": "Users me PUT",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": "{{base_url}}/users/me",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"full_name\": \"Updated User\",\n  \"phone\": \"0711111111\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Provider profile GET",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/users/provider-profile"
+      }
+    },
+    {
+      "name": "Provider profile PUT",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": "{{base_url}}/users/provider-profile",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"bio\": \"Updated provider bio.\",\n  \"years_experience\": 6\n}"
+        }
+      }
+    },
+    {
+      "name": "Public provider GET",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/users/providers/{{provider_id}}"
+      }
+    }
+  ]
+}

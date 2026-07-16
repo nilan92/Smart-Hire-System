@@ -24,9 +24,12 @@ class CurrentUserResponse(UserResponse):
     provider_profile: ProviderProfileResponse | None = None
 
 
-class UserProfileUpdate(BaseModel):
+class UserUpdate(BaseModel):
     full_name: str | None = Field(default=None, min_length=2, max_length=150)
     phone: str | None = Field(default=None, max_length=20)
+
+
+UserProfileUpdate = UserUpdate
 
 
 class PublicProviderResponse(BaseModel):

@@ -15,14 +15,20 @@ class ProviderRepository:
             .options(selectinload(ProviderProfile.user))
         )
 
+    def get_public_by_user_id(self, user_id: int) -> ProviderProfile | None:
+        return self.get_by_user_id(user_id)
+
     def create(self, profile: ProviderProfile) -> ProviderProfile:
         self.db.add(profile)
         self.db.flush()
         self.db.refresh(profile)
         return profile
 
-    def save(self, profile: ProviderProfile) -> ProviderProfile:
+    def update(self, profile: ProviderProfile) -> ProviderProfile:
         self.db.add(profile)
         self.db.flush()
         self.db.refresh(profile)
         return profile
+
+    def save(self, profile: ProviderProfile) -> ProviderProfile:
+        return self.update(profile)

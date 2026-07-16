@@ -35,10 +35,9 @@ def database_health_check(
     except Exception as error:
         print("\nDATABASE CONNECTION ERROR")
         print(type(error).__name__)
-        print(str(error))
         print()
 
         raise HTTPException(
             status_code=500,
-            detail=f"{type(error).__name__}: {str(error)}",
+            detail="Database health check failed",
         )

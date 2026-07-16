@@ -21,6 +21,8 @@ export class Register {
 
   loading = false;
   errorMessage = '';
+  showPassword = false;
+  showConfirmPassword = false;
 
   readonly form = this.fb.nonNullable.group({
     full_name: ['', [Validators.required, Validators.minLength(2)]],

@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from app.models.user import User
+from app.models.user import User, UserRole
 
 
 class UserRepository:
@@ -28,8 +28,20 @@ class UserRepository:
         self.db.refresh(user)
         return user
 
-    def save(self, user: User) -> User:
+    def update(self, user: User) -> User:
         self.db.add(user)
         self.db.flush()
         self.db.refresh(user)
         return user
+
+    def save(self, user: User) -> User:
+        return self.update(user)
+
+    def list_public_providers(self) -> list[User]:
+        return list(
+            self.db.scalars(
+                select(User)
+                .where(User.role == UserRole.PROVIDER)
+                .options(selectinload(User.provider_profile))
+            )
+        )

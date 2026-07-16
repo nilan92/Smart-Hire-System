@@ -4,7 +4,7 @@ from app.schemas.provider_profile import (
     ProviderProfileResponse,
     ProviderProfileUpdate,
 )
-from app.schemas.user import CurrentUserResponse, PublicProviderResponse, UserProfileUpdate, UserResponse
+from app.schemas.user import CurrentUserResponse, PublicProviderResponse, UserProfileUpdate, UserResponse, UserUpdate
 
 __all__ = [
     "LoginRequest",
@@ -16,5 +16,6 @@ __all__ = [
     "CurrentUserResponse",
     "PublicProviderResponse",
     "UserProfileUpdate",
+    "UserUpdate",
     "UserResponse",
 ]

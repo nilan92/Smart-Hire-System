@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 
 import { UserRole } from '../models/auth.models';
 import { AuthService } from '../services/auth.service';
+import { APP_ROUTES } from '../utils/app-routes';
 
 export const roleGuard: CanActivateFn = (route) => {
   const authService = inject(AuthService);
@@ -14,5 +15,5 @@ export const roleGuard: CanActivateFn = (route) => {
     return true;
   }
 
-  return router.createUrlTree(['/unauthorized']);
+  return router.createUrlTree([APP_ROUTES.unauthorized]);
 };
