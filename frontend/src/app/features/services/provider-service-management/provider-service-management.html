@@ -1,0 +1,262 @@
+<header class="site-header">
+  <div class="container navigation">
+    <a routerLink="/" class="logo">Smart<span>Hire</span></a>
+
+    <nav class="nav-links" aria-label="Provider navigation">
+      <a routerLink="/">Home</a>
+      <a routerLink="/provider/services" class="active">My Services</a>
+      <a routerLink="/provider/profile">Profile</a>
+    </nav>
+
+    <a routerLink="/provider/services/add" class="header-button">
+      + Add Service
+    </a>
+  </div>
+</header>
+
+<main>
+  <section class="page-header">
+    <div class="container page-heading">
+      <div>
+        <span class="eyebrow">Provider workspace</span>
+        <h1>Manage your services</h1>
+        <p>
+          Create, update and manage the services visible to customers.
+        </p>
+      </div>
+
+      <a routerLink="/provider/services/add" class="primary-button">
+        + Add New Service
+      </a>
+    </div>
+  </section>
+
+  <section class="dashboard-section">
+    <div class="container">
+      <div class="statistics-grid">
+        <article class="stat-card">
+          <span class="stat-icon blue" aria-hidden="true">▦</span>
+
+          <div>
+            <p>Total Services</p>
+            <strong>{{ services.length }}</strong>
+          </div>
+        </article>
+
+        <article class="stat-card">
+          <span class="stat-icon green" aria-hidden="true">✓</span>
+
+          <div>
+            <p>Active Services</p>
+            <strong>{{ activeServiceCount }}</strong>
+          </div>
+        </article>
+
+        <article class="stat-card">
+          <span class="stat-icon purple" aria-hidden="true">📅</span>
+
+          <div>
+            <p>Total Bookings</p>
+            <strong>{{ totalBookings }}</strong>
+          </div>
+        </article>
+
+        <article class="stat-card">
+          <span class="stat-icon orange" aria-hidden="true">◉</span>
+
+          <div>
+            <p>Total Views</p>
+            <strong>{{ totalViews }}</strong>
+          </div>
+        </article>
+      </div>
+
+      <div class="services-panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Your Services</h2>
+            <p>
+              {{ filteredServices.length }}
+              {{ filteredServices.length === 1 ? 'service' : 'services' }}
+            </p>
+          </div>
+
+          <div class="toolbar">
+            <div class="search-control">
+              <span aria-hidden="true">⌕</span>
+
+              <input
+                #serviceSearch
+                type="search"
+                aria-label="Search your services"
+                placeholder="Search services..."
+                [value]="searchTerm"
+                (input)="updateSearch(serviceSearch.value)"
+              />
+            </div>
+
+            <select
+              #statusFilter
+              aria-label="Filter by service status"
+              [value]="selectedStatus"
+              (change)="updateStatus(statusFilter.value)"
+            >
+              <option value="all">All statuses</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+
+        @if (filteredServices.length > 0) {
+          <div class="service-list">
+            @for (service of filteredServices; track service.id) {
+              <article class="service-row">
+                <div class="service-image">
+                  <span aria-hidden="true">{{ service.icon }}</span>
+                </div>
+
+                <div class="service-information">
+                  <div class="title-row">
+                    <h3>{{ service.title }}</h3>
+
+                    <span
+                      class="status-badge"
+                      [class.inactive]="service.status === 'inactive'"
+                    >
+                      {{ service.status }}
+                    </span>
+                  </div>
+
+                  <div class="service-meta">
+                    <span>{{ service.category }}</span>
+                    <span>⌖ {{ service.location }}</span>
+                    <span>Updated {{ service.updatedAt }}</span>
+                  </div>
+
+                  <div class="performance">
+                    <span>
+                      <strong>{{ service.bookings }}</strong>
+                      bookings
+                    </span>
+
+                    <span>
+                      <strong>{{ service.views }}</strong>
+                      views
+                    </span>
+
+                    <span class="rating">
+                      <strong>★ {{ service.rating }}</strong>
+                      rating
+                    </span>
+                  </div>
+                </div>
+
+                <div class="price-column">
+                  <span>Starting from</span>
+                  <strong>Rs. {{ service.price }}</strong>
+                </div>
+
+                <div class="actions">
+                  <a
+                    [routerLink]="['/services', service.id]"
+                    aria-label="View service"
+                    title="View service"
+                  >
+                    ◉
+                  </a>
+
+                  <a
+                    [routerLink]="[
+                      '/provider/services',
+                      service.id,
+                      'edit'
+                    ]"
+                    aria-label="Edit service"
+                    title="Edit service"
+                  >
+                    ✎
+                  </a>
+
+                  <button
+                    type="button"
+                    (click)="toggleStatus(service)"
+                    [attr.aria-label]="
+                      service.status === 'active'
+                        ? 'Deactivate service'
+                        : 'Activate service'
+                    "
+                    [title]="
+                      service.status === 'active'
+                        ? 'Deactivate service'
+                        : 'Activate service'
+                    "
+                  >
+                    {{ service.status === 'active' ? '‖' : '▶' }}
+                  </button>
+
+                  <button
+                    type="button"
+                    class="delete-button"
+                    aria-label="Delete service"
+                    title="Delete service"
+                    (click)="openDeleteDialog(service)"
+                  >
+                    🗑
+                  </button>
+                </div>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <span aria-hidden="true">▦</span>
+            <h2>No services found</h2>
+            <p>
+              Create a new service or change your search and status filter.
+            </p>
+
+            <a routerLink="/provider/services/add">
+              + Add Your First Service
+            </a>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+</main>
+
+@if (serviceToDelete) {
+  <div class="modal-backdrop" (click)="cancelDelete()">
+    <div
+      class="delete-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="delete-title"
+      (click)="$event.stopPropagation()"
+    >
+      <span class="warning-icon" aria-hidden="true">!</span>
+
+      <h2 id="delete-title">Delete this service?</h2>
+
+      <p>
+        “{{ serviceToDelete.title }}” will be permanently deleted.
+        This action cannot be undone.
+      </p>
+
+      <div class="modal-actions">
+        <button type="button" (click)="cancelDelete()">
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          class="confirm-delete"
+          (click)="confirmDelete()"
+        >
+          Delete Service
+        </button>
+      </div>
+    </div>
+  </div>
+}

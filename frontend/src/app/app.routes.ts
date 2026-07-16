@@ -61,6 +61,17 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'provider/services',
+    canActivate: [authGuard, roleGuard],
+    data: {
+      roles: ['provider'],
+    },
+    loadComponent: () =>
+      import(
+        './features/services/provider-service-management/provider-service-management'
+      ).then((m) => m.ProviderServiceManagement),
+  },
+  {
     path: 'provider/profile',
     canActivate: [authGuard, roleGuard],
     data: {
@@ -145,8 +156,6 @@ export const routes: Routes = [
       },
     ],
   },
-
-  // Wildcard route must always remain last.
   {
     path: '**',
     redirectTo: 'login',
