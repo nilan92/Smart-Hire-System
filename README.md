@@ -212,11 +212,11 @@ Replace the placeholder names below with the actual team-member names.
 
 | Member | Main Module | Frontend Responsibilities | Backend Responsibilities | Main Database Tables |
 |---|---|---|---|---|
-| Member 1 – Name | Authentication and User Management | Login, registration, profile pages, guards, interceptors | JWT authentication, user APIs, role validation, provider profile APIs | `users`, `provider_profiles` |
-| Member 2 – Name | Services and Categories | Service listing, search, details, provider service forms | Category APIs, service CRUD, search and filtering | `service_categories`, `services`, `service_images`, `service_areas`, `favorites` |
-| Member 3 – Name | Bookings and Notifications | Booking form, booking history, provider requests, notifications | Booking lifecycle, availability, notification APIs | `bookings`, `provider_availability`, `notifications` |
-| Member 4 – Name | Reviews, Payments and Admin | Review forms, payment status, admin dashboard | Reviews, payment recording, admin-management APIs | `reviews`, `payments` |
-| Member 5 – Name | AI Features and Integration | AI assistant, recommendation results, review summaries | OpenAI integration, AI logging, matching and summarization | `ai_conversations`, `ai_messages`, `review_summaries`, `service_embeddings` |
+| Member 1 – Janaka | Authentication and User Management | Login, registration, profile pages, guards, interceptors | JWT authentication, user APIs, role validation, provider profile APIs | `users`, `provider_profiles` |
+| Member 2 – Mathisha | Services and Categories | Service listing, search, details, provider service forms | Category APIs, service CRUD, search and filtering | `service_categories`, `services`, `service_images`, `service_areas`, `favorites` |
+| Member 3 – Dasun | Bookings and Notifications | Booking form, booking history, provider requests, notifications | Booking lifecycle, availability, notification APIs | `bookings`, `provider_availability`, `notifications` |
+| Member 4 – Nilan | Reviews, Payments and Admin | Review forms, payment status, admin dashboard | Reviews, payment recording, admin-management APIs | `reviews`, `payments` |
+| Member 5 – Damith | AI Features and Integration | AI assistant, recommendation results, review summaries | OpenAI integration, AI logging, matching and summarization | `ai_conversations`, `ai_messages`, `review_summaries`, `service_embeddings` |
 
 Every member must complete work across:
 
@@ -233,7 +233,7 @@ Every member must complete work across:
 
 # Module Responsibilities
 
-## Member 1 – Authentication & User Management
+## Member 1 – Authentication & User Management (Janaka)
 
 ### Frontend
 - Login page
@@ -265,7 +265,7 @@ Every member must complete work across:
 
 ---
 
-## Member 2 – Services & Categories
+## Member 2 – Services & Categories (Mathisha)
 
 ### Frontend
 - Service categories page
@@ -293,7 +293,7 @@ Every member must complete work across:
 
 ---
 
-## Member 3 – Bookings & Notifications
+## Member 3 – Bookings & Notifications (Dasun)
 
 ### Frontend
 - Book service
@@ -316,7 +316,7 @@ Every member must complete work across:
 
 ---
 
-## Member 4 – Reviews, Payments & Administration
+## Member 4 – Reviews, Payments & Administration (Nilan)
 
 ### Frontend
 - Review form
@@ -342,7 +342,7 @@ Every member must complete work across:
 
 ---
 
-## Member 5 – AI Features
+## Member 5 – AI Features (Damith)
 
 ### Frontend
 - AI Assistant
