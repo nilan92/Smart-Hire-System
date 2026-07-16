@@ -67,19 +67,21 @@
   .star-btn {
     background: none;
     border: none;
-    font-size: 3rem;
-    color: #e5e7eb;
     cursor: pointer;
-    transition: color 0.15s ease, transform 0.1s ease;
-    padding: 0;
-    line-height: 1;
+    transition: transform 0.15s ease;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    &.active {
-      color: #fbbf24;
+    .star-svg {
+      width: 2.75rem;
+      height: 2.75rem;
+      transition: fill 0.15s ease, stroke 0.15s ease;
     }
 
     &:hover {
-      transform: scale(1.1);
+      transform: scale(1.15);
     }
 
     &:disabled {
@@ -185,6 +187,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.5rem;
   margin: 0 auto 2rem;
+
+  .check-svg {
+    width: 2.2rem;
+    height: 2.2rem;
+  }
 }

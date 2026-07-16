@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions } from 'chart.js';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -66,7 +67,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   fetchStats(): void {
-    this.http.get('http://localhost:8000/api/admin/dashboard-stats').subscribe({
+    this.http.get(`${environment.apiUrl}/admin/dashboard-stats`).subscribe({
       next: (data) => {
         console.log('Stats received:', data);
         this.stats = data;

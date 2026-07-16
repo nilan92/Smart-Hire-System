@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { RatingDisplayComponent } from '../rating-display/rating-display';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-provider-review-list',
@@ -22,7 +23,7 @@ export class ProviderReviewListComponent implements OnInit {
   }
 
   fetchReviews(): void {
-    this.http.get<any[]>(`http://localhost:8000/api/reviews/provider/${this.providerId}`).subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/reviews/provider/${this.providerId}`).subscribe({
       next: (data) => {
         this.reviews = data;
         this.loading = false;

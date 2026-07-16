@@ -2,13 +2,15 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { ToastService } from '../../../core/services/toast.service';
 import confetti from 'canvas-confetti';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-payment-status',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './payment-status.html',
   styleUrls: ['./payment-status.scss']
 })
@@ -46,7 +48,7 @@ export class PaymentStatusComponent implements OnInit {
         payment_method: this.selectedMethod
       };
 
-      this.http.post('http://localhost:8000/api/payments/', payload).subscribe({
+      this.http.post(`${environment.apiUrl}/payments/`, payload).subscribe({
         next: (res: any) => {
           this.paymentStatus = 'completed';
           this.cdr.detectChanges();

@@ -1,13 +1,13 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../../core/services/auth.service';
 import { User } from '../../../core/models/auth.models';
 
 @Component({
   selector: 'app-customer-profile',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
@@ -65,11 +65,11 @@ export class CustomerProfile implements OnInit {
     this.authService.updateUserProfile(this.form.getRawValue()).subscribe({
       next: (user) => {
         this.user = user;
-        this.message = 'Profile updated.';
+        this.message = '✅ Profile updated successfully!';
         this.saving = false;
       },
       error: () => {
-        this.message = 'Unable to update profile.';
+        this.message = 'Unable to update profile. Please try again.';
         this.saving = false;
       },
     });
@@ -77,6 +77,6 @@ export class CustomerProfile implements OnInit {
 
   logout(): void {
     this.authService.logout();
-    location.replace('/login');
+    this.router.navigateByUrl('/login', { replaceUrl: true });
   }
 }

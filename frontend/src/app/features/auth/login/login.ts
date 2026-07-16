@@ -17,11 +17,24 @@ export class Login {
 
   loading = false;
   errorMessage = '';
+  showPassword = false;
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]],
   });
+
+  fillAdmin(): void {
+    this.form.patchValue({ email: 'admin@gmail.com', password: '123456789' });
+  }
+
+  fillProvider(): void {
+    this.form.patchValue({ email: 'nilanpro@gmail.com', password: '12345678' });
+  }
+
+  fillCustomer(): void {
+    this.form.patchValue({ email: 'nilan@gmail.com', password: '12345678' });
+  }
 
   submit(): void {
     this.errorMessage = '';
@@ -42,7 +55,7 @@ export class Login {
         this.router.navigateByUrl(target, { replaceUrl: true });
       },
       error: () => {
-        this.errorMessage = 'Invalid email or password.';
+        this.errorMessage = 'Invalid email or password. Please try again.';
         this.loading = false;
       },
     });

@@ -1,36 +1,155 @@
-<div class="reviews-container">
-  <header class="page-header">
-    <div class="header-content">
-      <div>
-        <h1>Reviews & Sentiments</h1>
-        <p>Monitor platform feedback and AI-analyzed sentiments.</p>
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
       </div>
-      <div class="search-box">
-        <input type="text" placeholder="Search reviews..." [(ngModel)]="searchTerm">
+      <div>
+        <h1>Review Moderation</h1>
+        <p>Monitor and moderate all customer reviews</p>
       </div>
     </div>
-  </header>
+    <button class="btn-refresh" id="refresh-reviews-btn" (click)="fetchReviews()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <polyline points="1 20 1 14 7 14"></polyline>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      </svg>
+      Refresh
+    </button>
+  </div>
 
-  <div class="reviews-list">
-    <div *ngFor="let review of filteredReviews" class="review-card">
-      <div class="review-header">
-        <span class="customer-name">{{ review.customer }}</span>
-        <div class="review-meta">
-          <span *ngIf="review.bookingId" class="booking-ref">Booking #{{ review.bookingId }}</span>
-          <span class="review-date">{{ review.date | date:'medium' }}</span>
+  @if (loading) {
+    <div class="state-container">
+      <div class="spinner"></div>
+      <p>Loading reviews...</p>
+    </div>
+  }
+
+  @if (!loading && error) {
+    <div class="state-container error-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <p>{{ error }}</p>
+      <button class="btn-primary" (click)="fetchReviews()">Try Again</button>
+    </div>
+  }
+
+  @if (!loading && !error) {
+    <div class="summary-grid">
+      <div class="summary-card border-purple">
+        <div class="summary-icon bg-purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+        <div class="summary-content">
+          <p class="summary-label">Total Reviews</p>
+          <p class="summary-value">{{ totalCount }}</p>
         </div>
       </div>
-      <div class="rating-row">
-        <span class="rating">
-          <ng-container *ngFor="let star of [1,2,3,4,5]">
-            <i class="star" [class.filled]="star <= review.rating">★</i>
-          </ng-container>
-        </span>
-      </div>
-      <p class="comment">"{{ review.comment }}"</p>
-      <div class="sentiment-badge" [ngClass]="review.sentiment.toLowerCase()">
-        {{ review.sentiment }}
+      <div class="summary-card border-yellow">
+        <div class="summary-icon bg-yellow">
+          <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </div>
+        <div class="summary-content">
+          <p class="summary-label">Average Rating</p>
+          <p class="summary-value">{{ averageRating }} / 5</p>
+        </div>
       </div>
     </div>
-  </div>
+
+    <!-- Rating Filter -->
+    <div class="filter-bar">
+      <span class="filter-label">Filter by rating:</span>
+      <div class="filter-buttons">
+        <button class="filter-btn" [class.active]="selectedRating === null" (click)="setRatingFilter(null)" id="filter-all">All</button>
+        @for (star of [1, 2, 3, 4, 5]; track star) {
+          <button class="filter-btn" [class.active]="selectedRating === star" (click)="setRatingFilter(star)" [id]="'filter-star-' + star">
+            <svg class="star-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            {{ star }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <h2>Reviews</h2>
+        <span class="count-badge">{{ filteredReviews.length }} records</span>
+      </div>
+      <div class="table-wrapper">
+        <table id="reviews-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Booking ID</th>
+              <th>Customer ID</th>
+              <th>Provider ID</th>
+              <th>Rating</th>
+              <th>Comment</th>
+              <th>Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (review of filteredReviews; track review.id) {
+              <tr>
+                <td class="id-cell">#{{ review.id }}</td>
+                <td>#{{ review.booking_id }}</td>
+                <td>#{{ review.customer_id }}</td>
+                <td>#{{ review.provider_id }}</td>
+                <td>
+                  <div class="stars">
+                    @for (filled of getStarArray(review.rating); track $index) {
+                      <svg viewBox="0 0 24 24" [attr.fill]="filled ? '#f59e0b' : 'none'" [attr.stroke]="filled ? '#f59e0b' : '#d1d5db'" stroke-width="1.5">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                      </svg>
+                    }
+                    <span class="rating-num">({{ review.rating }})</span>
+                  </div>
+                </td>
+                <td class="comment-cell" [title]="review.comment">{{ truncateComment(review.comment) }}</td>
+                <td class="date-cell">{{ formatDate(review.created_at) }}</td>
+                <td>
+                  <button class="btn-delete" [disabled]="review.deleting" (click)="deleteReview(review)" [id]="'delete-review-' + review.id">
+                    @if (review.deleting) {
+                      <div class="btn-spinner"></div>
+                    } @else {
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                        <path d="M10 11v6M14 11v6"></path>
+                        <path d="M9 6V4h6v2"></path>
+                      </svg>
+                    }
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            }
+            @empty {
+              <tr>
+                <td colspan="8" class="empty-row">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                  <p>No reviews found</p>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
 </div>

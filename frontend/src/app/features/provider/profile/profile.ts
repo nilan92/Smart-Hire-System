@@ -93,11 +93,11 @@ export class ProviderProfile implements OnInit {
       next: ({ user, providerProfile }) => {
         this.user = user;
         this.providerProfile = providerProfile;
-        this.message = 'Provider profile updated.';
+        this.message = '✅ Provider profile updated successfully!';
         this.saving = false;
       },
       error: () => {
-        this.message = 'Unable to update provider profile.';
+        this.message = 'Unable to update provider profile. Please try again.';
         this.saving = false;
       },
     });
@@ -105,6 +105,7 @@ export class ProviderProfile implements OnInit {
 
   logout(): void {
     this.authService.logout();
-    location.replace('/login');
+    this.router.navigateByUrl('/login', { replaceUrl: true });
   }
 }
+

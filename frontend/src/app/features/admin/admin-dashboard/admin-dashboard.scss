@@ -69,7 +69,23 @@
     &.bg-purple { background: #f3e8ff; color: #9333ea; }
     &.bg-blue { background-color: #dbeafe; color: #2563eb; }
     &.bg-orange { background-color: #ffedd5; color: #ea580c; }
+    &.bg-teal { background-color: #ccfbf1; color: #0d9488; }
+    &.bg-yellow { background-color: #fef9c3; color: #ca8a04; }
   }
+
+.highlight-green {
+  border-left: 4px solid #16a34a;
+}
+
+.revenue {
+  color: #16a34a !important;
+}
+
+.stat-sub {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #9ca3af;
+}
 
 .chart-section {
   margin-top: 2rem;
@@ -122,6 +138,34 @@
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
+}
+
+.btn-action {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  &:hover {
+    background-color: #1d4ed8;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
 .btn-primary {

@@ -21,3 +21,7 @@ Here is a straightforward log of the technical problems we ran into while buildi
 ## 5. Duplicate Data Crashing the Seeder
 **The Hiccup:** When we clicked the "Populate Presentation Data" button twice, the backend threw a massive error and stopped halfway through.
 **The Fix:** Our backend database has a strict rule that `transaction_id` must be 100% unique. When the seeder tried to insert `TXN-1001` a second time, the database threw a `UniqueViolation` and blocked it (which is a good thing!). We fixed the user experience by locking the UI button to say "✅ Database Populated" after the first click so the user wouldn't trigger the error.
+
+## 6. FastAPI Route Prioritization Conflicts (Overlapping Path Parameters)
+**The Hiccup:** When adding public list endpoints like `GET /api/reviews/` or `GET /api/payments/`, FastAPI would throw 422 Validation Errors, treating the static paths (like `/`) or segments as path parameters (like `{review_id}`) and trying to parse them as integers.
+**The Fix:** FastAPI evaluates routes sequentially. We resolved this by reorganizing the route definitions so that static routes (e.g. `GET /api/reviews/`) are defined *before* dynamic routes with path parameters (e.g. `GET /api/reviews/{review_id}`).
