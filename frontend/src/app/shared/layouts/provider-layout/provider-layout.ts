@@ -20,14 +20,14 @@ export class ProviderLayout {
   readonly menuOpen = signal(false);
   readonly links: SidebarLink[] = [
     { label: 'Profile', route: APP_ROUTES.provider.profile },
-    { label: 'My Services', route: APP_ROUTES.provider.services, disabled: true, owner: 'Services module' },
-    { label: 'Service Areas', route: APP_ROUTES.provider.serviceAreas, disabled: true, owner: 'Services module' },
-    { label: 'Booking Requests', route: APP_ROUTES.provider.bookingRequests, disabled: true, owner: 'Bookings module' },
-    { label: 'Availability', route: APP_ROUTES.provider.availability, disabled: true, owner: 'Bookings module' },
-    { label: 'Notifications', route: APP_ROUTES.provider.notifications, disabled: true, owner: 'Notifications module' },
-    { label: 'Reviews', route: APP_ROUTES.provider.reviews, disabled: true, owner: 'Reviews module' },
-    { label: 'Payments', route: APP_ROUTES.provider.payments, disabled: true, owner: 'Payments module' },
-    { label: 'AI Insights', route: APP_ROUTES.provider.aiInsights, disabled: true, owner: 'AI module' },
+    { label: 'My Services', route: APP_ROUTES.provider.services },
+    { label: 'Service Areas', route: APP_ROUTES.provider.serviceAreas },
+    { label: 'Booking Requests', route: APP_ROUTES.provider.bookingRequests },
+    { label: 'Availability', route: APP_ROUTES.provider.availability },
+    { label: 'Notifications', route: APP_ROUTES.provider.notifications },
+    { label: 'Reviews', route: APP_ROUTES.provider.reviews },
+    { label: 'Payments', route: APP_ROUTES.provider.payments },
+    { label: 'AI Insights', route: APP_ROUTES.provider.aiInsights },
   ];
   readonly subtitle = computed(() => this.user()?.full_name || this.user()?.email || 'Provider');
 

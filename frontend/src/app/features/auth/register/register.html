@@ -1,87 +1,155 @@
-<main class="auth-shell">
-  <section class="auth-panel">
-    <h1>Create account</h1>
-    <p>Register as a customer or service provider.</p>
+<main class="auth-page">
+  <section class="auth-card register-card">
+    <aside class="brand-panel" aria-label="Smart Hire registration overview">
+      <a class="brand" routerLink="/login" aria-label="Smart Hire">
+        <span class="brand-icon">SH</span>
+        <span>
+          <strong>SMART HIRE</strong>
+          <small>Service Marketplace</small>
+        </span>
+      </a>
 
-    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-      <label>
-        Full name
-        <input type="text" formControlName="full_name" autocomplete="name" />
-        @if (form.controls.full_name.touched && form.controls.full_name.invalid) {
-          <small>Enter at least 2 characters.</small>
-        }
-      </label>
-
-      <label>
-        Email
-        <input type="email" formControlName="email" autocomplete="email" />
-        @if (form.controls.email.touched && form.controls.email.invalid) {
-          <small>Enter a valid email address.</small>
-        }
-      </label>
-
-      <label>
-        Phone
-        <input type="tel" formControlName="phone" autocomplete="tel" />
-        @if (form.controls.phone.touched && form.controls.phone.invalid) {
-          <small>Use 20 characters or fewer.</small>
-        }
-      </label>
-
-      <div class="role-row">
-        <label>
-          <input type="radio" formControlName="role" value="customer" />
-          Customer
-        </label>
-        <label>
-          <input type="radio" formControlName="role" value="provider" />
-          Provider
-        </label>
+      <div class="brand-message">
+        <h1>Start Fresh,<br />Pick Your Role</h1>
+        <p>
+          Create a customer account to book services, or a provider account to build your profile.
+        </p>
       </div>
 
-      @if (isProvider()) {
-        <fieldset formGroupName="provider_profile">
-          <legend>Provider profile</legend>
-          <label>
-            Bio
-            <textarea formControlName="bio" rows="4"></textarea>
-          </label>
-          <label>
-            Years of experience
-            <input type="number" formControlName="years_experience" min="0" />
-            @if (
-              form.controls.provider_profile.controls.years_experience.touched &&
-              form.controls.provider_profile.controls.years_experience.invalid
-            ) {
-              <small>Enter 0 or more years.</small>
+      <div class="brand-points" aria-label="Smart Hire account areas">
+        <span>Fast sign up</span>
+        <span>Protected access</span>
+        <span>Role dashboards</span>
+      </div>
+    </aside>
+
+    <section class="form-panel" aria-labelledby="register-title">
+      <nav class="auth-tabs" aria-label="Authentication">
+        <a routerLink="/login">Login</a>
+        <a class="active" routerLink="/register">Register</a>
+      </nav>
+
+      <div class="form-heading">
+        <h2 id="register-title">Create Account</h2>
+        <p>Choose the role that matches how you will use Smart Hire.</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="form-grid">
+          <div class="field-group">
+            <label for="full-name">Full name</label>
+            <input id="full-name" type="text" formControlName="full_name" autocomplete="name" placeholder="Enter your name" />
+            @if (form.controls.full_name.touched && form.controls.full_name.invalid) {
+              <small class="field-error">Enter at least 2 characters.</small>
             }
-          </label>
-        </fieldset>
-      }
+          </div>
 
-      <label>
-        Password
-        <input type="password" formControlName="password" autocomplete="new-password" />
-        @if (form.controls.password.touched && form.controls.password.invalid) {
-          <small>Use at least 8 characters.</small>
+          <div class="field-group">
+            <label for="register-email">Email address</label>
+            <input id="register-email" type="email" formControlName="email" autocomplete="email" placeholder="Enter your email" />
+            @if (form.controls.email.touched && form.controls.email.invalid) {
+              <small class="field-error">Enter a valid email address.</small>
+            }
+          </div>
+
+          <div class="field-group">
+            <label for="phone">Phone</label>
+            <input id="phone" type="tel" formControlName="phone" autocomplete="tel" placeholder="Enter phone number" />
+            @if (form.controls.phone.touched && form.controls.phone.invalid) {
+              <small class="field-error">Use 20 characters or fewer.</small>
+            }
+          </div>
+
+          <div class="field-group account-type-field">
+            <span class="field-label">Account type</span>
+            <div class="role-row">
+              <label class="role-option" [class.selected]="selectedRole() === 'customer'">
+                <input type="radio" formControlName="role" value="customer" />
+                <span>Customer</span>
+              </label>
+              <label class="role-option" [class.selected]="selectedRole() === 'provider'">
+                <input type="radio" formControlName="role" value="provider" />
+                <span>Provider</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        @if (isProvider()) {
+          <fieldset formGroupName="provider_profile">
+            <legend>Provider profile</legend>
+            <div class="field-group">
+              <label for="provider-bio">Bio</label>
+              <textarea id="provider-bio" formControlName="bio" rows="3" placeholder="Describe your experience"></textarea>
+            </div>
+            <div class="field-group">
+              <label for="years-experience">Years of experience</label>
+              <input id="years-experience" type="number" formControlName="years_experience" min="0" />
+              @if (
+                form.controls.provider_profile.controls.years_experience.touched &&
+                form.controls.provider_profile.controls.years_experience.invalid
+              ) {
+                <small class="field-error">Enter 0 or more years.</small>
+              }
+            </div>
+          </fieldset>
         }
-      </label>
 
-      <label>
-        Confirm password
-        <input type="password" formControlName="confirm_password" autocomplete="new-password" />
-        @if (form.controls.confirm_password.touched && form.controls.confirm_password.invalid) {
-          <small>Confirm your password with at least 8 characters.</small>
+        <div class="form-grid">
+          <div class="field-group">
+            <label for="register-password">Password</label>
+            <div class="password-field">
+              <input
+                id="register-password"
+                [type]="showPassword ? 'text' : 'password'"
+                formControlName="password"
+                autocomplete="new-password"
+                placeholder="At least 8 characters"
+              />
+              <button type="button" class="icon-button" (click)="showPassword = !showPassword">
+                {{ showPassword ? 'Hide' : 'Show' }}
+              </button>
+            </div>
+            @if (form.controls.password.touched && form.controls.password.invalid) {
+              <small class="field-error">Use at least 8 characters.</small>
+            }
+          </div>
+
+          <div class="field-group">
+            <label for="confirm-password">Confirm password</label>
+            <div class="password-field">
+              <input
+                id="confirm-password"
+                [type]="showConfirmPassword ? 'text' : 'password'"
+                formControlName="confirm_password"
+                autocomplete="new-password"
+                placeholder="Repeat password"
+              />
+              <button type="button" class="icon-button" (click)="showConfirmPassword = !showConfirmPassword">
+                {{ showConfirmPassword ? 'Hide' : 'Show' }}
+              </button>
+            </div>
+            @if (form.controls.confirm_password.touched && form.controls.confirm_password.invalid) {
+              <small class="field-error">Confirm your password.</small>
+            }
+          </div>
+        </div>
+
+        @if (errorMessage) {
+          <div class="alert" role="alert">{{ errorMessage }}</div>
         }
-      </label>
 
-      @if (errorMessage) {
-        <div class="alert">{{ errorMessage }}</div>
-      }
+        <button type="submit" [disabled]="loading">
+          @if (loading) {
+            <span class="spinner" aria-hidden="true"></span>
+            Creating account...
+          } @else {
+            Create Account
+          }
+        </button>
+      </form>
 
-      <button type="submit" [disabled]="loading">{{ loading ? 'Creating...' : 'Create account' }}</button>
-    </form>
-
-    <a routerLink="/login">I already have an account</a>
+      <p class="auth-footer">Already have an account? <a routerLink="/login">Login</a></p>
+    </section>
   </section>
 </main>

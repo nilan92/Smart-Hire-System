@@ -1,21 +1,15 @@
 <aside class="sidebar" [class.open]="open">
   <nav aria-label="Dashboard navigation">
     @for (link of links; track link.route) {
-      @if (link.disabled) {
-        <span class="nav-link disabled" [attr.title]="link.owner || 'Reserved for another module'">
-          {{ link.label }}
-        </span>
-      } @else {
-        <a
-          class="nav-link"
-          [routerLink]="link.route"
-          routerLinkActive="active"
-          [routerLinkActiveOptions]="{ exact: true }"
-          (click)="closeMenu.emit()"
-        >
-          {{ link.label }}
-        </a>
-      }
+      <a
+        class="nav-link"
+        [routerLink]="link.route"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="closeMenu.emit()"
+      >
+        {{ link.label }}
+      </a>
     }
   </nav>
 </aside>

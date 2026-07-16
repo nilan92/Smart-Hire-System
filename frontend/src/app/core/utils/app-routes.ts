@@ -26,6 +26,14 @@ export const APP_ROUTES = {
     aiInsights: '/provider/ai-insights',
   },
   admin: {
+    root: '/admin',
     dashboard: '/admin/dashboard',
+    users: '/admin/users',
+    categories: '/admin/categories',
+    services: '/admin/services',
+    bookings: '/admin/bookings',
+    reviews: '/admin/reviews',
+    payments: '/admin/payments',
+    testSystem: '/admin/test-system',
   },
 } as const;

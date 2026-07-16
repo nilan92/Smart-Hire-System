@@ -20,12 +20,12 @@ export class CustomerLayout {
   readonly menuOpen = signal(false);
   readonly links: SidebarLink[] = [
     { label: 'Profile', route: APP_ROUTES.customer.profile },
-    { label: 'Browse Services', route: APP_ROUTES.customer.browseServices, disabled: true, owner: 'Services module' },
-    { label: 'Favourites', route: APP_ROUTES.customer.favourites, disabled: true, owner: 'Services module' },
-    { label: 'My Bookings', route: APP_ROUTES.customer.bookings, disabled: true, owner: 'Bookings module' },
-    { label: 'Notifications', route: APP_ROUTES.customer.notifications, disabled: true, owner: 'Notifications module' },
-    { label: 'Reviews', route: APP_ROUTES.customer.reviews, disabled: true, owner: 'Reviews module' },
-    { label: 'AI Assistant', route: APP_ROUTES.customer.aiAssistant, disabled: true, owner: 'AI module' },
+    { label: 'Browse Services', route: APP_ROUTES.customer.browseServices },
+    { label: 'Favourites', route: APP_ROUTES.customer.favourites },
+    { label: 'My Bookings', route: APP_ROUTES.customer.bookings },
+    { label: 'Notifications', route: APP_ROUTES.customer.notifications },
+    { label: 'Reviews', route: APP_ROUTES.customer.reviews },
+    { label: 'AI Assistant', route: APP_ROUTES.customer.aiAssistant },
   ];
   readonly subtitle = computed(() => this.user()?.full_name || this.user()?.email || 'Customer');
 

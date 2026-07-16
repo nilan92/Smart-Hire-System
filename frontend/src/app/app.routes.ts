@@ -37,6 +37,36 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/customer/profile/profile').then((m) => m.CustomerProfile),
       },
+      {
+        path: 'services',
+        loadComponent: () =>
+          import('./features/customer/browse-services/browse-services').then((m) => m.CustomerBrowseServices),
+      },
+      {
+        path: 'favourites',
+        loadComponent: () =>
+          import('./features/customer/favourites/favourites').then((m) => m.CustomerFavourites),
+      },
+      {
+        path: 'bookings',
+        loadComponent: () =>
+          import('./features/customer/bookings/bookings').then((m) => m.CustomerBookings),
+      },
+      {
+        path: 'notifications',
+        loadComponent: () =>
+          import('./features/customer/notifications/notifications').then((m) => m.CustomerNotifications),
+      },
+      {
+        path: 'reviews',
+        loadComponent: () =>
+          import('./features/customer/reviews/reviews').then((m) => m.CustomerReviews),
+      },
+      {
+        path: 'ai-assistant',
+        loadComponent: () =>
+          import('./features/customer/ai-assistant/ai-assistant').then((m) => m.CustomerAiAssistant),
+      },
     ],
   },
   {
@@ -51,6 +81,46 @@ export const routes: Routes = [
         path: 'profile',
         loadComponent: () =>
           import('./features/provider/profile/profile').then((m) => m.ProviderProfile),
+      },
+      {
+        path: 'services',
+        loadComponent: () =>
+          import('./features/provider/services/services').then((m) => m.ProviderServices),
+      },
+      {
+        path: 'service-areas',
+        loadComponent: () =>
+          import('./features/provider/service-areas/service-areas').then((m) => m.ProviderServiceAreas),
+      },
+      {
+        path: 'booking-requests',
+        loadComponent: () =>
+          import('./features/provider/booking-requests/booking-requests').then((m) => m.ProviderBookingRequests),
+      },
+      {
+        path: 'availability',
+        loadComponent: () =>
+          import('./features/provider/availability/availability').then((m) => m.ProviderAvailability),
+      },
+      {
+        path: 'notifications',
+        loadComponent: () =>
+          import('./features/provider/notifications/notifications').then((m) => m.ProviderNotifications),
+      },
+      {
+        path: 'reviews',
+        loadComponent: () =>
+          import('./features/provider/reviews/reviews').then((m) => m.ProviderReviews),
+      },
+      {
+        path: 'payments',
+        loadComponent: () =>
+          import('./features/provider/payments/payments').then((m) => m.ProviderPayments),
+      },
+      {
+        path: 'ai-insights',
+        loadComponent: () =>
+          import('./features/provider/ai-insights/ai-insights').then((m) => m.ProviderAiInsights),
       },
     ],
   },

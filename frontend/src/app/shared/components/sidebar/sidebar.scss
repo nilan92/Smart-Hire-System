@@ -14,10 +14,15 @@ nav {
 .nav-link {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   min-height: 42px;
+  border: 0;
   border-radius: 8px;
   padding: 0 12px;
+  background: transparent;
   color: #334155;
+  font: inherit;
   text-decoration: none;
 }
 
@@ -25,11 +30,6 @@ nav {
   background: #ccfbf1;
   color: #134e4a;
   font-weight: 700;
-}
-
-.nav-link.disabled {
-  color: #94a3b8;
-  cursor: not-allowed;
 }
 
 @media (max-width: 760px) {
