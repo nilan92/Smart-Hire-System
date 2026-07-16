@@ -19,6 +19,7 @@ export class CustomerLayout {
   readonly user = this.authService.currentUser;
   readonly menuOpen = signal(false);
   readonly links: SidebarLink[] = [
+    { label: 'Dashboard', route: APP_ROUTES.customer.dashboard },
     { label: 'Profile', route: APP_ROUTES.customer.profile },
     { label: 'Browse Services', route: APP_ROUTES.customer.browseServices },
     { label: 'Favourites', route: APP_ROUTES.customer.favourites },

@@ -19,6 +19,7 @@ export class ProviderLayout {
   readonly user = this.authService.currentUser;
   readonly menuOpen = signal(false);
   readonly links: SidebarLink[] = [
+    { label: 'Dashboard', route: APP_ROUTES.provider.dashboard },
     { label: 'Profile', route: APP_ROUTES.provider.profile },
     { label: 'My Services', route: APP_ROUTES.provider.services },
     { label: 'Service Areas', route: APP_ROUTES.provider.serviceAreas },

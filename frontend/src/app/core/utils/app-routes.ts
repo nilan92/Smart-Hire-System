@@ -5,6 +5,7 @@ export const APP_ROUTES = {
   notFound: '/not-found',
   customer: {
     root: '/customer',
+    dashboard: '/customer/dashboard',
     profile: '/customer/profile',
     browseServices: '/customer/services',
     favourites: '/customer/favourites',
@@ -15,6 +16,7 @@ export const APP_ROUTES = {
   },
   provider: {
     root: '/provider',
+    dashboard: '/provider/dashboard',
     profile: '/provider/profile',
     services: '/provider/services',
     serviceAreas: '/provider/service-areas',

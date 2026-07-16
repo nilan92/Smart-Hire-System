@@ -87,10 +87,10 @@ export class AuthService {
       return APP_ROUTES.admin.dashboard;
     }
     if (user?.role === 'provider') {
-      return APP_ROUTES.provider.profile;
+      return APP_ROUTES.provider.dashboard;
     }
     if (user?.role === 'customer') {
-      return APP_ROUTES.customer.profile;
+      return APP_ROUTES.customer.dashboard;
     }
     return APP_ROUTES.unauthorized;
   }

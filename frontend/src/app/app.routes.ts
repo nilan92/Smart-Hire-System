@@ -31,7 +31,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./shared/layouts/customer-layout/customer-layout').then((m) => m.CustomerLayout),
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'profile' },
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/customer/dashboard/dashboard').then((m) => m.CustomerDashboard),
+      },
       {
         path: 'profile',
         loadComponent: () =>
@@ -76,7 +81,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./shared/layouts/provider-layout/provider-layout').then((m) => m.ProviderLayout),
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'profile' },
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/provider/dashboard/dashboard').then((m) => m.ProviderDashboard),
+      },
       {
         path: 'profile',
         loadComponent: () =>
