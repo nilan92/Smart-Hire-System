@@ -29,7 +29,9 @@ Routes:
 - `/login`
 - `/register`
 - `/unauthorized`
+- `/customer/dashboard`
 - `/customer/profile`
+- `/provider/dashboard`
 - `/provider/profile`
 
 Folders:
@@ -37,18 +39,34 @@ Folders:
 - `frontend/src/app/features/auth/login/`
 - `frontend/src/app/features/auth/register/`
 - `frontend/src/app/features/auth/unauthorized/`
+- `frontend/src/app/features/customer/dashboard/`
 - `frontend/src/app/features/customer/profile/`
+- `frontend/src/app/features/provider/dashboard/`
 - `frontend/src/app/features/provider/profile/`
 
 Responsibilities:
 
 - Login and registration
 - JWT session handling
+- Customer dashboard placeholder shell
 - Customer profile
+- Provider dashboard placeholder shell
 - Provider profile
 - Shared route guards and auth interceptor
 
 ## Customer Pages
+
+### Dashboard
+
+Owner: Authentication module member
+
+Route:
+
+- `/customer/dashboard`
+
+Folder:
+
+- `frontend/src/app/features/customer/dashboard/`
 
 ### Browse Services
 
@@ -123,6 +141,18 @@ Folder:
 - `frontend/src/app/features/customer/ai-assistant/`
 
 ## Provider Pages
+
+### Dashboard
+
+Owner: Authentication module member
+
+Route:
+
+- `/provider/dashboard`
+
+Folder:
+
+- `frontend/src/app/features/provider/dashboard/`
 
 ### My Services
 
@@ -246,4 +276,41 @@ Routes and folders:
 
 ## Current Placeholder Purpose
 
-The placeholder pages exist only to reserve routes and make sidebar links clickable. They do not implement business logic. Each member can safely replace the placeholder content in their assigned folder.
+The placeholder pages exist only to reserve routes and make sidebar links clickable. They do not implement business logic. Each member can safely replace the placeholder HTML, SCSS, and TypeScript in their assigned folder.
+
+## Current Sidebar Order
+
+Customer sidebar:
+
+1. Dashboard -> `/customer/dashboard`
+2. Profile -> `/customer/profile`
+3. Browse Services -> `/customer/services`
+4. Favourites -> `/customer/favourites`
+5. My Bookings -> `/customer/bookings`
+6. Notifications -> `/customer/notifications`
+7. Reviews -> `/customer/reviews`
+8. AI Assistant -> `/customer/ai-assistant`
+
+Provider sidebar:
+
+1. Dashboard -> `/provider/dashboard`
+2. Profile -> `/provider/profile`
+3. My Services -> `/provider/services`
+4. Service Areas -> `/provider/service-areas`
+5. Booking Requests -> `/provider/booking-requests`
+6. Availability -> `/provider/availability`
+7. Notifications -> `/provider/notifications`
+8. Reviews -> `/provider/reviews`
+9. Payments -> `/provider/payments`
+10. AI Insights -> `/provider/ai-insights`
+
+Admin sidebar:
+
+1. Dashboard -> `/admin/dashboard`
+2. Users -> `/admin/users`
+3. Categories -> `/admin/categories`
+4. Services -> `/admin/services`
+5. Bookings -> `/admin/bookings`
+6. Reviews -> `/admin/reviews`
+7. Payments -> `/admin/payments`
+8. Test System -> `/admin/test-system`

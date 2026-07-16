@@ -1566,6 +1566,94 @@ Only after these checks pass should feature development begin.
 
 ---
 
+# Current Frontend Routes and Page Ownership
+
+The shared authentication, guards, interceptors, navbar, sidebar, and dashboard layouts are already prepared. Team members should add feature code inside their assigned page folders and avoid changing shared auth or layout files without coordination.
+
+Do not modify these shared files without coordination:
+
+- `frontend/src/app/core/services/auth.service.ts`
+- `frontend/src/app/core/services/token.service.ts`
+- `frontend/src/app/core/guards/auth.guard.ts`
+- `frontend/src/app/core/guards/role.guard.ts`
+- `frontend/src/app/core/interceptors/auth.interceptor.ts`
+- `frontend/src/app/shared/layouts/customer-layout/`
+- `frontend/src/app/shared/layouts/provider-layout/`
+- `frontend/src/app/features/admin/admin-layout/`
+- `frontend/src/app/shared/components/navbar/`
+- `frontend/src/app/shared/components/sidebar/`
+- `frontend/src/app/app.routes.ts`
+
+## Authentication Routes
+
+| Route | Folder | Owner |
+|---|---|---|
+| `/login` | `frontend/src/app/features/auth/login/` | Authentication member |
+| `/register` | `frontend/src/app/features/auth/register/` | Authentication member |
+| `/unauthorized` | `frontend/src/app/features/auth/unauthorized/` | Authentication member |
+| `/not-found` | `frontend/src/app/features/auth/not-found/` | Authentication member |
+
+## Customer Routes
+
+| Route | Folder | Owner |
+|---|---|---|
+| `/customer/dashboard` | `frontend/src/app/features/customer/dashboard/` | Authentication member |
+| `/customer/profile` | `frontend/src/app/features/customer/profile/` | Authentication member |
+| `/customer/services` | `frontend/src/app/features/customer/browse-services/` | Services module member |
+| `/customer/favourites` | `frontend/src/app/features/customer/favourites/` | Services module member |
+| `/customer/bookings` | `frontend/src/app/features/customer/bookings/` | Bookings module member |
+| `/customer/notifications` | `frontend/src/app/features/customer/notifications/` | Notifications module member |
+| `/customer/reviews` | `frontend/src/app/features/customer/reviews/` | Reviews module member |
+| `/customer/ai-assistant` | `frontend/src/app/features/customer/ai-assistant/` | AI module member |
+
+`/customer` redirects to `/customer/dashboard`.
+
+## Provider Routes
+
+| Route | Folder | Owner |
+|---|---|---|
+| `/provider/dashboard` | `frontend/src/app/features/provider/dashboard/` | Authentication member |
+| `/provider/profile` | `frontend/src/app/features/provider/profile/` | Authentication member |
+| `/provider/services` | `frontend/src/app/features/provider/services/` | Services module member |
+| `/provider/service-areas` | `frontend/src/app/features/provider/service-areas/` | Services module member |
+| `/provider/booking-requests` | `frontend/src/app/features/provider/booking-requests/` | Bookings module member |
+| `/provider/availability` | `frontend/src/app/features/provider/availability/` | Bookings module member |
+| `/provider/notifications` | `frontend/src/app/features/provider/notifications/` | Notifications module member |
+| `/provider/reviews` | `frontend/src/app/features/provider/reviews/` | Reviews module member |
+| `/provider/payments` | `frontend/src/app/features/provider/payments/` | Payments module member |
+| `/provider/ai-insights` | `frontend/src/app/features/provider/ai-insights/` | AI module member |
+
+`/provider` redirects to `/provider/dashboard`.
+
+## Admin Routes
+
+| Route | Folder | Owner |
+|---|---|---|
+| `/admin/dashboard` | `frontend/src/app/features/admin/admin-dashboard/` | Admin module member |
+| `/admin/users` | `frontend/src/app/features/admin/user-management/` | Admin module member |
+| `/admin/categories` | `frontend/src/app/features/admin/category-management/` | Admin module member |
+| `/admin/services` | `frontend/src/app/features/admin/service-moderation/` | Admin module member |
+| `/admin/bookings` | `frontend/src/app/features/admin/booking-monitoring/` | Admin module member |
+| `/admin/reviews` | `frontend/src/app/features/admin/review-moderation/` | Admin module member |
+| `/admin/payments` | `frontend/src/app/features/admin/payment-management/` | Admin module member |
+| `/admin/test-system` | `frontend/src/app/features/admin/test-system/` | Admin module member |
+
+`/admin` redirects to `/admin/dashboard`.
+
+## Placeholder Page Rule
+
+Customer and provider non-auth pages currently contain simple placeholder pages. These placeholders reserve route paths and make sidebar navigation work. Each module owner should replace only the files inside their assigned folder when implementing the real page.
+
+For example:
+
+- Services member replaces `frontend/src/app/features/customer/browse-services/` and `frontend/src/app/features/provider/services/`.
+- Bookings member replaces `frontend/src/app/features/customer/bookings/` and `frontend/src/app/features/provider/booking-requests/`.
+- Notifications member replaces `frontend/src/app/features/customer/notifications/` and `frontend/src/app/features/provider/notifications/`.
+- Reviews member replaces `frontend/src/app/features/customer/reviews/` and `frontend/src/app/features/provider/reviews/`.
+- AI member replaces `frontend/src/app/features/customer/ai-assistant/` and `frontend/src/app/features/provider/ai-insights/`.
+
+---
+
 # Project Status
 
 | Area | Status |
