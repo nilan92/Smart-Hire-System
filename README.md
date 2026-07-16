@@ -231,6 +231,202 @@ Every member must complete work across:
 
 ---
 
+# Module Responsibilities
+
+## Member 1 – Authentication & User Management
+
+### Frontend
+- Login page
+- Registration page
+- Customer profile
+- Provider profile
+- Customer dashboard layout
+- Provider dashboard layout
+- Auth Guard
+- Role Guard
+- JWT Interceptor
+- Authentication Service
+
+### Backend
+- User authentication
+- JWT token generation
+- Password hashing
+- Registration API
+- Login API
+- Current user API
+- User profile API
+- Provider profile API
+- Role validation
+- Authentication dependencies
+
+### Database
+- users
+- provider_profiles
+
+---
+
+## Member 2 – Services & Categories
+
+### Frontend
+- Service categories page
+- Browse services
+- Search services
+- Service details
+- Add/Edit service
+- My services
+- Favourite services
+
+### Backend
+- Category CRUD
+- Service CRUD
+- Search & filtering
+- Favourite APIs
+- Service image APIs
+- Service area APIs
+
+### Database
+- service_categories
+- services
+- service_images
+- service_areas
+- favorites
+
+---
+
+## Member 3 – Bookings & Notifications
+
+### Frontend
+- Book service
+- Booking history
+- Booking details
+- Provider booking requests
+- Availability management
+- Notifications page
+
+### Backend
+- Booking lifecycle
+- Provider availability
+- Booking status
+- Notification APIs
+
+### Database
+- bookings
+- provider_availability
+- notifications
+
+---
+
+## Member 4 – Reviews, Payments & Administration
+
+### Frontend
+- Review form
+- My reviews
+- Payment status
+- Provider reviews
+- Admin dashboard
+- User management
+- Category management
+- Provider verification
+
+### Backend
+- Review APIs
+- Payment APIs
+- Admin APIs
+- Dashboard statistics
+- User management
+- Provider verification
+
+### Database
+- reviews
+- payments
+
+---
+
+## Member 5 – AI Features
+
+### Frontend
+- AI Assistant
+- Service recommendation page
+- AI provider matching
+- Review summary page
+
+### Backend
+- OpenAI integration
+- AI recommendation
+- AI chat
+- AI review summarization
+- AI conversation logging
+
+### Database
+- ai_conversations
+- ai_messages
+- review_summaries
+- service_embeddings
+
+
+# Dashboard Ownership
+
+## Customer Dashboard
+
+| Section | Owner |
+|---------|-------|
+| Dashboard Layout | Member 1 |
+| Profile | Member 1 |
+| Browse Services | Member 2 |
+| Search Services | Member 2 |
+| Favourite Services | Member 2 |
+| Bookings | Member 3 |
+| Notifications | Member 3 |
+| Reviews | Member 4 |
+| Payments | Member 4 |
+| AI Assistant | Member 5 |
+
+---
+
+## Provider Dashboard
+
+| Section | Owner |
+|---------|-------|
+| Dashboard Layout | Member 1 |
+| Provider Profile | Member 1 |
+| My Services | Member 2 |
+| Service Areas | Member 2 |
+| Booking Requests | Member 3 |
+| Availability | Member 3 |
+| Notifications | Member 3 |
+| Reviews | Member 4 |
+| Payments | Member 4 |
+| AI Insights | Member 5 |
+
+---
+
+## Admin Dashboard
+
+| Section | Owner |
+|---------|-------|
+| Admin Dashboard | Member 4 |
+| User Management | Member 4 |
+| Provider Verification | Member 4 |
+| Categories | Member 4 |
+| Services | Member 4 |
+| Bookings | Member 4 |
+| Payments | Member 4 |
+| AI Analytics (Optional) | Member 5 |
+
+
+# Module Development Order
+
+1. Member 1 – Authentication & User Management
+2. Member 2 – Services & Categories
+3. Member 3 – Bookings & Notifications
+4. Member 4 – Reviews, Payments & Administration
+5. Member 5 – AI Integration
+6. Module Integration
+7. Testing & Bug Fixing
+8. Final Deployment
+
+---
+
 # Technology Stack
 
 ## Frontend
