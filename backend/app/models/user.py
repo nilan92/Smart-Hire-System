@@ -9,6 +9,7 @@ from app.core.database import Base
 
 if TYPE_CHECKING:
     from app.models.provider_profile import ProviderProfile
+    from app.models.ai_conversation import AIConversation
 
 
 class UserRole(str, enum.Enum):
@@ -55,13 +56,21 @@ class User(Base):
     )
 
     role: Mapped[UserRole] = mapped_column(
-        Enum(UserRole, name="user_role", values_callable=lambda enum_cls: [item.value for item in enum_cls]),
+        Enum(
+            UserRole,
+            name="user_role",
+            values_callable=lambda enum_cls: [item.value for item in enum_cls],
+        ),
         nullable=False,
         default=UserRole.CUSTOMER,
     )
 
     status: Mapped[AccountStatus] = mapped_column(
-        Enum(AccountStatus, name="account_status", values_callable=lambda enum_cls: [item.value for item in enum_cls]),
+        Enum(
+            AccountStatus,
+            name="account_status",
+            values_callable=lambda enum_cls: [item.value for item in enum_cls],
+        ),
         nullable=False,
         default=AccountStatus.ACTIVE,
     )
@@ -89,5 +98,11 @@ class User(Base):
         "ProviderProfile",
         back_populates="user",
         uselist=False,
+        cascade="all, delete-orphan",
+    )
+
+    ai_conversations: Mapped[list["AIConversation"]] = relationship(
+        "AIConversation",
+        back_populates="user",
         cascade="all, delete-orphan",
     )
