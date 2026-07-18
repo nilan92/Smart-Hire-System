@@ -1,4 +1,6 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { environment } from '../../../environments/environment';
 
 import { MarketplaceService, ServiceArea, ServiceCategory } from '../models/service.models';
 
@@ -31,17 +33,37 @@ const INITIAL_AREAS: ServiceArea[] = [
 
 @Injectable({ providedIn: 'root' })
 export class MarketplaceServiceStore {
+  private readonly http = inject(HttpClient);
+  private readonly api = `${environment.apiUrl}/services`;
   readonly categories = signal(CATEGORIES);
   readonly services = signal(this.read<MarketplaceService[]>(SERVICES_KEY, INITIAL_SERVICES));
   readonly favouriteIds = signal(this.read<number[]>(FAVOURITES_KEY, [101, 105]));
   readonly areas = signal(this.read<ServiceArea[]>(AREAS_KEY, INITIAL_AREAS));
   readonly favourites = computed(() => this.services().filter((service) => this.favouriteIds().includes(service.id)));
 
+  loadMarketplace(): void {
+    this.http.get<ApiService[]>(this.api).subscribe({ next: (items) => { const mapped = items.map(this.mapService); this.services.set(mapped); this.write(SERVICES_KEY, mapped); } });
+    this.http.get<ServiceCategory[]>(`${this.api}/categories`).subscribe({ next: (items) => this.categories.set(items) });
+  }
+
+  loadCustomerData(): void {
+    this.loadMarketplace();
+    this.http.get<ApiService[]>(`${this.api}/favourites/me`).subscribe({ next: (items) => { const ids = items.map((item) => item.id); this.favouriteIds.set(ids); this.write(FAVOURITES_KEY, ids); } });
+  }
+
+  loadProviderData(): void {
+    this.http.get<ServiceCategory[]>(`${this.api}/categories`).subscribe({ next: (items) => this.categories.set(items) });
+    this.http.get<ApiService[]>(`${this.api}/mine`).subscribe({ next: (items) => { const mine = items.map(this.mapService); this.services.set(mine); this.write(SERVICES_KEY, mine); } });
+    this.http.get<ApiArea[]>(`${this.api}/areas/mine`).subscribe({ next: (items) => { const areas = items.map((item) => ({ id:item.id, district:item.district, city:item.city, radiusKm:item.radius_km })); this.areas.set(areas); this.write(AREAS_KEY, areas); } });
+  }
+
   toggleFavourite(serviceId: number): boolean {
     const ids = this.favouriteIds();
     const next = ids.includes(serviceId) ? ids.filter((id) => id !== serviceId) : [...ids, serviceId];
     this.favouriteIds.set(next);
     this.write(FAVOURITES_KEY, next);
+    const request = next.includes(serviceId) ? this.http.post(`${this.api}/${serviceId}/favourite`, {}) : this.http.delete(`${this.api}/${serviceId}/favourite`);
+    request.subscribe({ error: () => { this.favouriteIds.set(ids); this.write(FAVOURITES_KEY, ids); } });
     return next.includes(serviceId);
   }
 
@@ -56,6 +78,9 @@ export class MarketplaceServiceStore {
       : [{ ...service, id: Date.now(), providerId: 1, providerName: 'My business', rating: 0, reviewCount: 0 }, ...current];
     this.services.set(next);
     this.write(SERVICES_KEY, next);
+    const payload = { category_id:service.categoryId, title:service.title, description:service.description, price:service.price, city:service.city, duration:service.duration, status:service.status };
+    const request = id ? this.http.put<ApiService>(`${this.api}/${id}`, payload) : this.http.post<ApiService>(this.api, payload);
+    request.subscribe({ next: (saved) => { const mapped = this.mapService(saved); this.services.update((items) => id ? items.map((item) => item.id === id ? mapped : item) : [mapped, ...items.filter((item) => item.id < 1000000000000)]); this.write(SERVICES_KEY, this.services()); } });
   }
 
   removeService(id: number): void {
@@ -64,22 +89,30 @@ export class MarketplaceServiceStore {
     this.write(SERVICES_KEY, next);
     this.favouriteIds.set(this.favouriteIds().filter((serviceId) => serviceId !== id));
     this.write(FAVOURITES_KEY, this.favouriteIds());
+    this.http.delete(`${this.api}/${id}`).subscribe({ error: () => this.loadProviderData() });
   }
 
   saveArea(area: Omit<ServiceArea, 'id'>): void {
     const next = [...this.areas(), { ...area, id: Date.now() }];
     this.areas.set(next);
     this.write(AREAS_KEY, next);
+    const optimisticId = next[next.length - 1].id;
+    this.http.post<ApiArea>(`${this.api}/areas`, { district:area.district, city:area.city, radius_km:area.radiusKm }).subscribe({ next: (saved) => { this.areas.update((items) => [...items.filter((item) => item.id !== optimisticId), { id:saved.id, district:saved.district, city:saved.city, radiusKm:saved.radius_km }]); this.write(AREAS_KEY, this.areas()); } });
   }
 
   removeArea(id: number): void {
     const next = this.areas().filter((area) => area.id !== id);
     this.areas.set(next);
     this.write(AREAS_KEY, next);
+    this.http.delete(`${this.api}/areas/${id}`).subscribe({ error: () => this.loadProviderData() });
   }
 
   categoryName(id: number): string {
     return this.categories().find((category) => category.id === id)?.name ?? 'Other';
+  }
+
+  categoryIcon(id: number): string {
+    return this.categories().find((category) => category.id === id)?.icon ?? 'SH';
   }
 
   private read<T>(key: string, fallback: T): T {
@@ -90,4 +123,9 @@ export class MarketplaceServiceStore {
   private write(key: string, value: unknown): void {
     if (typeof localStorage !== 'undefined') localStorage.setItem(key, JSON.stringify(value));
   }
+
+  private readonly mapService = (item: ApiService): MarketplaceService => ({ id:item.id, providerId:item.provider_id, providerName:item.provider_name, categoryId:item.category_id, title:item.title, description:item.description, city:item.city, price:Number(item.price), rating:item.rating, reviewCount:item.review_count, duration:item.duration, status:item.status });
 }
+
+interface ApiService { id:number; provider_id:number; provider_name:string; category_id:number; title:string; description:string; city:string; price:number|string; rating:number; review_count:number; duration:string; status:'active'|'paused'|'draft'; }
+interface ApiArea { id:number; provider_id:number; district:string; city:string; radius_km:number; service_id?:number; }

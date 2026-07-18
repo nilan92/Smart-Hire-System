@@ -1,5 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MarketplaceServiceStore } from '../../../core/services/marketplace.service';
 
@@ -9,6 +9,7 @@ import { MarketplaceServiceStore } from '../../../core/services/marketplace.serv
   templateUrl: './favourites.html',
   styleUrl: './favourites.scss',
 })
-export class CustomerFavourites {
+export class CustomerFavourites implements OnInit {
   readonly store = inject(MarketplaceServiceStore);
+  ngOnInit(): void { this.store.loadCustomerData(); }
 }

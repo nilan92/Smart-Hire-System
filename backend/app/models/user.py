@@ -8,7 +8,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import Base
 
 if TYPE_CHECKING:
+    from app.models.favorite import Favorite
     from app.models.provider_profile import ProviderProfile
+    from app.models.service import Service
+    from app.models.service_area import ServiceArea
 
 
 class UserRole(str, enum.Enum):
@@ -91,3 +94,6 @@ class User(Base):
         uselist=False,
         cascade="all, delete-orphan",
     )
+    services: Mapped[list["Service"]] = relationship("Service", back_populates="provider", cascade="all, delete-orphan")
+    favorites: Mapped[list["Favorite"]] = relationship("Favorite", back_populates="user", cascade="all, delete-orphan")
+    service_areas: Mapped[list["ServiceArea"]] = relationship("ServiceArea", back_populates="provider", cascade="all, delete-orphan")
