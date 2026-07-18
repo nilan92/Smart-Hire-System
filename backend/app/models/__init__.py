@@ -7,6 +7,11 @@ from app.models.user import (
     User,
     UserRole,
 )
+from app.models.favorite import Favorite
+from app.models.service import Service, ServiceStatus
+from app.models.service_area import ServiceArea
+from app.models.service_category import ServiceCategory
+from app.models.service_image import ServiceImage
 
 __all__ = [
     "User",
@@ -14,4 +19,5 @@ __all__ = [
     "AccountStatus",
     "ProviderProfile",
     "VerificationStatus",
+    "ServiceCategory", "Service", "ServiceStatus", "ServiceImage", "ServiceArea", "Favorite",
 ]

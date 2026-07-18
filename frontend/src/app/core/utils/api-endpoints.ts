@@ -9,4 +9,13 @@ export const API_ENDPOINTS = {
     providerProfile: '/users/provider-profile',
     publicProvider: (providerId: number) => `/users/providers/${providerId}`,
   },
+  services: {
+    list: '/services',
+    categories: '/services/categories',
+    mine: '/services/mine',
+    favourites: '/services/favourites/me',
+    favourite: (serviceId: number) => `/services/${serviceId}/favourite`,
+    areas: '/services/areas',
+    myAreas: '/services/areas/mine',
+  },
 } as const;

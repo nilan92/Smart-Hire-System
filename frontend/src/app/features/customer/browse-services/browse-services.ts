@@ -1,5 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { MarketplaceServiceStore } from '../../../core/services/marketplace.service';
@@ -10,7 +10,7 @@ import { MarketplaceServiceStore } from '../../../core/services/marketplace.serv
   templateUrl: './browse-services.html',
   styleUrl: './browse-services.scss',
 })
-export class CustomerBrowseServices {
+export class CustomerBrowseServices implements OnInit {
   readonly store = inject(MarketplaceServiceStore);
   readonly search = signal('');
   readonly categoryId = signal(0);
@@ -28,6 +28,8 @@ export class CustomerBrowseServices {
     );
     return [...result].sort((a, b) => this.sort() === 'price-low' ? a.price - b.price : this.sort() === 'rating' ? b.rating - a.rating : Number(b.featured) - Number(a.featured) || b.rating - a.rating);
   });
+
+  ngOnInit(): void { this.store.loadCustomerData(); }
 
   clearFilters(): void {
     this.search.set(''); this.categoryId.set(0); this.city.set(''); this.sort.set('recommended');

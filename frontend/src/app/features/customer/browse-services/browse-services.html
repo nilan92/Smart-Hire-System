@@ -30,7 +30,7 @@
         <div class="card-visual category-{{ service.categoryId }}">
           <span class="category-pill">{{ store.categoryName(service.categoryId) }}</span>
           <button class="heart" [class.saved]="store.isFavourite(service.id)" (click)="store.toggleFavourite(service.id)" [attr.aria-label]="store.isFavourite(service.id) ? 'Remove from favourites' : 'Add to favourites'">{{ store.isFavourite(service.id) ? '♥' : '♡' }}</button>
-          <span class="visual-icon">{{ store.categories()[service.categoryId - 1].icon }}</span>
+          <span class="visual-icon">{{ store.categoryIcon(service.categoryId) }}</span>
         </div>
         <div class="card-body">
           <div class="rating">★ {{ service.rating }} <span>({{ service.reviewCount }} reviews)</span></div>
