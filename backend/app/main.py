@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.ai.router import router as ai_router
 
 from app.core.config import settings
 from app.routers.health import router as health_router
@@ -43,7 +44,11 @@ app.include_router(reviews_router)
 app.include_router(payments_router)
 app.include_router(notifications_router)
 app.include_router(admin_router)
-app.include_router(ai_router)
+app.include_router(
+    ai_router,
+    prefix="/ai",
+    tags=["AI"],
+)
 
 @app.get("/")
 def root():
