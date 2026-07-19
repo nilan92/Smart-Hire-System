@@ -1,7 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.ai.router import router as ai_router
-
 from app.core.config import settings
 from app.routers.health import router as health_router
 from app.routers.auth import router as auth_router
@@ -12,7 +10,8 @@ from app.routers.reviews import router as reviews_router
 from app.routers.payments import router as payments_router
 from app.routers.notifications import router as notifications_router
 from app.routers.admin import router as admin_router
-from app.routers.ai import router as ai_router
+from app.ai.router import router as ai_router
+
 
 
 
@@ -44,6 +43,7 @@ app.include_router(reviews_router)
 app.include_router(payments_router)
 app.include_router(notifications_router)
 app.include_router(admin_router)
+
 app.include_router(
     ai_router,
     prefix="/ai",

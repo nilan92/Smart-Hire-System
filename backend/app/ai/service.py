@@ -1,13 +1,38 @@
+from openai import OpenAI
+from app.core.config import settings
+
+
 class AIService:
 
-    async def chat(self):
-        return {"reply": "Hello"}
+    def __init__(self):
+        self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
+
+    async def chat(self, message: str):
+        try:
+            response = self.client.chat.completions.create(
+                model="gpt-4.1-mini",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are SmartHire AI Assistant."
+                    },
+                    {
+                        "role": "user",
+                        "content": message
+                    }
+                ]
+            )
+
+            return response.choices[0].message.content
+
+        except Exception as e:
+            return str(e)
 
     async def recommend_service(self):
-        return {"recommendation": "Electrician"}
+        pass
 
     async def match_provider(self):
-        return {"provider": "John"}
+        pass
 
     async def summarize_reviews(self):
-        return {"summary": "Very good service"}
+        pass
