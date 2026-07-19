@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from app.core.database import Base, engine
 from app.core.config import settings
 from app.routers.health import router as health_router
 from app.routers.auth import router as auth_router
@@ -13,7 +13,7 @@ from app.routers.notifications import router as notifications_router
 from app.routers.admin import router as admin_router
 from app.routers.ai import router as ai_router
 
-
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title=settings.app_name,

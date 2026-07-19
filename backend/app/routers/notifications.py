@@ -15,7 +15,7 @@ router = APIRouter(
 @router.get("", response_model=list[NotificationResponse])
 def list_my_notifications(
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db()),
+    db: Session = Depends(get_db),
 ):
     return NotificationService(db).list_for_user(current_user.id)
 
