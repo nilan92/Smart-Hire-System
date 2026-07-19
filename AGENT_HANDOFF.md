@@ -45,3 +45,11 @@
 - Wire the `SubmitReviewFormComponent` to `POST /api/reviews/`.
 - Build the payment flow page connected to real `POST /api/payments/`.
 - Integrate real Stripe/PayPal checkout SDKs for production.
+
+## Public Landing Page (2026-07-19)
+- Added a responsive public home page at `/` in `frontend/src/app/features/home/` using the established teal, green, and white auth-page theme.
+- The page includes a fixed responsive navbar, hero and service preview, service categories, three-step workflow, CTA, and footer.
+- The navbar and CTAs link to `/login`, `/register`, and landing-page sections; its mobile menu uses an Angular signal.
+- Changed the root route from a login redirect to a lazy-loaded `Home` component and added `APP_ROUTES.home`.
+- Login and registration brand logos now navigate back to `/`.
+- Verified with `npm run build`; the production build passes (existing Sass deprecation and bundle/style warning budgets remain).

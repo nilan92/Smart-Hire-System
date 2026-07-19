@@ -25,3 +25,7 @@ Here is a straightforward log of the technical problems we ran into while buildi
 ## 6. FastAPI Route Prioritization Conflicts (Overlapping Path Parameters)
 **The Hiccup:** When adding public list endpoints like `GET /api/reviews/` or `GET /api/payments/`, FastAPI would throw 422 Validation Errors, treating the static paths (like `/`) or segments as path parameters (like `{review_id}`) and trying to parse them as integers.
 **The Fix:** FastAPI evaluates routes sequentially. We resolved this by reorganizing the route definitions so that static routes (e.g. `GET /api/reviews/`) are defined *before* dynamic routes with path parameters (e.g. `GET /api/reviews/{review_id}`).
+
+## 7. Landing Page Styles Exceeded the Production Limit
+**The Hiccup:** The first landing-page build exceeded Angular's 8 KB component-style error budget by 148 bytes.
+**The Fix:** We removed nonessential backdrop filters and decorative declarations, keeping the responsive layout and design intact. The production build then passed without increasing the project's budget.
