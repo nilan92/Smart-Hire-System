@@ -18,7 +18,8 @@ class Notification(Base):
     message: Mapped[str] = mapped_column(Text, nullable=False)
     is_read: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
-    # Nullable: not every notification has to be about a booking.
+
+
     booking_id: Mapped[int | None] = mapped_column(
         ForeignKey("bookings.id", ondelete="CASCADE"),
         nullable=True,
