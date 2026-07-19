@@ -40,7 +40,7 @@ class BookingService:
         self.notifications.create(
             user_id=service.provider_id,
             title="New booking request",
-            message=f'{customer.full_name} requested "{service.name}".',
+            message=f'{customer.full_name} requested "{service.title}".',
             booking_id=booking.id,
         )
 
@@ -93,6 +93,7 @@ class BookingService:
 
         self.db.commit()
         return self.bookings.get_by_id(booking.id)
+
 
     def cancel_booking(self, booking_id: int, customer: User) -> Booking:
         booking = self._get_owned_by_customer(booking_id, customer)

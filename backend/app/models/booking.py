@@ -77,5 +77,5 @@ class Booking(Base):
 
     @property
     def service_name(self) -> str:
-        return self.service.name
+        return self.service.title
 

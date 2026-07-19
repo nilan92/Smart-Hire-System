@@ -12,6 +12,7 @@ from app.routers.payments import router as payments_router
 from app.routers.notifications import router as notifications_router
 from app.routers.admin import router as admin_router
 from app.routers.ai import router as ai_router
+from app.routers.availability import router as availability_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -44,6 +45,7 @@ app.include_router(payments_router)
 app.include_router(notifications_router)
 app.include_router(admin_router)
 app.include_router(ai_router)
+app.include_router(availability_router)
 
 @app.get("/")
 def root():
