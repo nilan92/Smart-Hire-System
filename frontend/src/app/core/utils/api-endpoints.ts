@@ -18,4 +18,24 @@ export const API_ENDPOINTS = {
     areas: '/services/areas',
     myAreas: '/services/areas/mine',
   },
+  bookings: {
+    create: '/bookings',
+    customer: '/bookings/customer',
+    provider: '/bookings/provider',
+    byId: (bookingId: number) => `/bookings/${bookingId}`,
+    accept: (bookingId: number) => `/bookings/${bookingId}/accept`,
+    reject: (bookingId: number) => `/bookings/${bookingId}/reject`,
+    cancel: (bookingId: number) => `/bookings/${bookingId}/cancel`,
+    complete: (bookingId: number) => `/bookings/${bookingId}/complete`,
+  },
+  notifications: {
+    list: '/notifications',
+    markRead: (notificationId: number) => `/notifications/${notificationId}/read`,
+  },
+  availability: {
+    add: '/providers/availability',
+    mine: '/providers/availability/me',
+    byProvider: (providerId: number) => `/providers/availability/provider/${providerId}`,
+    remove: (slotId: number) => `/providers/availability/${slotId}`,
+  },
 } as const;
