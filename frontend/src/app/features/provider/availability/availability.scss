@@ -1,1 +1,149 @@
-@import '../services/services.scss';
+:host { 
+    display: block; 
+    color: #172033; 
+}
+
+.page-heading { 
+    margin-bottom: 22px; 
+}
+
+.page-heading span { 
+    color: #148269; 
+    text-transform: uppercase; 
+    font-size: .7rem; 
+    letter-spacing: .12em; 
+    font-weight: 900; 
+}
+
+.page-heading h1 { 
+    font-size: 2rem; 
+    margin: 5px 0; 
+}
+
+.page-heading p { 
+    margin: 0; 
+    color: #72807b; 
+}
+
+.layout { 
+    display: grid; 
+    grid-template-columns: 300px 1fr; 
+    gap: 20px; 
+    align-items: start; 
+}
+
+.add-slot { 
+    background: white; 
+    border: 1px solid #e0e8e5; 
+    border-radius: 15px; 
+    padding: 20px; 
+    display: grid; 
+    gap: 14px; 
+    position: sticky; 
+    top: 20px; 
+}
+
+.add-slot h2 { 
+    margin: 0; 
+    font-size: 1.05rem; 
+}
+
+.add-slot label { 
+    display: grid; 
+    gap: 7px; 
+    font-size: .8rem; 
+    font-weight: 800; 
+}
+
+.add-slot input, .add-slot select { 
+    border: 1px solid #d6e0dc; 
+    border-radius: 9px; 
+    padding: 11px; 
+    font: inherit; 
+}
+
+.add-slot button { 
+    border: 0; 
+    background: #176b58; 
+    color: white; 
+    padding: 12px 16px; 
+    border-radius: 10px; 
+    font-weight: 800; 
+    cursor: pointer; 
+}
+
+.schedule { 
+    background: white; 
+    border: 1px solid #e0e8e5; 
+    border-radius: 15px; 
+    overflow: hidden; 
+}
+
+.day-row { 
+    display: flex; 
+    gap: 18px; 
+    padding: 16px 20px; 
+    border-bottom: 1px solid #edf1ef; 
+    align-items: center; 
+}
+
+.day-row:last-child { border-bottom: 0; }
+
+.day-name { 
+    width: 100px; 
+    flex-shrink: 0; 
+    font-weight: 800; 
+    font-size: .88rem; 
+}
+
+.slots { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 8px; 
+    flex: 1; 
+}
+
+.no-slot { 
+    color: #9aa6a1; 
+    font-size: .82rem; 
+}
+
+.slot-chip { 
+    display: inline-flex; 
+    align-items: center; 
+    gap: 8px; 
+    background: #e4f5ef; 
+    color: #157259; 
+    border-radius: 999px; 
+    padding: 7px 8px 7px 13px; 
+    font-weight: 700; 
+    font-size: .8rem; 
+}
+
+.slot-chip button { 
+    border: 0; 
+    background: transparent; 
+    color: #157259; 
+    width: 18px; 
+    height: 18px; 
+    border-radius: 50%; 
+    cursor: pointer; 
+    font-size: 1rem; 
+    line-height: 1; 
+}
+
+.slot-chip button:hover { background: #c7ecdd; }
+
+@media (max-width: 780px) {
+    .layout { grid-template-columns: 1fr; }
+    
+    .add-slot { position: static; }
+    
+    .day-row { 
+        flex-direction: column; 
+        align-items: flex-start; 
+        gap: 8px; 
+    }
+    
+    .day-name { width: auto; }
+}

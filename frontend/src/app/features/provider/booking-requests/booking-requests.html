@@ -1,4 +1,69 @@
-<section class="placeholder-page">
-  <p>Bookings module</p>
-  <h1>Booking Requests</h1>
-</section>
+<div class="page-heading">
+  <div>
+    <span>Bookings</span>
+    <h1>Booking Requests</h1>
+    <p>Review, accept and manage bookings from your customers.</p>
+  </div>
+  @if (pendingCount()) {
+    <span class="pending-badge">{{ pendingCount() }} awaiting your response</span>
+  }
+</div>
+
+<nav class="tabs" aria-label="Filter booking requests">
+  <button [class.active]="tab() === 'pending'" (click)="setTab('pending')">Pending</button>
+  <button [class.active]="tab() === 'accepted'" (click)="setTab('accepted')">Accepted</button>
+  <button [class.active]="tab() === 'completed'" (click)="setTab('completed')">Completed</button>
+  <button [class.active]="tab() === 'cancelled'" (click)="setTab('cancelled')">Rejected / Cancelled</button>
+  <button [class.active]="tab() === 'all'" (click)="setTab('all')">All</button>
+</nav>
+
+@if (store.loading()) {
+  <app-loading-spinner label="Loading booking requests..." />
+} @else if (store.error()) {
+  <app-error-message [message]="store.error()" />
+} @else if (filteredBookings().length) {
+  <div class="table-card">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Service</th>
+            <th>Date &amp; time</th>
+            <th>Status</th>
+            <th>Notes</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (booking of filteredBookings(); track booking.id) {
+            <tr>
+              <td>{{ booking.customer_name }}</td>
+              <td>{{ booking.service_name }}</td>
+              <td>{{ booking.booking_date | date: 'MMM d, y · h:mm a' }}</td>
+              <td>
+                <span class="status" [class]="booking.status">
+                  <i></i>{{ statusLabel(booking.status) }}
+                </span>
+              </td>
+              <td class="notes">{{ booking.notes || '—' }}</td>
+              <td class="row-actions">
+                @if (booking.status === 'pending') {
+                  <button class="accept" (click)="accept(booking.id)">Accept</button>
+                  <button class="delete" (click)="reject(booking.id)">Reject</button>
+                } @else if (booking.status === 'accepted') {
+                  <button class="accept" (click)="complete(booking.id)">Mark complete</button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+} @else {
+  <app-empty-state
+    title="No booking requests here"
+    message="New requests from customers will appear in this list."
+  />
+}

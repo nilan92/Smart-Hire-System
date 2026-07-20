@@ -1,4 +1,36 @@
-<section class="placeholder-page">
-  <p>Notifications module</p>
-  <h1>Notifications</h1>
-</section>
+<div class="page-heading">
+  <div>
+    <span>Notifications</span>
+    <h1>Notifications</h1>
+    <p>Stay up to date on booking activity.</p>
+  </div>
+  @if (store.unreadCount()) {
+    <button (click)="markAllRead()">Mark all as read</button>
+  }
+</div>
+
+@if (store.loading()) {
+  <app-loading-spinner label="Loading notifications..." />
+} @else if (store.error()) {
+  <app-error-message [message]="store.error()" />
+} @else if (store.notifications().length) {
+  <ul class="notification-list">
+    @for (item of store.notifications(); track item.id) {
+      <li [class.unread]="!item.is_read" (click)="markRead(item.id)">
+        <span class="dot"></span>
+        <div class="body">
+          <div class="row">
+            <strong>{{ item.title }}</strong>
+            <time>{{ item.created_at | date: 'MMM d, h:mm a' }}</time>
+          </div>
+          <p>{{ item.message }}</p>
+        </div>
+      </li>
+    }
+  </ul>
+} @else {
+  <app-empty-state
+    title="You're all caught up"
+    message="Booking updates and messages will show up here."
+  />
+}

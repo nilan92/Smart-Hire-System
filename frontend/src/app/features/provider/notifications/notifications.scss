@@ -1,1 +1,108 @@
-@import '../services/services.scss';
+:host { 
+    display: block; 
+    color: #172033; 
+}
+
+.page-heading { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: end; 
+    margin-bottom: 22px; 
+    gap: 16px; 
+    flex-wrap: wrap; 
+}
+
+.page-heading span { 
+    color: #148269; 
+    text-transform: uppercase; 
+    font-size: .7rem; 
+    letter-spacing: .12em; 
+    font-weight: 900; 
+}
+
+.page-heading h1 { 
+    font-size: 2rem; 
+    margin: 5px 0; 
+}
+
+.page-heading p { 
+    margin: 0; 
+    color: #72807b; 
+}
+
+.page-heading > button { 
+    border: 1px solid #d9e2df; 
+    background: white; 
+    color: #176b58; 
+    padding: 10px 14px; 
+    border-radius: 10px; 
+    font-weight: 800; 
+    cursor: pointer; 
+}
+
+.notification-list { 
+    list-style: none; 
+    margin: 0; 
+    padding: 0; 
+    background: white; 
+    border: 1px solid #e0e8e5; 
+    border-radius: 15px; 
+    overflow: hidden; 
+}
+
+.notification-list li { 
+    display: flex; 
+    gap: 14px; 
+    align-items: flex-start; 
+    padding: 18px 20px; 
+    border-bottom: 1px solid #edf1ef; 
+    cursor: pointer; 
+    transition: background .15s; 
+}
+
+.notification-list li:last-child { border-bottom: 0; }
+
+
+.notification-list li:hover { background: #f7faf9; }
+
+.notification-list li.unread { background: #f2faf7; }
+
+.dot { 
+    width: 9px; 
+    height: 9px; 
+    border-radius: 50%; 
+    margin-top: 6px; 
+    flex-shrink: 0; 
+    background: transparent; 
+}
+
+.notification-list li.unread .dot { background: #29a67e; }
+
+.body { flex: 1; min-width: 0; }
+
+.row { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    gap: 12px; 
+}
+
+.row strong { font-size: .95rem; }
+
+.row time { 
+    color: #8a9793; 
+    font-size: .74rem; 
+    white-space: nowrap; 
+}
+
+.body p { 
+    margin: 4px 0 0; 
+    color: #5c6b66; 
+    font-size: .86rem; 
+    line-height: 1.5; 
+}
+
+@media (max-width: 600px) {
+    .page-heading { flex-direction: column; align-items: flex-start; }
+    .row { flex-direction: column; align-items: flex-start; gap: 2px; }
+}
