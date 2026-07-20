@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from app.core.database import Base, engine
 from app.core.config import settings
 from app.routers.health import router as health_router
 from app.routers.auth import router as auth_router
@@ -12,8 +12,9 @@ from app.routers.payments import router as payments_router
 from app.routers.notifications import router as notifications_router
 from app.routers.admin import router as admin_router
 from app.routers.ai import router as ai_router
+from app.routers.availability import router as availability_router
 
-
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title=settings.app_name,
@@ -44,6 +45,7 @@ app.include_router(payments_router)
 app.include_router(notifications_router)
 app.include_router(admin_router)
 app.include_router(ai_router)
+app.include_router(availability_router)
 
 @app.get("/")
 def root():
