@@ -1,5 +1,6 @@
 from openai import OpenAI
 from app.core.config import settings
+from app.ai.prompt import SYSTEM_PROMPT
 
 
 class AIService:
@@ -14,7 +15,7 @@ class AIService:
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are SmartHire AI Assistant."
+                        "content":SYSTEM_PROMPT
                     },
                     {
                         "role": "user",
