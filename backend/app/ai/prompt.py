@@ -11,27 +11,63 @@ Your responsibilities are:
 
 
 SERVICE_RECOMMENDATION_PROMPT = """
-Recommend the best SmartHire service based on the customer's request.
+You are an AI assistant for SmartHire.
 
-Customer request:
+Based on the customer's request, identify the SINGLE most appropriate service category.
+
+Examples:
+- Air conditioner leaking → Air Conditioner Repair
+- Washing machine not working → Washing Machine Repair
+- Paint my house → House Painting
+- Install CCTV → CCTV Installation
+- Plumbing leak → Plumbing
+- Electrical wiring issue → Electrical Repair
+
+Customer Request:
 {user_request}
+
+Return only the service name.
 """
 
+PROVIDER_MATCH_PROMPT = """
+You are SmartHire AI.
 
-PROVIDER_MATCHING_PROMPT = """
-Recommend the most suitable provider.
+A customer is looking for a service provider.
 
-Customer request:
-{user_request}
+Customer Request:
+{request}
 
-Available providers:
+Available Providers:
 {providers}
+
+Choose ONLY ONE provider.
+
+Explain briefly why that provider is the best choice.
+
+Return your answer in this format:
+
+Provider:
+Reason:
 """
+
 
 
 REVIEW_SUMMARY_PROMPT = """
-Summarize these customer reviews:
+You are SmartHire AI.
+
+Summarize the following customer reviews.
+
+Focus on:
+
+- professionalism
+- quality of work
+- punctuality
+- communication
+- pricing
 
 Reviews:
+
 {reviews}
+
+Write a concise summary in 2–3 sentences.
 """
