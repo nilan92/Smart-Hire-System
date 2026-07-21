@@ -593,6 +593,23 @@ $bg-light: #f8fafc;
   }
 }
 
+// Make the main CTA in the hero banner stand out from the secondary/outline
+// actions next to it, instead of blending into the teal gradient behind it.
+.quick-actions .btn-primary {
+  background: #ffffff;
+  color: #075e54;
+  font-size: 0.95rem;
+  padding: 0.8rem 1.6rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+
+  &:hover {
+    background: #f0fdf4;
+    filter: none;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+  }
+}
+
 // Responsive layout
 @media (max-width: 768px) {
   .welcome-banner {

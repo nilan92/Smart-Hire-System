@@ -26,6 +26,29 @@ const INITIAL_SERVICES: MarketplaceService[] = [
   { id: 106, providerId: 5, providerName: 'FixIT Mobile', categoryId: 6, title: 'Laptop & Wi-Fi support', description: 'On-site troubleshooting for computers and home networks.', city: 'Colombo', price: 3000, rating: 4.8, reviewCount: 37, duration: '1–2 hours', status: 'active', providerVerified: true },
 ];
 
+// Curated, content-verified Unsplash photos per category (each hand-picked and
+// visually checked to actually depict that trade, not a random/generic photo).
+// Covers likely future categories too, so a newly added category already has a
+// fitting photo instead of falling back to the generic one below. Falls back to
+// the "repairs" photo for any category that still isn't in this list.
+const CATEGORY_IMAGE_IDS: Record<string, string> = {
+  plumbing: 'photo-1503789146722-cf137a3c0fea',
+  electrical: 'photo-1682345262055-8f95f3c513ea',
+  cleaning: 'photo-1758273238415-01ec03d9ef27',
+  tutoring: 'photo-1454165804606-c3d57bc86b40',
+  repairs: 'photo-1562259929-b4e1fd3aef09',
+  'tech support': 'photo-1721332154191-ba5f1534266e',
+  gardening: 'photo-1535090467336-9501f96eef89',
+  landscaping: 'photo-1535090467336-9501f96eef89',
+  moving: 'photo-1783473007464-1dbf2ff30dec',
+  relocation: 'photo-1783473007464-1dbf2ff30dec',
+  painting: 'photo-1717281234297-3def5ae3eee1',
+  'pet care': 'photo-1528846104175-4fd300ee59da',
+  pets: 'photo-1528846104175-4fd300ee59da',
+  carpentry: 'photo-1561297331-a9c00b9c2c44',
+  woodwork: 'photo-1561297331-a9c00b9c2c44',
+};
+
 const INITIAL_AREAS: ServiceArea[] = [
   { id: 1, district: 'Colombo', city: 'Colombo 03', radiusKm: 10 },
   { id: 2, district: 'Colombo', city: 'Dehiwala', radiusKm: 8 },
@@ -113,6 +136,11 @@ export class MarketplaceServiceStore {
 
   categoryIcon(id: number): string {
     return this.categories().find((category) => category.id === id)?.icon ?? 'SH';
+  }
+
+  categoryImage(id: number): string {
+    const photoId = CATEGORY_IMAGE_IDS[this.categoryName(id).toLowerCase()] ?? CATEGORY_IMAGE_IDS['repairs'];
+    return `https://images.unsplash.com/${photoId}?w=600&h=400&fit=crop&auto=format&q=70`;
   }
 
   private read<T>(key: string, fallback: T): T {

@@ -45,4 +45,8 @@ export class CustomerBrowseServices implements OnInit {
   closeView(): void {
     this.viewingService.set(null);
   }
+
+  onImageError(event: Event): void {
+    (event.target as HTMLImageElement).style.display = 'none';
+  }
 }

@@ -28,9 +28,10 @@
     @for (service of filteredServices(); track service.id) {
       <article class="service-card">
         <div class="card-visual category-{{ service.categoryId }}">
+          <img class="visual-photo" [src]="store.categoryImage(service.categoryId)" alt="" (error)="onImageError($event)" />
+          <span class="visual-icon">{{ store.categoryIcon(service.categoryId) }}</span>
           <span class="category-pill">{{ store.categoryName(service.categoryId) }}</span>
           <button class="heart" [class.saved]="store.isFavourite(service.id)" (click)="store.toggleFavourite(service.id)" [attr.aria-label]="store.isFavourite(service.id) ? 'Remove from favourites' : 'Add to favourites'">{{ store.isFavourite(service.id) ? '♥' : '♡' }}</button>
-          <span class="visual-icon">{{ store.categoryIcon(service.categoryId) }}</span>
         </div>
         <div class="card-body">
           <div class="rating">★ {{ service.rating }} <span>({{ service.reviewCount }} reviews)</span></div>
@@ -50,9 +51,10 @@
   <div class="overlay" (click)="closeView()">
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal-visual category-{{ service.categoryId }}">
+        <img class="visual-photo" [src]="store.categoryImage(service.categoryId)" alt="" (error)="onImageError($event)" />
+        <span class="visual-icon">{{ store.categoryIcon(service.categoryId) }}</span>
         <span class="category-pill">{{ store.categoryName(service.categoryId) }}</span>
         <button class="close-btn" (click)="closeView()" aria-label="Close">×</button>
-        <span class="visual-icon">{{ store.categoryIcon(service.categoryId) }}</span>
       </div>
       <div class="modal-body">
         <div class="rating">★ {{ service.rating }} <span>({{ service.reviewCount }} reviews)</span></div>
