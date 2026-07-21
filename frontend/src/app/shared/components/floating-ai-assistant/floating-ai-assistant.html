@@ -1,0 +1,44 @@
+<div class="ai-widget">
+  @if (open()) {
+    <div class="chat-panel">
+      <header>
+        <div class="avatar">🤖</div>
+        <div class="title">
+          <strong>Smart Hire AI</strong>
+          <small>Usually replies in seconds</small>
+        </div>
+        <button class="close-btn" (click)="toggle()" aria-label="Close chat">×</button>
+      </header>
+
+      <div class="messages">
+        @for (m of messages(); track $index) {
+          <div class="bubble" [class.user]="m.role === 'user'">{{ m.message }}</div>
+        }
+        @if (loading()) {
+          <div class="bubble assistant typing">
+            <span></span><span></span><span></span>
+          </div>
+        }
+        <div #scrollAnchor></div>
+      </div>
+
+      <form class="composer" (ngSubmit)="send()">
+        <input
+          type="text"
+          [ngModel]="draft()"
+          (ngModelChange)="draft.set($event)"
+          name="draft"
+          placeholder="Ask me anything..."
+          [disabled]="loading()"
+          autocomplete="off"
+        />
+        <button type="submit" [disabled]="loading() || !draft().trim()" aria-label="Send message">➤</button>
+      </form>
+    </div>
+  }
+
+  <button class="fab" (click)="toggle()" [class.open]="open()" [attr.aria-label]="open() ? 'Close chat' : 'Chat with Smart Hire AI'">
+    <span class="fab-icon chat-icon">💬</span>
+    <span class="fab-icon close-icon">×</span>
+  </button>
+</div>
