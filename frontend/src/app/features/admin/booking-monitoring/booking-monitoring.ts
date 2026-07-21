@@ -1,5 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
+
+interface AdminBooking {
+  id: number;
+  customer_id: number;
+  customer_name: string;
+  provider_id: number;
+  provider_name: string;
+  service_id: number;
+  service_name: string;
+  booking_date: string;
+  status: 'pending' | 'accepted' | 'rejected' | 'in_progress' | 'completed' | 'cancelled';
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
 
 @Component({
   selector: 'app-booking-monitoring',
@@ -9,16 +26,40 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./booking-monitoring.scss']
 })
 export class BookingMonitoringComponent implements OnInit {
-  bookings = [
-    { id: 1001, customer: 'Alice Smith', provider: 'Bob Jones', date: '2026-07-20T10:00:00Z', status: 'pending' },
-    { id: 1002, customer: 'David Lee', provider: 'Alice Smith', date: '2026-07-18T14:30:00Z', status: 'accepted' },
-    { id: 1003, customer: 'Jane Doe', provider: 'Charlie Brown', date: '2026-07-15T09:00:00Z', status: 'completed' },
-    { id: 1004, customer: 'John Smith', provider: 'Bob Jones', date: '2026-07-10T11:00:00Z', status: 'cancelled' }
-  ];
+  bookings: AdminBooking[] = [];
+  loading = true;
+  error = '';
+  viewing: AdminBooking | null = null;
 
-  ngOnInit(): void {}
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
-  viewDetails(booking: any): void {
-    alert(`Viewing detailed breakdown for Booking #${booking.id} (Customer: ${booking.customer}, Provider: ${booking.provider}). Detailed view coming in next sprint!`);
+  ngOnInit(): void {
+    this.fetchBookings();
+  }
+
+  fetchBookings(): void {
+    this.loading = true;
+    this.error = '';
+    this.http.get<AdminBooking[]>(`${environment.apiUrl}/admin/bookings`).subscribe({
+      next: (data) => {
+        this.bookings = data;
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load bookings:', err);
+        this.error = 'Failed to load bookings. Please try again.';
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  viewDetails(booking: AdminBooking): void {
+    this.viewing = booking;
+  }
+
+  closeView(): void {
+    this.viewing = null;
   }
 }

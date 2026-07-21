@@ -13,6 +13,7 @@ from app.models.payment import Payment
 from app.models.review import Review
 from app.models.service import Service, ServiceStatus
 from app.models.service_category import ServiceCategory
+from app.schemas.booking import BookingResponse
 from app.models.user import AccountStatus, User, UserRole
 
 # ---------------------------------------------------------------------------
@@ -301,6 +302,19 @@ def update_admin_payment_status(
         payment_method=payment.payment_method, transaction_id=payment.transaction_id,
         created_at=payment.created_at, updated_at=payment.updated_at,
     )
+
+
+# ---------------------------------------------------------------------------
+# Booking Monitoring
+# ---------------------------------------------------------------------------
+
+@router.get("/bookings", response_model=List[BookingResponse], dependencies=[_admin_dep])
+def list_admin_bookings(
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=200),
+    db: Session = Depends(get_db),
+):
+    return db.query(Booking).order_by(Booking.created_at.desc()).offset(skip).limit(limit).all()
 
 
 # ---------------------------------------------------------------------------
