@@ -57,7 +57,7 @@
       <div class="stat-icon icon-revenue">💰</div>
       <div class="stat-info">
         <span class="stat-label">Total Earnings</span>
-        <strong class="stat-value">${{ totalRevenue | number:'1.2-2' }}</strong>
+        <strong class="stat-value">LKR {{ totalRevenue | number:'1.2-2' }}</strong>
         <span class="stat-subtext">Est. payout balance</span>
       </div>
     </div>
@@ -185,7 +185,7 @@
           <div class="service-item" *ngFor="let s of services.slice(0, 4)">
             <div class="service-info">
               <h4 class="service-title">{{ s.title }}</h4>
-              <p class="service-meta">${{ s.price }} • {{ s.city }}</p>
+              <p class="service-meta">LKR {{ s.price }} • {{ s.city }}</p>
             </div>
             <span class="badge" [ngClass]="s.status === 'active' ? 'badge-completed' : 'badge-neutral'">
               {{ s.status | uppercase }}
