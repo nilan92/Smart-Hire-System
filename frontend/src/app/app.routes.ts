@@ -73,6 +73,11 @@ export const routes: Routes = [
           import('./features/customer/reviews/reviews').then((m) => m.CustomerReviews),
       },
       {
+        path: 'messages',
+        loadComponent: () =>
+          import('./features/customer/messages/messages').then((m) => m.CustomerMessages),
+      },
+      {
         path: 'ai-assistant',
         loadComponent: () =>
           import('./features/customer/ai-assistant/ai-assistant').then((m) => m.CustomerAiAssistant),
@@ -131,6 +136,11 @@ export const routes: Routes = [
         path: 'payments',
         loadComponent: () =>
           import('./features/provider/payments/payments').then((m) => m.ProviderPayments),
+      },
+      {
+        path: 'messages',
+        loadComponent: () =>
+          import('./features/provider/messages/messages').then((m) => m.ProviderMessages),
       },
       {
         path: 'ai-insights',

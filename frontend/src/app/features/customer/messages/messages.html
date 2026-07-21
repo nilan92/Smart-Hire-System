@@ -1,0 +1,82 @@
+<div class="page-heading">
+  <div>
+    <span>Messages</span>
+    <h1>Messages</h1>
+    <p>Chat directly with the provider on any of your bookings.</p>
+  </div>
+</div>
+
+<div class="messages-page">
+  <aside class="thread-list">
+    @if (store.loadingThreads()) {
+      <app-loading-spinner label="Loading conversations..." />
+    } @else if (store.threadsError()) {
+      <app-error-message [message]="store.threadsError()" />
+    } @else if (store.threads().length) {
+      @for (thread of store.threads(); track thread.booking_id) {
+        <button
+          type="button"
+          class="thread-item"
+          [class.active]="store.activeBookingId() === thread.booking_id"
+          (click)="open(thread.booking_id)"
+        >
+          <div class="thread-top">
+            <strong>{{ thread.other_party_name }}</strong>
+            @if (thread.unread_count) {
+              <span class="unread-badge">{{ thread.unread_count }}</span>
+            }
+          </div>
+          <small class="service">{{ thread.service_name }}</small>
+          <small class="preview">{{ thread.last_message || 'No messages yet — say hello!' }}</small>
+        </button>
+      }
+    } @else {
+      <app-empty-state
+        title="No conversations yet"
+        message="Book a service and you'll be able to message the provider here."
+      />
+    }
+  </aside>
+
+  <section class="thread-panel">
+    @if (activeThread(); as thread) {
+      <header>
+        <div>
+          <strong>{{ thread.other_party_name }}</strong>
+          <small>{{ thread.service_name }}</small>
+        </div>
+      </header>
+
+      <div class="messages">
+        @if (store.loadingMessages()) {
+          <app-loading-spinner label="Loading messages..." />
+        } @else {
+          @for (message of store.activeMessages(); track message.id) {
+            <div class="bubble" [class.own]="message.sender_id === myId()">
+              <p>{{ message.body }}</p>
+              <time>{{ message.created_at | date: 'MMM d, h:mm a' }}</time>
+            </div>
+          }
+        }
+        <div #scrollAnchor></div>
+      </div>
+
+      <form class="composer" (ngSubmit)="send()">
+        <input
+          type="text"
+          [ngModel]="draft()"
+          (ngModelChange)="draft.set($event)"
+          name="draft"
+          placeholder="Type a message..."
+          autocomplete="off"
+        />
+        <button type="submit" [disabled]="store.sending() || !draft().trim()">Send</button>
+      </form>
+    } @else {
+      <div class="no-thread">
+        <span>💬</span>
+        <p>Select a conversation to start messaging.</p>
+      </div>
+    }
+  </section>
+</div>

@@ -11,6 +11,7 @@ from app.routers.bookings import router as bookings_router
 from app.routers.reviews import router as reviews_router
 from app.routers.payments import router as payments_router
 from app.routers.notifications import router as notifications_router
+from app.routers.messages import router as messages_router
 from app.routers.admin import router as admin_router
 from app.routers.ai import router as ai_base_router
 from app.routers.availability import router as availability_router
@@ -36,6 +37,7 @@ app.include_router(bookings_router)
 app.include_router(reviews_router)
 app.include_router(payments_router)
 app.include_router(notifications_router)
+app.include_router(messages_router)
 app.include_router(admin_router)
 app.include_router(ai_base_router)
 app.include_router(availability_router)
