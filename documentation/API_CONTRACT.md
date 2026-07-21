@@ -175,7 +175,18 @@ Creates or continues the signed-in user's conversation and stores both the user 
 }
 ```
 
-Omit `conversation_id` to create a new conversation. The response contains the persistent `conversation_id` and the assistant `reply`. The assistant uses the most recent saved messages and the current service categories as context; it does not invent bookings, prices, providers, or availability.
+Omit `conversation_id` to create a new conversation. The response contains the persistent `conversation_id` and the assistant `reply`.
+
+**Behavior differs by role:**
+
+- **Customer**: context includes the real current date/time, active service listings (with `service_id`/`provider_id` so the model can reference them precisely), and the customer's own recent bookings (with `booking_id`). The assistant has three tools it can call mid-conversation, implemented as OpenAI native function-calling (`app/ai/service.py`, tool logic in `app/ai/tools.py`):
+  - `check_provider_availability(provider_id, date)` — real weekly schedule minus existing bookings that day.
+  - `create_booking(service_id, date, time, notes?)` — creates a real booking via the same `BookingService` the `POST /bookings` endpoint uses. Only called after the customer explicitly confirms service/date/time.
+  - `cancel_booking(booking_id)` — cancels one of the customer's own pending/accepted bookings.
+  It never invents a provider, price, availability, or booking that isn't backed by a real tool call or the listings/bookings given in context.
+- **Provider**: a different system prompt and context (their own services, count of pending booking requests). No booking tools — it explicitly declines customer-style "find me a service" requests and redirects to provider-relevant topics instead.
+
+A floating chat widget (bottom-right, all customer/provider pages) and the full `/customer/ai-assistant` page both call this same endpoint.
 
 ### GET `/ai/conversations`
 
@@ -213,7 +224,20 @@ The service must belong to the signed-in provider. The API summarizes that servi
 
 ### AI Booking Handoff
 
-The assistant can guide a customer to a recommended service but never creates a booking automatically. The customer must explicitly select a future date and time in the assistant UI. The UI then calls the existing `POST /api/bookings` endpoint, preserving its customer-role validation, active-service check, and provider notification.
+Two paths exist for a customer to end up with a booking from the assistant:
+
+1. **Recommendation flow** (`/customer/ai-assistant` full page): the assistant guides the customer to a recommended service; the customer explicitly picks a date/time in the UI, which calls `POST /api/bookings` directly.
+2. **Conversational flow** (chat / floating widget): the assistant calls the `create_booking` tool itself once the customer has confirmed in plain language (see above). Same underlying `BookingService.create_booking`, same validation (customer role, active service, provider notification) — just invoked from `app/ai/tools.py` instead of the router directly.
+
+Either way, nothing is booked without an explicit customer confirmation somewhere in the flow.
+
+## MCP Server
+
+`backend/mcp_server/server.py` is a standalone MCP (Model Context Protocol) server, separate from the endpoints above — for external MCP clients (Claude Desktop, Claude Code, the `mcp` CLI inspector), not for the web app. Run it directly (`python mcp_server/server.py`, stdio transport) or configure it in an MCP client. Since it has no JWT session, booking/cancel tools take a `customer_email` instead of relying on auth.
+
+Tools: `list_categories`, `search_services`, `get_provider_reviews`, `check_availability`, `create_booking`, `cancel_booking`. Shares its booking/availability logic with the in-app chat's tool-calling via `app/ai/tools.py` — one implementation of "what counts as an open slot" / "what makes a booking valid", not two.
+
+Tested with a real MCP client session, not just direct function calls — see `qa/test_mcp_server.py`.
 
 ## Payments
 
@@ -273,6 +297,10 @@ All `/admin/*` routes require bearer token and `admin` role.
 ### GET `/admin/dashboard-stats`
 
 Platform totals: `total_payments`, `total_reviews`, `total_users`, `total_bookings`, `total_services`, `avg_review_rating`, `total_revenue` (sum of `completed` payments).
+
+### GET `/admin/revenue-timeseries`
+
+Real completed-payment revenue and real booking counts, grouped by month, for the dashboard chart. Query param `months` (default 6, max 24). Returns `[{ "month": "Jul 2026", "revenue": 12500.0, "bookings": 9 }, ...]`. Was previously hardcoded fake data on the frontend — see `LESSONS_LEARNED.md`.
 
 ### Users
 

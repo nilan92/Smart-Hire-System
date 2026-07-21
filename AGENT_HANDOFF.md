@@ -207,3 +207,21 @@ All **24 backend tests pass** across:
 **Still open / known gaps:**
 - `features/admin/dashboard/` and `features/admin/login/` are orphaned duplicates from an old merge, unrouted — safe to delete, not yet removed.
 - Backend/frontend dev servers are typically left running via `nohup` in `scratchpad/backend.log` / `frontend.log` during agent sessions — check for an existing process before starting a duplicate one.
+
+## AI Tool-Calling, MCP Server, and a Round of Small UI Bugs (2026-07-21)
+
+**AI assistant is now date-aware and can act, not just describe:**
+- `POST /ai/chat` context now includes the real current date/time, and (customer role) the customer's own recent bookings alongside active listings — both tagged with real ids (`service_id`, `provider_id`, `booking_id`) so the model can reference them precisely in tool calls.
+- Added OpenAI native function-calling with three tools (`app/ai/tools.py`, wired in `app/ai/service.py`): `check_provider_availability`, `create_booking`, `cancel_booking`. All three call the same `BookingService`/`AvailabilityRepository` logic the REST endpoints use — no parallel booking logic. Verified live: full conversational flow (ask → check availability → confirm → real booking created, later cancelled by name) round-tripped correctly against the actual DB.
+- Providers get a different system prompt (`PROVIDER_SYSTEM_PROMPT`) and different context (their own services, pending-request count) with no booking tools — it declines "find me a plumber"-style requests instead of acting like the customer assistant. The floating widget's opening greeting is also role-aware now.
+- Rewrote `SYSTEM_PROMPT` for a casual/short tone per request, and fixed the underlying reason listings weren't showing up in free-form chat: the context only ever had category *names*, never real services — `/ai/recommend` (a separate endpoint) had its own DB-backed path that worked fine, chat didn't share it.
+
+**Built a standalone MCP server** (`backend/mcp_server/server.py`) exposing the same booking/search tools to external MCP clients (Claude Desktop, Claude Code, etc.) over stdio. This was requested explicitly after discussing tradeoffs — the in-app chat still uses OpenAI's native tool-calling (correct fit: the chat backend calls OpenAI directly, no external host to bridge to), the MCP server is a separate, additional surface for developer/admin tooling. Both share `app/ai/tools.py` so there's one implementation of the booking/availability rules, not two. Tested with a real `mcp` client session (`qa/test_mcp_server.py`), including a real booking created through the actual protocol — not just importing the Python functions directly.
+
+**Gotcha hit while building this:** creating `backend/mcp_server/` triggered uvicorn's `--reload` watcher (it watches the whole `backend/` tree) on an unrelated later edit, and the resulting restart stalled mid-shutdown during a coincidental brief Supabase connectivity blip — the dev server was alive but unresponsive to *all* requests (even non-DB ones) for a few minutes. `watchfiles` isn't installed, so `--reload-exclude` currently has no effect; if this becomes a recurring annoyance, install it or move `mcp_server/` outside `backend/`.
+
+**Smaller fixes in the same pass:**
+- Toast messages never rendered anywhere in the app, and a wrong-password login just spun forever — both the same zoneless change-detection gap hit multiple times this session (`ToastComponent`, `Login`), fixed with the usual `ChangeDetectorRef.detectChanges()` pattern.
+- Admin dashboard's revenue/bookings chart was 100% hardcoded fake data (invented Jan–Jul numbers) — added `GET /admin/revenue-timeseries` (real monthly aggregates) and wired the chart to it.
+- "✓ Verified provider" was hardcoded on every single service card regardless of the provider's actual `verification_status` — admin already had a full, working verification workflow; the marketplace UI just never read it. Added `provider_verified` to `ServiceResponse`.
+- Provider dashboard showed `$` instead of `LKR` in two spots. Top navbar made `position: sticky` (shared across all three layouts).

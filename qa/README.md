@@ -39,6 +39,7 @@ required) and safe to run repeatedly.
 | [`test_cases.md`](test_cases.md) | Test case matrix mapping features to specific test cases and their automation status |
 | [`manual_test_checklist.md`](manual_test_checklist.md) | Exploratory/manual QA checklist for what automation doesn't cover (visual, cross-role UX) |
 | [`smoke_test.py`](smoke_test.py) | Standalone end-to-end smoke test against a **running** backend — not part of the pytest suite, see below |
+| [`test_mcp_server.py`](test_mcp_server.py) | Real MCP protocol test for `backend/mcp_server/server.py` — spawns it as a subprocess and drives it as an MCP client would, not just direct function calls |
 
 ## Why `smoke_test.py` is separate from `backend/app/tests/`
 
@@ -53,4 +54,13 @@ throwaway test accounts, so it's safe to run against the real dev database.
 ```bash
 # with the backend already running on http://127.0.0.1:8000
 python qa/smoke_test.py
+```
+
+## Testing the MCP server
+
+`test_mcp_server.py` spawns `backend/mcp_server/server.py` itself (it doesn't need the dev server running) and talks to it over stdio using the real `mcp` client SDK — the same handshake a real MCP client does. Also self-cleaning for anything it creates.
+
+```bash
+source backend/venv/bin/activate
+python qa/test_mcp_server.py
 ```
