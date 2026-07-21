@@ -64,3 +64,7 @@ python qa/smoke_test.py
 source backend/venv/bin/activate
 python qa/test_mcp_server.py
 ```
+
+## Known gap: messaging feature has no automated test yet
+
+The customer↔provider messaging feature (`/api/messages/*`, `messages` table) was verified manually — live via curl against the running dev backend (send, reply, unread counts, and a real `403` for a customer not on the booking) and live in the browser both directions — but has no `backend/app/tests/` pytest case yet. Would be a good addition to the 24-test suite: create a booking between a customer and provider fixture, assert a third user gets `403` on both read and send, assert `unread_count` clears after a read.
