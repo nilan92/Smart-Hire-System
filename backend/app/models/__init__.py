@@ -13,10 +13,11 @@ from app.models.booking import Booking, BookingStatus
 from app.models.notification import Notification
 from app.models.payment import Payment
 from app.models.review import Review
+from app.models.message import Message
 
 __all__ = [
     "User", "UserRole", "AccountStatus", "ProviderProfile", "VerificationStatus",
     "ServiceCategory", "Service", "ServiceStatus", "ServiceImage", "ServiceArea", "Favorite",
     "AIConversation", "AIMessage", "ReviewSummary", "ServiceEmbedding",
-    "Booking", "BookingStatus", "Notification", "Payment", "Review",
+    "Booking", "BookingStatus", "Notification", "Payment", "Review", "Message",
 ]

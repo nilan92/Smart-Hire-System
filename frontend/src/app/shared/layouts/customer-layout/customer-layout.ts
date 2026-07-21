@@ -23,6 +23,7 @@ export class CustomerLayout {
     { label: 'Browse Services', route: APP_ROUTES.customer.browseServices },
     { label: 'Favourites', route: APP_ROUTES.customer.favourites },
     { label: 'My Bookings', route: APP_ROUTES.customer.bookings },
+    { label: 'Messages', route: APP_ROUTES.customer.messages },
     { label: 'Reviews', route: APP_ROUTES.customer.reviews },
     { label: 'AI Assistant', route: APP_ROUTES.customer.aiAssistant },
   ];

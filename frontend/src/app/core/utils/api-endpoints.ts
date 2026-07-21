@@ -32,6 +32,10 @@ export const API_ENDPOINTS = {
     list: '/notifications',
     markRead: (notificationId: number) => `/notifications/${notificationId}/read`,
   },
+  messages: {
+    threads: '/messages/threads',
+    byBooking: (bookingId: number) => `/messages/bookings/${bookingId}`,
+  },
   availability: {
     add: '/providers/availability',
     mine: '/providers/availability/me',
