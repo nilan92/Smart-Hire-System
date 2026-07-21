@@ -27,6 +27,31 @@ export interface BookingCreateRequest {
   notes?: string | null;
 }
 
+export interface Review {
+  id: number;
+  booking_id: number;
+  customer_id: number;
+  provider_id: number;
+  service_id: number;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+}
+
+export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded';
+
+export interface Payment {
+  id: number;
+  booking_id: number;
+  customer_id: number;
+  amount: number;
+  status: PaymentStatus;
+  payment_method: string | null;
+  transaction_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Notification {
   id: number;
   user_id: number;

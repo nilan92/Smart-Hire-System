@@ -1,1 +1,97 @@
-@import '../browse-services/browse-services.scss';
+@import '../bookings/bookings.scss';
+
+.reviews-section {
+  margin-top: 26px;
+}
+
+.reviews-section h2 {
+  font-size: 1.1rem;
+  margin: 0 0 14px;
+}
+
+.link-btn {
+  border: 0;
+  background: none;
+  color: #148269;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 10px;
+  padding: 0;
+}
+
+.pending-grid,
+.submitted-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.pending-card {
+  background: white;
+  border: 1px solid #e1e8e5;
+  border-radius: 15px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pending-card h3 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+}
+
+.pending-card p {
+  margin: 0;
+  color: #687570;
+  font-size: 0.85rem;
+}
+
+.pending-card button {
+  border: 0;
+  background: #176b58;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 9px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.submitted-card {
+  background: white;
+  border: 1px solid #e1e8e5;
+  border-radius: 15px;
+  padding: 18px;
+}
+
+.submitted-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.submitted-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.submitted-header p {
+  margin: 2px 0 0;
+  color: #687570;
+  font-size: 0.85rem;
+}
+
+.comment {
+  margin: 12px 0 6px;
+  color: #43524e;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.date {
+  color: #8a9793;
+  font-size: 0.78rem;
+}

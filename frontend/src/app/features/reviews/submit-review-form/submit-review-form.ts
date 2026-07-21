@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { environment } from '../../../../environments/environment';
+import { API_ENDPOINTS } from '../../../core/utils/api-endpoints';
 
 @Component({
   selector: 'app-submit-review-form',
@@ -13,11 +14,11 @@ import { environment } from '../../../../environments/environment';
   styleUrls: ['./submit-review-form.scss']
 })
 export class SubmitReviewFormComponent implements OnInit {
-  // Hardcoded for demo, normally from route params or auth context
-  bookingId: number = 1;
-  customerId: number = 1;
-  providerId: number = 2;
-  serviceId: number = 1;
+  @Input({ required: true }) bookingId!: number;
+  @Input({ required: true }) customerId!: number;
+  @Input({ required: true }) providerId!: number;
+  @Input({ required: true }) serviceId!: number;
+  @Output() submitted = new EventEmitter<void>();
 
   rating: number = 0;
   hoverRating: number = 0;
@@ -61,9 +62,10 @@ export class SubmitReviewFormComponent implements OnInit {
       comment: this.comment
     };
 
-    this.http.post(`${environment.apiUrl}/reviews/`, payload).subscribe({
+    this.http.post(`${environment.apiUrl}${API_ENDPOINTS.reviews.create}`, payload).subscribe({
       next: () => {
         this.status = 'success';
+        this.submitted.emit();
       },
       error: (err) => {
         console.error(err);

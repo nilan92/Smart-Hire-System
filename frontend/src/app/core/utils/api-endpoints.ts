@@ -38,4 +38,14 @@ export const API_ENDPOINTS = {
     byProvider: (providerId: number) => `/providers/availability/provider/${providerId}`,
     remove: (slotId: number) => `/providers/availability/${slotId}`,
   },
+  reviews: {
+    create: '/reviews/',
+    mine: '/reviews/customer/me',
+    byProvider: (providerId: number) => `/reviews/provider/${providerId}`,
+  },
+  payments: {
+    create: '/payments/',
+    byBooking: (bookingId: number) => `/payments/booking/${bookingId}`,
+    myProviderPayments: '/payments/provider/me',
+  },
 } as const;
