@@ -1,44 +1,76 @@
-<div class="blocked-wrapper">
-  <div class="blocked-card">
+<main class="auth-page">
+  <section class="auth-card">
 
-    <!-- Icon -->
-    <div class="blocked-icon" [ngClass]="isSuspended ? 'icon-suspended' : 'icon-deactivated'">
-      {{ isSuspended ? '🔒' : '🚫' }}
-    </div>
+    <!-- Left Brand Panel -->
+    <aside class="brand-panel" aria-label="Smart Hire overview">
+      <a class="brand" routerLink="/" aria-label="Smart Hire home">
+        <span class="brand-icon">SH</span>
+        <span>
+          <strong>SMART HIRE</strong>
+          <small>Service Marketplace</small>
+        </span>
+      </a>
 
-    <!-- Title -->
-    <h1 class="blocked-title">
-      {{ isSuspended ? 'Account Suspended' : 'Account Deactivated' }}
-    </h1>
+      <div class="brand-message">
+        <div class="brand-status-icon" [ngClass]="isSuspended ? 'status-suspended' : 'status-deactivated'">
+          {{ isSuspended ? '🔒' : '🚫' }}
+        </div>
+        <h1>{{ isSuspended ? 'Account\nSuspended' : 'Account\nDeactivated' }}</h1>
+        <p *ngIf="isSuspended">
+          Your access has been temporarily restricted by an administrator.
+        </p>
+        <p *ngIf="!isSuspended">
+          This account has been permanently closed and is no longer active.
+        </p>
+      </div>
 
-    <!-- Subtitle -->
-    <p class="blocked-subtitle" *ngIf="isSuspended">
-      Your Smart Hire account has been <strong>suspended</strong> by an administrator.
-    </p>
-    <p class="blocked-subtitle" *ngIf="!isSuspended">
-      Your Smart Hire account has been <strong>deactivated</strong> and is no longer active.
-    </p>
+      <div class="brand-points" aria-label="Smart Hire account areas">
+        <span>Customer profiles</span>
+        <span>Provider tools</span>
+        <span>Admin control</span>
+      </div>
+    </aside>
 
-    <!-- Divider -->
-    <hr class="divider" />
+    <!-- Right Content Panel -->
+    <section class="form-panel" [attr.aria-labelledby]="'blocked-title'">
 
-    <!-- Detail message -->
-    <div class="blocked-detail" *ngIf="isSuspended">
-      <p>This may be due to a policy violation or pending review.</p>
-      <p>Please contact our support team to resolve this issue and restore your access.</p>
-      <a href="mailto:support@smarthire.com" class="contact-link">📧 support@smarthire.com</a>
-    </div>
+      <div class="status-badge" [ngClass]="isSuspended ? 'badge-suspended' : 'badge-deactivated'">
+        <span class="badge-dot"></span>
+        {{ isSuspended ? 'Account Suspended' : 'Account Deactivated' }}
+      </div>
 
-    <div class="blocked-detail" *ngIf="!isSuspended">
-      <p>This account has been permanently closed.</p>
-      <p>If you believe this is a mistake, please reach out to our support team.</p>
-      <a href="mailto:support@smarthire.com" class="contact-link">📧 support@smarthire.com</a>
-    </div>
+      <div class="form-heading">
+        <h2 id="blocked-title">{{ isSuspended ? 'Your account has been suspended' : 'Your account has been deactivated' }}</h2>
+        <p *ngIf="isSuspended">
+          This may be due to a policy violation or a pending review. Please contact our support team to resolve this issue and restore your access.
+        </p>
+        <p *ngIf="!isSuspended">
+          This account has been permanently closed. If you believe this is a mistake, please reach out to our support team.
+        </p>
+      </div>
 
-    <!-- Back to login -->
-    <button class="btn-back" (click)="backToLogin()">
-      ← Back to Login
-    </button>
+      <!-- Info box -->
+      <div class="info-box" [ngClass]="isSuspended ? 'info-suspended' : 'info-deactivated'">
+        <div class="info-icon">{{ isSuspended ? '⚠️' : 'ℹ️' }}</div>
+        <div class="info-content">
+          <strong *ngIf="isSuspended">What to do next</strong>
+          <strong *ngIf="!isSuspended">Need help?</strong>
+          <p>Email us at
+            <a href="mailto:support@smarthire.com" class="support-link">support&#64;smarthire.com</a>
+            and we'll respond within 24 hours.
+          </p>
+        </div>
+      </div>
 
-  </div>
-</div>
+      <!-- Back to login button -->
+      <button type="button" class="primary-button" id="back-to-login-btn" (click)="backToLogin()">
+        ← Back to Login
+      </button>
+
+      <p class="auth-footer">
+        Don't have an account? <a routerLink="/register" id="go-to-register">Register</a>
+      </p>
+
+    </section>
+  </section>
+</main>
