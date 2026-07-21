@@ -66,9 +66,9 @@
 - Integrate real Stripe/PayPal checkout SDKs for production.
 
 ## Update (July 21, 2026)
-- **TypeScript `UserProfileUpdate` Interface Fix**: Added optional `password?: string | null` field to the `UserProfileUpdate` interface in `frontend/src/app/core/models/auth.models.ts`, resolving Angular compiler type check `TS2353`.
-- **Customer Password Reset Feature**: Added password update support to backend API schema (`user.py`) and service (`user_service.py` via `hash_password`). Constructed a dedicated **Security & Reset Password** card section on the Customer Profile page (`profile.ts`, `profile.html`, `profile.scss`) featuring new password input, confirm password validation, show/hide password toggle button, and live feedback toast.
-- **Sidebar Navigation Streamlining**: Removed duplicate `Profile` and `Notifications` links from Customer (`customer-layout.ts`) and Provider (`provider-layout.ts`) sidebar navigation arrays.
+- **Provider & Customer Password Reset Feature**: Added password reset / security cards to both Customer (`/customer/profile`) and Provider (`/provider/profile`) profile pages with new password inputs, confirm password validation, show/hide password toggle button, and live feedback toasts. Connected to backend `PUT /api/users/me` with secure `hash_password` hashing.
+- **TypeScript `UserProfileUpdate` Interface Fix**: Added optional `password?: string | null` field to the `UserProfileUpdate` interface in `frontend/src/app/core/models/auth.models.ts`.
+- **Sidebar Navigation Streamlining**: Removed duplicate `Profile` and `Notifications` links from Customer (`customer-layout.ts`) and Provider (`provider-layout.ts`) sidebar navigation arrays. Both features are now centralized exclusively in the top-right Navbar interactive dropdowns.
 - **Provider Notifications Route Fix**: Updated `Navbar` component to use `getNotificationsLink()`, routing Providers to `/provider/notifications`.
 - **Navbar Notifications & Profile Dropdowns**: Upgraded `Navbar` component (`navbar.ts`, `navbar.html`, `navbar.scss`) to include top-right interactive dropdown menus (hidden for `admin` role).
 - **Sidebar Active Route Highlighting Fix**: Updated `Sidebar` component with `queryParams: 'ignored'` options and left emerald accent border (`#0f766e`).

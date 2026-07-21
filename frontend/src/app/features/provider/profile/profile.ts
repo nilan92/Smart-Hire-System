@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -12,7 +13,8 @@ import { PageHeader } from '../../../shared/components/page-header/page-header';
 
 @Component({
   selector: 'app-provider-profile',
-  imports: [ErrorMessage, LoadingSpinner, PageHeader, ReactiveFormsModule],
+  standalone: true,
+  imports: [CommonModule, ErrorMessage, LoadingSpinner, PageHeader, ReactiveFormsModule],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
@@ -27,11 +29,20 @@ export class ProviderProfile implements OnInit {
   saving = false;
   message = '';
 
+  passwordSaving = false;
+  passwordMessage = '';
+  showPassword = false;
+
   readonly form = this.fb.nonNullable.group({
     full_name: ['', [Validators.required, Validators.minLength(2)]],
     phone: [''],
     bio: [''],
     years_experience: [0, [Validators.min(0)]],
+  });
+
+  readonly passwordForm = this.fb.nonNullable.group({
+    new_password: ['', [Validators.required, Validators.minLength(8)]],
+    confirm_password: ['', [Validators.required, Validators.minLength(8)]],
   });
 
   ngOnInit(): void {
@@ -70,6 +81,7 @@ export class ProviderProfile implements OnInit {
 
     const raw = this.form.getRawValue();
     this.saving = true;
+    this.message = '';
     forkJoin({
       user: this.authService.updateUserProfile({
         full_name: raw.full_name,
@@ -91,6 +103,40 @@ export class ProviderProfile implements OnInit {
         this.saving = false;
       },
     });
+  }
+
+  changePassword(): void {
+    this.passwordMessage = '';
+
+    if (this.passwordForm.invalid) {
+      this.passwordForm.markAllAsTouched();
+      this.passwordMessage = 'Password must be at least 8 characters long.';
+      return;
+    }
+
+    const { new_password, confirm_password } = this.passwordForm.getRawValue();
+
+    if (new_password !== confirm_password) {
+      this.passwordMessage = 'Passwords do not match.';
+      return;
+    }
+
+    this.passwordSaving = true;
+    this.authService.updateUserProfile({ password: new_password }).subscribe({
+      next: () => {
+        this.passwordMessage = 'Password updated successfully!';
+        this.passwordSaving = false;
+        this.passwordForm.reset();
+      },
+      error: () => {
+        this.passwordMessage = 'Unable to update password. Please try again.';
+        this.passwordSaving = false;
+      },
+    });
+  }
+
+  toggleShowPassword(): void {
+    this.showPassword = !this.showPassword;
   }
 
   private patchUserForm(user: User): void {
