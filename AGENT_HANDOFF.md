@@ -1,5 +1,25 @@
 # AI Agent Handoff & Development Log
 
+## Member 5: AI Assistant, History and Booking Handoff (2026-07-21)
+
+**Completed implementation:**
+
+- `backend/app/ai/router.py` provides authenticated chat, category-backed recommendations, conversation list/detail/analysis, provider matching, and provider-owned review summaries.
+- Chat persistence uses `ai_conversations` and `ai_messages`. Every exchange stores the customer message and assistant reply, and conversations update their `updated_at` timestamp.
+- The assistant receives recent saved messages and active database categories as context. It must not invent providers, prices, availability, or bookings; an upstream OpenAI failure produces a safe guidance fallback.
+- `frontend/src/app/features/customer/ai-assistant/` includes history, saved-message counts, recommendation cards, and a booking confirmation panel.
+- The booking panel reuses protected `POST /api/bookings`: a customer explicitly selects a recommended service and supplies a future date/time, preserving ownership validation and provider notifications.
+- `frontend/src/app/features/provider/ai-insights/` lets providers generate and view a review summary for an owned service.
+
+**How to verify:**
+
+1. Run the backend on port `8000` and Angular on port `4200`.
+2. Log in as a customer, open `/customer/ai-assistant`, send a message, then reopen its conversation to confirm database persistence.
+3. Request a recommendation, select **Book this service**, enter a future date/time, and confirm. The normal customer booking history and provider request list should show the new request.
+4. Log in as a provider, open `/provider/ai-insights`, and generate a summary for an owned service.
+
+**Checks completed:** Angular production build passed; SQLAlchemy mappings and AI-route registration passed; local backend health returned `200`.
+
 ## Current Status (July 2026)
 
 **Recent Major Updates:**

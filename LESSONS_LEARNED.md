@@ -1,5 +1,15 @@
 # Development Hiccups & Solutions
 
+## Recent Lesson: AI Output Must Not Directly Perform a Customer Booking
+**The Hiccup:** Letting a chat response create a booking would allow an untrusted model response to make a business transaction without the customer selecting the date/time or confirming the request.
+
+**The Fix:** The assistant only provides guidance and recommendations. Its Angular page displays a confirmation panel where the authenticated customer chooses a recommended service and a future date/time. It then calls the existing `POST /api/bookings` endpoint, retaining customer-role validation, active-service verification, provider ownership, and notification logic.
+
+## Recent Lesson: Conversation History Needs Ownership, Ordering and a Parent Touch
+**The Hiccup:** Saving messages alone is not enough for usable chat history. Without an owner filter, users could inspect another user's messages; without updating the conversation timestamp, the history list is ordered by creation time rather than recent activity.
+
+**The Fix:** Every conversation query filters by authenticated `user_id`; a mismatched conversation returns `404`. The chat route stores both messages in one transaction and updates the parent conversation's `updated_at`. Static routes such as `/conversations/analysis` are registered before `/conversations/{conversation_id}` so FastAPI does not try to parse `analysis` as an integer id.
+
 Here is a straightforward log of the technical problems we ran into while building this system and exactly how we fixed them:
 
 ## 1. The Endless Loading Spinner (The Change Detection Bug)
