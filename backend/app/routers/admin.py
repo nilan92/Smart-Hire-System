@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -146,6 +146,49 @@ def get_dashboard_stats(db: Session = Depends(get_db)):
         "avg_review_rating": avg_review_rating,
         "total_revenue": total_revenue,
     }
+
+
+class MonthlyStatsPoint(BaseModel):
+    month: str
+    revenue: float
+    bookings: int
+
+
+_MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+
+@router.get("/revenue-timeseries", response_model=List[MonthlyStatsPoint], dependencies=[_admin_dep])
+def get_revenue_timeseries(months: int = Query(default=6, ge=1, le=24), db: Session = Depends(get_db)):
+    """Real completed-payment revenue and booking counts, grouped by month."""
+    now = datetime.now(timezone.utc)
+    cursor = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    buckets: list[tuple[int, int]] = []
+    for _ in range(months):
+        buckets.append((cursor.year, cursor.month))
+        cursor = (cursor - timedelta(days=1)).replace(day=1)
+    buckets.reverse()
+
+    revenue_by_month = {bucket: 0.0 for bucket in buckets}
+    bookings_by_month = {bucket: 0 for bucket in buckets}
+
+    for amount, created_at in db.query(Payment.amount, Payment.created_at).filter(Payment.status == "completed"):
+        key = (created_at.year, created_at.month)
+        if key in revenue_by_month:
+            revenue_by_month[key] += float(amount)
+
+    for (created_at,) in db.query(Booking.created_at):
+        key = (created_at.year, created_at.month)
+        if key in bookings_by_month:
+            bookings_by_month[key] += 1
+
+    return [
+        MonthlyStatsPoint(
+            month=f"{_MONTH_NAMES[month - 1]} {year}",
+            revenue=round(revenue_by_month[(year, month)], 2),
+            bookings=bookings_by_month[(year, month)],
+        )
+        for year, month in buckets
+    ]
 
 
 # ---------------------------------------------------------------------------

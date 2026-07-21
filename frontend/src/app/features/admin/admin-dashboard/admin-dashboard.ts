@@ -24,21 +24,21 @@ export class AdminDashboardComponent implements OnInit {
 
   loading = true;
   isLoading = true;
-  
-  // Chart Data Setup
+
+  // Chart Data — populated from GET /admin/revenue-timeseries once it loads.
   public lineChartData: ChartConfiguration<'line'>['data'] = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+    labels: [],
     datasets: [
       {
-        data: [1200, 1900, 3000, 5000, 4200, 6800, 8500],
-        label: 'Platform Revenue ($)',
+        data: [],
+        label: 'Platform Revenue (LKR)',
         fill: true,
         tension: 0.4,
         borderColor: '#3b82f6',
         backgroundColor: 'rgba(59, 130, 246, 0.2)'
       },
       {
-        data: [45, 60, 110, 150, 130, 210, 280],
+        data: [],
         label: 'Total Bookings',
         fill: false,
         tension: 0.4,
@@ -62,14 +62,13 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('ngOnInit fired, fetching stats');
     this.fetchStats();
+    this.fetchRevenueTimeseries();
   }
 
   fetchStats(): void {
     this.http.get(`${environment.apiUrl}/admin/dashboard-stats`).subscribe({
       next: (data) => {
-        console.log('Stats received:', data);
         this.stats = data;
         this.loading = false;
         this.cdr.detectChanges();
@@ -81,5 +80,23 @@ export class AdminDashboardComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  fetchRevenueTimeseries(): void {
+    this.http
+      .get<{ month: string; revenue: number; bookings: number }[]>(`${environment.apiUrl}/admin/revenue-timeseries`)
+      .subscribe({
+        next: (points) => {
+          this.lineChartData = {
+            labels: points.map((p) => p.month),
+            datasets: [
+              { ...this.lineChartData.datasets[0], data: points.map((p) => p.revenue) },
+              { ...this.lineChartData.datasets[1], data: points.map((p) => p.bookings) },
+            ],
+          };
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Revenue timeseries fetch error:', err),
+      });
   }
 }
