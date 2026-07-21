@@ -1,50 +1,110 @@
-<app-page-header title="Customer Profile" subtitle="Manage the account details used across Smart Hire." />
+<app-page-header title="Customer Profile" subtitle="Manage your personal account details and security settings." />
 
 @if (loading) {
   <app-loading-spinner label="Loading profile..." />
 } @else {
-  <section class="profile-panel">
-    <div class="details-grid">
-      <div>
-        <span class="label">User ID</span>
-        <strong>{{ user?.id }}</strong>
-      </div>
-      <div>
-        <span class="label">Email</span>
-        <strong>{{ user?.email }}</strong>
-      </div>
-      <div>
-        <span class="label">Role</span>
-        <strong>{{ user?.role }}</strong>
-      </div>
-      <div>
-        <span class="label">Account status</span>
-        <strong>{{ user?.status }}</strong>
-      </div>
-    </div>
+  <div class="profile-container">
+    <!-- Personal Details Card -->
+    <section class="profile-panel">
+      <h3>Personal Information</h3>
 
-    <form [formGroup]="form" (ngSubmit)="save()" novalidate>
-      <label>
-        Full name
-        <input type="text" formControlName="full_name" autocomplete="name" />
-        @if (form.controls.full_name.touched && form.controls.full_name.invalid) {
-          <small>Name must be at least 2 characters.</small>
+      <div class="details-grid">
+        <div>
+          <span class="label">User ID</span>
+          <strong>#{{ user?.id }}</strong>
+        </div>
+        <div>
+          <span class="label">Email Address</span>
+          <strong>{{ user?.email }}</strong>
+        </div>
+        <div>
+          <span class="label">Account Role</span>
+          <strong class="role-badge">{{ user?.role | uppercase }}</strong>
+        </div>
+        <div>
+          <span class="label">Account Status</span>
+          <strong class="status-badge">{{ user?.status | uppercase }}</strong>
+        </div>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <label>
+          Full name
+          <input type="text" formControlName="full_name" autocomplete="name" />
+          @if (form.controls.full_name.touched && form.controls.full_name.invalid) {
+            <small>Name must be at least 2 characters.</small>
+          }
+        </label>
+
+        <label>
+          Phone
+          <input type="tel" formControlName="phone" autocomplete="tel" placeholder="+94 77 123 4567" />
+        </label>
+
+        @if (message) {
+          <app-error-message [message]="message.includes('Unable') ? message : ''" />
+          @if (!message.includes('Unable')) {
+            <p class="success">{{ message }}</p>
+          }
         }
-      </label>
 
-      <label>
-        Phone
-        <input type="tel" formControlName="phone" autocomplete="tel" />
-      </label>
+        <button type="submit" class="btn btn-primary" [disabled]="saving">
+          {{ saving ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </form>
+    </section>
 
-      @if (message) {
-        <app-error-message [message]="message.includes('Unable') ? message : ''" />
-        @if (!message.includes('Unable')) {
-          <p class="success">{{ message }}</p>
+    <!-- Security & Password Reset Card -->
+    <section class="profile-panel security-panel">
+      <div class="panel-header">
+        <h3>🔒 Security & Reset Password</h3>
+        <p>Update your password to keep your Smart Hire account secure.</p>
+      </div>
+
+      <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" novalidate>
+        <div class="field-row">
+          <label>
+            New Password
+            <div class="password-input-wrap">
+              <input 
+                [type]="showPassword ? 'text' : 'password'" 
+                formControlName="new_password" 
+                autocomplete="new-password" 
+                placeholder="At least 8 characters" 
+              />
+              <button type="button" class="toggle-pwd-btn" (click)="toggleShowPassword()">
+                {{ showPassword ? 'Hide' : 'Show' }}
+              </button>
+            </div>
+            @if (passwordForm.controls.new_password.touched && passwordForm.controls.new_password.invalid) {
+              <small>Password must be at least 8 characters long.</small>
+            }
+          </label>
+
+          <label>
+            Confirm New Password
+            <input 
+              [type]="showPassword ? 'text' : 'password'" 
+              formControlName="confirm_password" 
+              autocomplete="new-password" 
+              placeholder="Re-enter new password" 
+            />
+            @if (passwordForm.controls.confirm_password.touched && passwordForm.controls.confirm_password.invalid) {
+              <small>Please confirm your password.</small>
+            }
+          </label>
+        </div>
+
+        @if (passwordMessage) {
+          <p [ngClass]="passwordMessage.includes('successfully') ? 'success' : 'field-error'">
+            {{ passwordMessage }}
+          </p>
         }
-      }
 
-      <button type="submit" [disabled]="saving">{{ saving ? 'Saving...' : 'Save changes' }}</button>
-    </form>
-  </section>
+        <button type="submit" class="btn btn-primary" [disabled]="passwordSaving">
+          {{ passwordSaving ? 'Updating...' : 'Update Password' }}
+        </button>
+      </form>
+    </section>
+  </div>
 }
