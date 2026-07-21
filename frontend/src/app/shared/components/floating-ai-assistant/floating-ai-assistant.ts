@@ -3,11 +3,17 @@ import { AfterViewChecked, Component, ElementRef, ViewChild, inject, signal } fr
 import { FormsModule } from '@angular/forms';
 
 import { AiService } from '../../../core/services/ai.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 interface ChatBubble {
   role: 'user' | 'assistant';
   message: string;
 }
+
+const GREETINGS: Record<string, string> = {
+  provider: "Hey! 👋 I can help with your bookings, availability, or how things work here. What's up?",
+  customer: "Hey! 👋 Looking for a service? Just tell me what you need.",
+};
 
 @Component({
   selector: 'app-floating-ai-assistant',
@@ -18,13 +24,14 @@ interface ChatBubble {
 })
 export class FloatingAiAssistant implements AfterViewChecked {
   private readonly ai = inject(AiService);
+  private readonly auth = inject(AuthService);
   @ViewChild('scrollAnchor') private scrollAnchor?: ElementRef<HTMLDivElement>;
 
   readonly open = signal(false);
   readonly draft = signal('');
   readonly loading = signal(false);
   readonly messages = signal<ChatBubble[]>([
-    { role: 'assistant', message: "Hey! 👋 Looking for a service? Just tell me what you need." },
+    { role: 'assistant', message: GREETINGS[this.auth.currentUser()?.role ?? 'customer'] ?? GREETINGS['customer'] },
   ]);
 
   private conversationId?: number;
