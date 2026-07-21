@@ -18,12 +18,12 @@ const CATEGORIES: ServiceCategory[] = [
 ];
 
 const INITIAL_SERVICES: MarketplaceService[] = [
-  { id: 101, providerId: 1, providerName: 'Nimal Perera', categoryId: 1, title: 'Emergency plumbing repair', description: 'Fast help for leaks, blocked drains and broken fittings.', city: 'Colombo', price: 3500, rating: 4.9, reviewCount: 48, duration: '1–2 hours', status: 'active', featured: true },
-  { id: 102, providerId: 2, providerName: 'Bright Spark Solutions', categoryId: 2, title: 'Home electrical inspection', description: 'Complete safety checks, fault detection and practical advice.', city: 'Kandy', price: 4500, rating: 4.8, reviewCount: 31, duration: '2 hours', status: 'active' },
-  { id: 103, providerId: 3, providerName: 'Fresh Space Lanka', categoryId: 3, title: 'Deep home cleaning', description: 'A detailed top-to-bottom clean using safe supplies.', city: 'Gampaha', price: 7500, rating: 4.7, reviewCount: 64, duration: '4–5 hours', status: 'active', featured: true },
-  { id: 104, providerId: 1, providerName: 'Nimal Perera', categoryId: 5, title: 'Furniture assembly & repair', description: 'Reliable assembly and minor repairs for your home or office.', city: 'Colombo', price: 2800, rating: 4.6, reviewCount: 22, duration: '1–3 hours', status: 'active' },
-  { id: 105, providerId: 4, providerName: 'LearnWell Academy', categoryId: 4, title: 'Mathematics tutoring', description: 'Patient, exam-focused lessons for O/L and A/L students.', city: 'Online', price: 2000, rating: 5, reviewCount: 19, duration: '1 hour', status: 'active' },
-  { id: 106, providerId: 5, providerName: 'FixIT Mobile', categoryId: 6, title: 'Laptop & Wi-Fi support', description: 'On-site troubleshooting for computers and home networks.', city: 'Colombo', price: 3000, rating: 4.8, reviewCount: 37, duration: '1–2 hours', status: 'active' },
+  { id: 101, providerId: 1, providerName: 'Nimal Perera', categoryId: 1, title: 'Emergency plumbing repair', description: 'Fast help for leaks, blocked drains and broken fittings.', city: 'Colombo', price: 3500, rating: 4.9, reviewCount: 48, duration: '1–2 hours', status: 'active', providerVerified: true, featured: true },
+  { id: 102, providerId: 2, providerName: 'Bright Spark Solutions', categoryId: 2, title: 'Home electrical inspection', description: 'Complete safety checks, fault detection and practical advice.', city: 'Kandy', price: 4500, rating: 4.8, reviewCount: 31, duration: '2 hours', status: 'active', providerVerified: true },
+  { id: 103, providerId: 3, providerName: 'Fresh Space Lanka', categoryId: 3, title: 'Deep home cleaning', description: 'A detailed top-to-bottom clean using safe supplies.', city: 'Gampaha', price: 7500, rating: 4.7, reviewCount: 64, duration: '4–5 hours', status: 'active', providerVerified: true, featured: true },
+  { id: 104, providerId: 1, providerName: 'Nimal Perera', categoryId: 5, title: 'Furniture assembly & repair', description: 'Reliable assembly and minor repairs for your home or office.', city: 'Colombo', price: 2800, rating: 4.6, reviewCount: 22, duration: '1–3 hours', status: 'active', providerVerified: true },
+  { id: 105, providerId: 4, providerName: 'LearnWell Academy', categoryId: 4, title: 'Mathematics tutoring', description: 'Patient, exam-focused lessons for O/L and A/L students.', city: 'Online', price: 2000, rating: 5, reviewCount: 19, duration: '1 hour', status: 'active', providerVerified: true },
+  { id: 106, providerId: 5, providerName: 'FixIT Mobile', categoryId: 6, title: 'Laptop & Wi-Fi support', description: 'On-site troubleshooting for computers and home networks.', city: 'Colombo', price: 3000, rating: 4.8, reviewCount: 37, duration: '1–2 hours', status: 'active', providerVerified: true },
 ];
 
 const INITIAL_AREAS: ServiceArea[] = [
@@ -71,11 +71,11 @@ export class MarketplaceServiceStore {
     return this.favouriteIds().includes(serviceId);
   }
 
-  saveService(service: Omit<MarketplaceService, 'id' | 'providerId' | 'providerName' | 'rating' | 'reviewCount'>, id?: number): void {
+  saveService(service: Omit<MarketplaceService, 'id' | 'providerId' | 'providerName' | 'rating' | 'reviewCount' | 'providerVerified'>, id?: number): void {
     const current = this.services();
     const next = id
       ? current.map((item) => item.id === id ? { ...item, ...service } : item)
-      : [{ ...service, id: Date.now(), providerId: 1, providerName: 'My business', rating: 0, reviewCount: 0 }, ...current];
+      : [{ ...service, id: Date.now(), providerId: 1, providerName: 'My business', rating: 0, reviewCount: 0, providerVerified: false }, ...current];
     this.services.set(next);
     this.write(SERVICES_KEY, next);
     const payload = { category_id:service.categoryId, title:service.title, description:service.description, price:service.price, city:service.city, duration:service.duration, status:service.status };
@@ -124,8 +124,8 @@ export class MarketplaceServiceStore {
     if (typeof localStorage !== 'undefined') localStorage.setItem(key, JSON.stringify(value));
   }
 
-  private readonly mapService = (item: ApiService): MarketplaceService => ({ id:item.id, providerId:item.provider_id, providerName:item.provider_name, categoryId:item.category_id, title:item.title, description:item.description, city:item.city, price:Number(item.price), rating:item.rating, reviewCount:item.review_count, duration:item.duration, status:item.status });
+  private readonly mapService = (item: ApiService): MarketplaceService => ({ id:item.id, providerId:item.provider_id, providerName:item.provider_name, categoryId:item.category_id, title:item.title, description:item.description, city:item.city, price:Number(item.price), rating:item.rating, reviewCount:item.review_count, duration:item.duration, status:item.status, providerVerified:item.provider_verified });
 }
 
-interface ApiService { id:number; provider_id:number; provider_name:string; category_id:number; title:string; description:string; city:string; price:number|string; rating:number; review_count:number; duration:string; status:'active'|'paused'|'draft'; }
+interface ApiService { id:number; provider_id:number; provider_name:string; category_id:number; title:string; description:string; city:string; price:number|string; rating:number; review_count:number; duration:string; status:'active'|'paused'|'draft'; provider_verified:boolean; }
 interface ApiArea { id:number; provider_id:number; district:string; city:string; radius_km:number; service_id?:number; }

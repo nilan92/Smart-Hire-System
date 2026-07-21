@@ -20,7 +20,7 @@
         <p class="description">{{ service.description }}</p>
         <div class="provider">
           <span>{{ service.providerName.charAt(0) }}</span>
-          <div><strong>{{ service.providerName }}</strong><small>✓ Verified provider · {{ service.city }}</small></div>
+          <div><strong>{{ service.providerName }}</strong><small>{{ service.providerVerified ? '✓ Verified provider · ' : '' }}{{ service.city }}</small></div>
         </div>
         <div class="detail-grid">
           <div><small>Price</small><strong>{{ service.price | currency:'LKR':'symbol':'1.0-0' }}</strong></div>

@@ -36,7 +36,7 @@
           <div class="rating">★ {{ service.rating }} <span>({{ service.reviewCount }} reviews)</span></div>
           <h2>{{ service.title }}</h2>
           <p>{{ service.description }}</p>
-          <div class="provider"><span>{{ service.providerName.charAt(0) }}</span><div><strong>{{ service.providerName }}</strong><small>✓ Verified provider · {{ service.city }}</small></div></div>
+          <div class="provider"><span>{{ service.providerName.charAt(0) }}</span><div><strong>{{ service.providerName }}</strong><small>{{ service.providerVerified ? '✓ Verified provider · ' : '' }}{{ service.city }}</small></div></div>
           <div class="card-footer"><div><small>Starts from</small><strong>{{ service.price | currency:'LKR':'symbol':'1.0-0' }}</strong></div><button (click)="view(service)">View service →</button></div>
         </div>
       </article>
@@ -60,7 +60,7 @@
         <p class="description">{{ service.description }}</p>
         <div class="provider">
           <span>{{ service.providerName.charAt(0) }}</span>
-          <div><strong>{{ service.providerName }}</strong><small>✓ Verified provider · {{ service.city }}</small></div>
+          <div><strong>{{ service.providerName }}</strong><small>{{ service.providerVerified ? '✓ Verified provider · ' : '' }}{{ service.city }}</small></div>
         </div>
         <div class="detail-grid">
           <div><small>Price</small><strong>{{ service.price | currency:'LKR':'symbol':'1.0-0' }}</strong></div>

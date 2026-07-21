@@ -22,6 +22,7 @@ def serialize(service: Service) -> ServiceResponse:
         category_id=service.category_id, title=service.title, description=service.description,
         price=service.price, city=service.city, duration=service.duration, status=service.status,
         rating=float(profile.avg_rating) if profile else 0, review_count=profile.total_reviews if profile else 0,
+        provider_verified=profile.verification_status.value == "verified" if profile else False,
         image_urls=[image.image_url for image in service.images], created_at=service.created_at,
     )
 

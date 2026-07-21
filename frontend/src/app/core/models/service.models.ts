@@ -19,6 +19,7 @@ export interface MarketplaceService {
   reviewCount: number;
   duration: string;
   status: ServiceStatus;
+  providerVerified: boolean;
   featured?: boolean;
 }
 

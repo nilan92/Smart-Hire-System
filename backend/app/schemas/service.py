@@ -41,6 +41,7 @@ class ServiceResponse(BaseModel):
     status: ServiceStatus
     rating: float = 0
     review_count: int = 0
+    provider_verified: bool = False
     image_urls: list[str] = Field(default_factory=list)
     created_at: datetime
 
