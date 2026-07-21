@@ -89,6 +89,7 @@
               <th>Email</th>
               <th>Role</th>
               <th>Status</th>
+              <th>Provider Verification</th>
               <th>Email Verified</th>
               <th>Joined</th>
               <th>Change Status</th>
@@ -108,13 +109,27 @@
                 <td><span class="badge" [ngClass]="getRoleBadgeClass(user.role)">{{ user.role | titlecase }}</span></td>
                 <td><span class="badge" [ngClass]="getStatusBadgeClass(user.status)">{{ user.status | titlecase }}</span></td>
                 <td>
+                  @if (user.role === 'provider') {
+                    <div class="select-wrapper" [class.updating]="user.updatingVerification">
+                      <select [value]="user.verification_status || 'unverified'" [disabled]="user.updatingVerification" (change)="onVerificationChange(user, $any($event.target).value)">
+                        <option value="verified">Verified 🟢</option>
+                        <option value="pending">Pending 🟡</option>
+                        <option value="unverified">Unverified ⚪</option>
+                        <option value="rejected">Rejected 🔴</option>
+                      </select>
+                    </div>
+                  } @else {
+                    <span style="color: #94a3b8; font-size: 0.82rem;">—</span>
+                  }
+                </td>
+                <td>
                   @if (user.email_verified) {
-                    <span class="verified-chip verified">
+                    <span class="verified-chip verified" style="cursor: pointer;" (click)="toggleEmailVerification(user)" title="Click to unverify email">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                       Verified
                     </span>
                   } @else {
-                    <span class="verified-chip unverified">
+                    <span class="verified-chip unverified" style="cursor: pointer;" (click)="toggleEmailVerification(user)" title="Click to verify email">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -140,7 +155,7 @@
             }
             @empty {
               <tr>
-                <td colspan="8" class="empty-row">
+                <td colspan="9" class="empty-row">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                     <circle cx="9" cy="7" r="4"></circle>

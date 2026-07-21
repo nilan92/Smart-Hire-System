@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user, require_roles
+from app.core.dependencies import get_current_user, require_active_user, require_roles
 from app.models.user import User, UserRole
 from app.schemas.provider_profile import ProviderProfileResponse, ProviderProfileUpdate
 from app.schemas.user import CurrentUserResponse, PublicProviderResponse, UserProfileUpdate
@@ -23,7 +23,7 @@ def get_my_profile(current_user: User = Depends(get_current_user)):
 @router.put("/me", response_model=CurrentUserResponse)
 def update_my_profile(
     payload: UserProfileUpdate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_user),
     db: Session = Depends(get_db),
 ):
     return UserService(db).update_profile(current_user, payload)

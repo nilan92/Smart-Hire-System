@@ -23,7 +23,13 @@
         </div>
         <div>
           <span class="label">Account Status</span>
-          <strong class="status-badge">{{ user?.status | uppercase }}</strong>
+          <strong class="status-badge" [ngClass]="getStatusClass(user?.status)">{{ user?.status | uppercase }}</strong>
+        </div>
+        <div>
+          <span class="label">Email Verified</span>
+          <strong class="status-badge" [ngClass]="user?.email_verified ? 'badge-verified' : 'badge-unverified'">
+            {{ user?.email_verified ? 'VERIFIED ✓' : 'NOT VERIFIED' }}
+          </strong>
         </div>
       </div>
 

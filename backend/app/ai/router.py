@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.ai.schemas import AIMessageResponse, ChatRequest, ChatResponse, ConversationAnalytics, ConversationDetailResponse, ConversationResponse, ProviderMatchRequest, ProviderMatchResponse, RecommendationRequest, RecommendationResponse, RecommendedService, ReviewSummaryRequest, ReviewSummaryResponse
 from app.ai.service import AIService
 from app.core.database import get_db
-from app.core.dependencies import get_current_user, require_roles
+from app.core.dependencies import get_current_user, require_active_user, require_roles
 from app.models.ai_conversation import AIConversation
 from app.models.ai_message import AIMessage
 from app.models.review import Review
@@ -20,7 +20,7 @@ router = APIRouter()
 service = AIService()
 
 @router.post("/chat", response_model=ChatResponse)
-def chat(request: ChatRequest, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def chat(request: ChatRequest, user: User = Depends(require_active_user), db: Session = Depends(get_db)):
     conversation = db.get(AIConversation, request.conversation_id) if request.conversation_id else None
     if conversation and conversation.user_id != user.id: raise HTTPException(status_code=404, detail="Conversation not found")
     if conversation is None:
@@ -39,25 +39,25 @@ def chat(request: ChatRequest, user: User = Depends(get_current_user), db: Sessi
     return ChatResponse(conversation_id=conversation.id, reply=reply)
 
 @router.get("/conversations", response_model=list[ConversationResponse])
-def conversations(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def conversations(user: User = Depends(require_active_user), db: Session = Depends(get_db)):
     return [ConversationResponse(id=x.id, title=x.title, updated_at=x.updated_at) for x in db.scalars(select(AIConversation).where(AIConversation.user_id == user.id).order_by(AIConversation.updated_at.desc())).all()]
 
 @router.get("/conversations/analysis", response_model=ConversationAnalytics)
-def conversation_analysis(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def conversation_analysis(user: User = Depends(require_active_user), db: Session = Depends(get_db)):
     conversation_count = db.scalar(select(func.count(AIConversation.id)).where(AIConversation.user_id == user.id)) or 0
     message_count = db.scalar(select(func.count(AIMessage.id)).join(AIConversation).where(AIConversation.user_id == user.id)) or 0
     latest = db.scalar(select(func.max(AIConversation.updated_at)).where(AIConversation.user_id == user.id))
     return ConversationAnalytics(conversation_count=conversation_count, message_count=message_count, latest_conversation_at=latest)
 
 @router.get("/conversations/{conversation_id}", response_model=ConversationDetailResponse)
-def conversation(conversation_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def conversation(conversation_id: int, user: User = Depends(require_active_user), db: Session = Depends(get_db)):
     item = db.scalar(select(AIConversation).options(joinedload(AIConversation.messages)).where(AIConversation.id == conversation_id, AIConversation.user_id == user.id))
     if not item: raise HTTPException(status_code=404, detail="Conversation not found")
     return ConversationDetailResponse(id=item.id, title=item.title, updated_at=item.updated_at, messages=[AIMessageResponse(id=m.id, role=m.role, message=m.message, created_at=m.created_at) for m in item.messages])
 
 @router.post("/recommend", response_model=RecommendationResponse)
 @router.post("/service-recommendation", response_model=RecommendationResponse, include_in_schema=False)
-def recommend(request: RecommendationRequest, _: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def recommend(request: RecommendationRequest, _: User = Depends(require_active_user), db: Session = Depends(get_db)):
     categories = db.scalars(select(ServiceCategory).order_by(ServiceCategory.name)).all()
     if not categories: raise HTTPException(status_code=503, detail="Service categories are not available yet")
     name, reason = service.choose_category(request.description, [x.name for x in categories])
@@ -66,7 +66,7 @@ def recommend(request: RecommendationRequest, _: User = Depends(get_current_user
     return RecommendationResponse(category_id=category.id, category_name=category.name, reason=reason, services=[RecommendedService(id=x.id, title=x.title, provider_name=x.provider.full_name, city=x.city, price=float(x.price), rating=float(x.provider.provider_profile.avg_rating) if x.provider.provider_profile else 0) for x in items])
 
 @router.post("/provider-match", response_model=ProviderMatchResponse)
-def provider_match(request: ProviderMatchRequest, _: User = Depends(get_current_user)):
+def provider_match(request: ProviderMatchRequest, _: User = Depends(require_active_user)):
     if not request.providers: return ProviderMatchResponse(provider="No provider selected", reason="Use service recommendations to see active providers that match your request.")
     provider = max(request.providers, key=lambda x: (x.rating, x.experience))
     return ProviderMatchResponse(provider=provider.name, reason=f"{provider.name} has the strongest rating and experience among the supplied providers.")

@@ -74,17 +74,41 @@ $border-color: #e2e8f0;
   }
 
   .status-badge {
-    color: #134e4a;
-    background: #ccfbf1;
-    padding: 0.15rem 0.5rem;
+    padding: 0.2rem 0.6rem;
     border-radius: 9999px;
     width: fit-content;
     font-size: 0.72rem;
     font-weight: 800;
+    text-transform: uppercase;
 
-    &.role-provider {
-      background: #ede9fe;
-      color: #5b21b6;
+    &.badge-active {
+      background: #ccfbf1;
+      color: #134e4a;
+      border: 1px solid #99f6e4;
+    }
+
+    &.badge-verified {
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+    }
+
+    &.badge-pending {
+      background: #fef9c3;
+      color: #a16207;
+      border: 1px solid #fef08a;
+    }
+
+    &.badge-unverified {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+    }
+
+    &.badge-rejected {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
     }
   }
 }

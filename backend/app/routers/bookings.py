@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user, require_roles
+from app.core.dependencies import get_current_user, require_active_user, require_roles
 from app.models.user import User, UserRole
 from app.schemas.booking import BookingCreate, BookingResponse
 from app.services.booking_service import BookingService
@@ -41,7 +41,7 @@ def list_provider_requests(
 @router.get("/{booking_id}", response_model=BookingResponse)
 def get_booking(
     booking_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_user),
     db: Session = Depends(get_db),
 ):
     return BookingService(db).get_booking_for_user(booking_id, current_user)

@@ -14,9 +14,9 @@
         <h2>Welcome back, {{ user?.full_name || 'Customer' }}! 👋</h2>
         <p>What service do you need help with today?</p>
       </div>
-      <div class="verification-chip status-verified">
+      <div class="verification-chip" [ngClass]="user?.status === 'active' ? 'status-verified' : 'status-pending'">
         <span class="status-dot"></span>
-        <span class="status-text">ACTIVE CUSTOMER</span>
+        <span class="status-text">{{ (user?.status || 'active') | uppercase }} CUSTOMER</span>
       </div>
     </div>
 
@@ -64,11 +64,17 @@
     </div>
 
     <div class="stat-card">
-      <div class="stat-icon icon-rating">⭐</div>
+      <div class="stat-icon" [ngClass]="user?.email_verified ? 'icon-rating' : 'icon-pending'">
+        {{ user?.email_verified ? '⭐' : '✉️' }}
+      </div>
       <div class="stat-info">
         <span class="stat-label">Account Verification</span>
-        <strong class="stat-value">Verified</strong>
-        <span class="stat-subtext">Ready to hire</span>
+        <strong class="stat-value" [style.color]="user?.email_verified ? '#166534' : '#a16207'">
+          {{ user?.email_verified ? 'Verified' : 'Unverified' }}
+        </strong>
+        <span class="stat-subtext">
+          {{ user?.email_verified ? 'Email verified & ready to hire' : 'Email verification pending' }}
+        </span>
       </div>
     </div>
   </section>

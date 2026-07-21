@@ -55,3 +55,27 @@ Here is a straightforward log of the technical problems we ran into while buildi
 ## 11. One Stale Test File Can Fail the Entire Test Build, Not Just Itself
 **The Hiccup:** `ng test` was failing before any of our own tests even got a chance to run.
 **The Fix:** Angular's unit-test builder compiles every spec file in the project as one program. Six pre-existing spec files imported a component under its old pre-rename name (e.g. `import { BookingMonitoring }` when the actual export was `BookingMonitoringComponent`) — a leftover from `ng generate` scaffolding that was never updated after the component was renamed. A single bad import anywhere in the suite blocks the whole build, so `ng test` gave a wall of TypeScript errors with no test results at all until every one of the six was fixed.
+
+## 12. Provider Profile Verification Status Blank due to HTTP 404 Exception
+**The Hiccup:** The Provider Profile page showed a blank empty box for the "VERIFICATION" status chip.
+**The Fix:** When a newly registered provider accessed `/provider/profile`, `loadProviderProfile()` called `GET /api/users/provider-profile`. Because the provider did not have a `ProviderProfile` database row yet, `ProviderService.get_current_profile` threw an HTTP `404 Not Found` exception. This caused Angular's HTTP subscription to fail, leaving `providerProfile` as `null` (and displaying a blank verification status). We fixed this by updating `ProviderService.get_current_profile` (`provider_service.py`) to auto-create a default `ProviderProfile` with `verification_status = UNVERIFIED` on first access, ensuring `GET /api/users/provider-profile` always succeeds with valid status data.
+
+## 13. Account Status Changes Not Syncing due to HTTP 401 Rejection in Dependencies
+**The Hiccup:** When an Admin changed a user's status to `Deactivated` or `Suspended`, the Customer Profile still showed `ACTIVE`.
+**The Fix:** `get_current_user` was raising HTTP 401 for non-active users, so `GET /api/auth/me` failed and the frontend fell back to stale cached data. Removed the status block from `get_current_user` so status can always be read. Actual enforcement is handled by a new `require_active_user` dependency applied to all action endpoints.
+
+## 14. Suspended/Deactivated Users Could Still Perform Actions After Status Sync Fix
+**The Hiccup:** After fixing status sync (Lesson 13), suspended/deactivated users could still create bookings, payments, reviews, and use AI — because `get_current_user` no longer blocked them.
+**The Fix:** Added a new `require_active_user` dependency in `dependencies.py` that raises HTTP 403 with a clear message (`"Your account has been suspended."` / `"This account has been deactivated."`) for non-active users. Applied it to all write/action endpoints: bookings, payments, reviews, notifications, AI, and profile updates. `GET /api/auth/me` and `GET /api/users/me` keep using bare `get_current_user` so the frontend can always read the latest status. Login is blocked at `AuthService.login` (HTTP 403) separately. `require_roles` now chains through `require_active_user` so role-protected endpoints are also status-gated automatically.
+
+## 15. TypeScript TS2353 Error — `password` Does Not Exist in `UserProfileUpdate`
+**The Hiccup:** Adding a password reset form to the Customer Profile page caused an Angular compile error: `Object literal may only specify known properties, and 'password' does not exist in type 'UserProfileUpdate'`.
+**The Fix:** The `UserProfileUpdate` TypeScript interface in `auth.models.ts` was missing the `password` field. Added `password?: string | null` as an optional field to the interface. The backend `UserUpdate` Pydantic schema in `user.py` also needed `password: str | None = Field(default=None, min_length=8)` and the `UserService.update_profile` needed to hash and apply it with `hash_password()`.
+
+## 16. Admin Changes to Email Verification / Account Status Not Visible to Users
+**The Hiccup:** When an Admin toggled a user's Email Verification status or Account Status in `/admin/users`, the Customer/Provider Profile and Dashboard pages still showed the old values even after page refresh.
+**The Fix:** Two separate root causes:
+1. **Backend**: `get_current_user` was blocking non-active users with HTTP 401, so `GET /api/auth/me` failed and Angular's error handler kept stale localStorage data. Fixed by removing the status check from `get_current_user`.
+2. **Frontend**: Customer Profile's `ngOnInit` was using the cached `currentUser()` signal without force-refreshing from the server. Fixed by always calling `authService.loadCurrentUser()` in `ngOnInit` with `ChangeDetectorRef.detectChanges()` in the subscribe callback.
+Additionally, Customer Dashboard's status chip and Account Verification stat card were hardcoded strings — updated to use `[ngClass]` bindings on `user?.status` and `user?.email_verified`.
+

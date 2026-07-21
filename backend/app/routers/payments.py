@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user, require_roles
+from app.core.dependencies import get_current_user, require_active_user, require_roles
 from app.models.booking import Booking, BookingStatus
 from app.models.payment import Payment
 from app.models.user import User, UserRole
@@ -31,7 +31,7 @@ def _assert_can_view_payment(payment: Payment, booking: Booking | None, current_
 def create_payment(
     payment: PaymentCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_user),
 ):
     if current_user.role != UserRole.CUSTOMER:
         raise HTTPException(status_code=403, detail="Only customers can make payments")
@@ -78,7 +78,7 @@ def list_payments(skip: int = 0, limit: int = 50, db: Session = Depends(get_db))
 def get_payments_by_booking(
     booking_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_user),
 ):
     booking = db.query(Booking).filter(Booking.id == booking_id).first()
     if booking is None:
@@ -116,7 +116,7 @@ def get_my_provider_payments(
 def get_payment(
     payment_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_user),
 ):
     db_payment = db.query(Payment).filter(Payment.id == payment_id).first()
     if not db_payment:

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -28,6 +28,7 @@ export class CustomerDashboard implements OnInit {
   readonly marketplaceStore = inject(MarketplaceServiceStore);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   user: User | null = this.authService.currentUser();
   searchQuery = '';
@@ -52,6 +53,7 @@ export class CustomerDashboard implements OnInit {
     ).subscribe((user) => {
       if (user) this.user = user;
       this.loading = false;
+      this.cdr.detectChanges();
     });
 
     // Load customer data in store

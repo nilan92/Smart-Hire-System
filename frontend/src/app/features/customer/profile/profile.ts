@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -21,9 +21,10 @@ export class CustomerProfile implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   user: User | null = this.authService.currentUser();
-  loading = !this.user;
+  loading = true;
   saving = false;
   message = '';
 
@@ -51,15 +52,22 @@ export class CustomerProfile implements OnInit {
       this.patchForm(this.user);
     }
 
+    this.loadCurrentUser();
+  }
+
+  loadCurrentUser(): void {
+    this.loading = true;
     this.authService.loadCurrentUser().subscribe({
       next: (user) => {
         this.user = user;
         this.patchForm(user);
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.message = this.user ? 'Showing your saved profile.' : 'Unable to load profile.';
         this.loading = false;
+        this.cdr.detectChanges();
       },
     });
   }
@@ -77,10 +85,12 @@ export class CustomerProfile implements OnInit {
         this.user = user;
         this.message = 'Profile updated successfully.';
         this.saving = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.message = 'Unable to update profile. Please try again.';
         this.saving = false;
+        this.cdr.detectChanges();
       },
     });
   }
@@ -107,16 +117,29 @@ export class CustomerProfile implements OnInit {
         this.passwordMessage = 'Password updated successfully!';
         this.passwordSaving = false;
         this.passwordForm.reset();
+        this.cdr.detectChanges();
       },
       error: () => {
         this.passwordMessage = 'Unable to update password. Please try again.';
         this.passwordSaving = false;
+        this.cdr.detectChanges();
       },
     });
   }
 
   toggleShowPassword(): void {
     this.showPassword = !this.showPassword;
+  }
+
+  getStatusClass(status?: string): string {
+    const s = (status || 'active').toLowerCase();
+    const map: Record<string, string> = {
+      active: 'badge-active',
+      pending: 'badge-pending',
+      suspended: 'badge-rejected',
+      deactivated: 'badge-unverified',
+    };
+    return map[s] ?? 'badge-active';
   }
 
   private patchForm(user: User): void {
