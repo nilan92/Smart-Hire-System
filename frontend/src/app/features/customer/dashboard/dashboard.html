@@ -1,18 +1,266 @@
-<section class="dashboard-placeholder">
-  <p>Customer dashboard</p>
-  <h1>Welcome to your Smart Hire dashboard</h1>
-  <div class="placeholder-grid">
-    <article>
-      <span>Services</span>
-      <strong>Browse and save providers</strong>
-    </article>
-    <article>
-      <span>Bookings</span>
-      <strong>Track your service requests</strong>
-    </article>
-    <article>
-      <span>Notifications</span>
-      <strong>See important account updates</strong>
-    </article>
+<app-page-header
+  title="Customer Workspace"
+  subtitle="Find verified professionals, manage your active service bookings, and get smart AI recommendations."
+></app-page-header>
+
+<app-loading-spinner *ngIf="loading"></app-loading-spinner>
+<app-error-message *ngIf="errorMessage" [message]="errorMessage"></app-error-message>
+
+<div class="dashboard-container" *ngIf="!loading">
+  <!-- Welcome & Search Banner -->
+  <section class="welcome-banner">
+    <div class="banner-content">
+      <div class="user-greeting">
+        <h2>Welcome back, {{ user?.full_name || 'Customer' }}! 👋</h2>
+        <p>What service do you need help with today?</p>
+      </div>
+      <div class="verification-chip status-verified">
+        <span class="status-dot"></span>
+        <span class="status-text">ACTIVE CUSTOMER</span>
+      </div>
+    </div>
+
+    <!-- Quick Action Bar -->
+    <div class="quick-actions">
+      <a routerLink="/customer/services" class="btn btn-primary">
+        <span>🔍</span> Browse Services
+      </a>
+      <a routerLink="/customer/bookings" class="btn btn-secondary">
+        <span>📅</span> My Bookings
+      </a>
+      <a routerLink="/customer/ai-assistant" class="btn btn-outline">
+        <span>🤖</span> Ask AI Assistant
+      </a>
+    </div>
+  </section>
+
+  <!-- Metrics Grid (4 Stat Cards) -->
+  <section class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon icon-pending">📅</div>
+      <div class="stat-info">
+        <span class="stat-label">Active Bookings</span>
+        <strong class="stat-value">{{ activeBookingsCount }}</strong>
+        <span class="stat-subtext">Hires in progress</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon icon-completed">✅</div>
+      <div class="stat-info">
+        <span class="stat-label">Completed Hires</span>
+        <strong class="stat-value">{{ completedBookingsCount }}</strong>
+        <span class="stat-subtext">Total finished work</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon icon-revenue">❤️</div>
+      <div class="stat-info">
+        <span class="stat-label">Saved Favourites</span>
+        <strong class="stat-value">{{ savedFavouritesCount }}</strong>
+        <span class="stat-subtext">Bookmarked pros</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon icon-rating">⭐</div>
+      <div class="stat-info">
+        <span class="stat-label">Account Verification</span>
+        <strong class="stat-value">Verified</strong>
+        <span class="stat-subtext">Ready to hire</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Category Bar -->
+  <section class="card-section categories-bar">
+    <div class="section-header">
+      <h3>Explore Service Categories</h3>
+      <a routerLink="/customer/services" class="link-action">All Categories →</a>
+    </div>
+
+    <div class="search-box-row">
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          placeholder="Search for plumbers, electricians, cleaners..." 
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()"
+        />
+        <button class="btn btn-sm btn-primary" (click)="onSearch()">Search</button>
+      </div>
+    </div>
+
+    <div class="category-pills">
+      <a 
+        *ngFor="let cat of categories" 
+        [routerLink]="['/customer/services']" 
+        [queryParams]="{ category_id: cat.id }"
+        class="category-pill"
+      >
+        <span class="cat-icon">{{ cat.icon }}</span>
+        <span class="cat-name">{{ cat.name }}</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Main Content Grid (Active Bookings + Recommended Services) -->
+  <div class="content-grid">
+    <!-- Left Column: Active Bookings Tracker -->
+    <div class="main-column">
+      <div class="card-section">
+        <div class="section-header">
+          <div class="header-title">
+            <h3>Active Service Bookings</h3>
+            <span class="count-badge" *ngIf="activeBookingsCount > 0">{{ activeBookingsCount }}</span>
+          </div>
+          <a routerLink="/customer/bookings" class="link-action">View All</a>
+        </div>
+
+        <!-- Empty State for Active Bookings -->
+        <div class="empty-state" *ngIf="activeBookingsList.length === 0">
+          <div class="empty-icon">🛋️</div>
+          <h4>No Active Service Bookings</h4>
+          <p>Need help at home or work? Explore available services and hire verified local pros.</p>
+          <a routerLink="/customer/services" class="btn btn-sm btn-primary">Find a Professional</a>
+        </div>
+
+        <!-- Active Bookings List -->
+        <div class="requests-list" *ngIf="activeBookingsList.length > 0">
+          <div class="request-item" *ngFor="let item of activeBookingsList">
+            <div class="request-main">
+              <div class="customer-avatar">
+                {{ item.provider_name.charAt(0).toUpperCase() }}
+              </div>
+              <div class="request-details">
+                <h4>{{ item.service_name }}</h4>
+                <p class="customer-meta">
+                  <span>👤 Provider: {{ item.provider_name }}</span> • 
+                  <span>📅 Scheduled: {{ item.booking_date }}</span>
+                </p>
+                <p class="request-notes" *ngIf="item.notes">
+                  <em>"{{ item.notes }}"</em>
+                </p>
+              </div>
+            </div>
+
+            <div class="request-actions">
+              <span class="badge" [ngClass]="getStatusBadgeClass(item.status)">
+                {{ item.status | uppercase }}
+              </span>
+              <button 
+                *ngIf="item.status === 'pending' || item.status === 'accepted'" 
+                class="btn btn-sm btn-decline"
+                (click)="cancelBooking(item.id)"
+              >
+                Cancel Request
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Booking History Table -->
+      <div class="card-section">
+        <div class="section-header">
+          <h3>Recent Booking History</h3>
+          <a routerLink="/customer/bookings" class="link-action">Full History</a>
+        </div>
+
+        <div class="table-responsive" *ngIf="recentBookingsList.length > 0">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th>Provider</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of recentBookingsList">
+                <td class="font-weight-600">{{ item.service_name }}</td>
+                <td>{{ item.provider_name }}</td>
+                <td class="text-muted">{{ item.booking_date }}</td>
+                <td>
+                  <span class="badge" [ngClass]="getStatusBadgeClass(item.status)">
+                    {{ item.status | uppercase }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="empty-state" *ngIf="recentBookingsList.length === 0">
+          <p class="text-muted">No booking history available yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Top Services & Customer Shortcuts -->
+    <div class="side-column">
+      <!-- Featured Services Overview -->
+      <div class="card-section">
+        <div class="section-header">
+          <h3>Recommended Services</h3>
+          <a routerLink="/customer/services" class="link-action">Explore</a>
+        </div>
+
+        <div class="services-list" *ngIf="featuredServices.length > 0">
+          <div class="service-item" *ngFor="let s of featuredServices">
+            <div class="service-info">
+              <h4 class="service-title">{{ s.title }}</h4>
+              <p class="service-meta">Rs. {{ s.price }} • {{ s.city }} • ⭐ {{ s.rating }}</p>
+            </div>
+            <a [routerLink]="['/customer/services']" class="btn btn-xs btn-primary">Book</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer Shortcuts -->
+      <div class="card-section shortcuts-card">
+        <h3>Customer Utilities & AI</h3>
+        <div class="shortcut-links">
+          <a routerLink="/customer/ai-assistant" class="shortcut-item">
+            <span class="shortcut-icon">🤖</span>
+            <div class="shortcut-text">
+              <strong>AI Service Matcher</strong>
+              <small>Get smart pro recommendations</small>
+            </div>
+            <span class="arrow">→</span>
+          </a>
+
+          <a routerLink="/customer/favourites" class="shortcut-item">
+            <span class="shortcut-icon">❤️</span>
+            <div class="shortcut-text">
+              <strong>Saved Favourites</strong>
+              <small>View bookmarked service pros</small>
+            </div>
+            <span class="arrow">→</span>
+          </a>
+
+          <a routerLink="/customer/bookings" class="shortcut-item">
+            <span class="shortcut-icon">📅</span>
+            <div class="shortcut-text">
+              <strong>My Bookings</strong>
+              <small>Manage all service hires</small>
+            </div>
+            <span class="arrow">→</span>
+          </a>
+
+          <a routerLink="/customer/profile" class="shortcut-item">
+            <span class="shortcut-icon">👤</span>
+            <div class="shortcut-text">
+              <strong>Account Profile</strong>
+              <small>Update personal information</small>
+            </div>
+            <span class="arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
-</section>
+</div>
