@@ -10,6 +10,7 @@ from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_active_user, require_roles
 from app.models.ai_conversation import AIConversation
 from app.models.ai_message import AIMessage
+from app.models.booking import Booking, BookingStatus
 from app.models.review import Review
 from app.models.review_summary import ReviewSummary
 from app.models.service import Service, ServiceStatus
@@ -30,20 +31,64 @@ def chat(request: ChatRequest, user: User = Depends(require_active_user), db: Se
         for message in db.scalars(select(AIMessage).where(AIMessage.conversation_id == conversation.id).order_by(AIMessage.created_at.desc()).limit(10)).all()[::-1]
         if message.role in {"user", "assistant"}
     ]
-    categories = list(db.scalars(select(ServiceCategory.name).order_by(ServiceCategory.name)).all())
-    active_services = db.scalars(
-        select(Service)
-        .options(joinedload(Service.provider))
-        .where(Service.status == ServiceStatus.ACTIVE)
-        .order_by(Service.created_at.desc())
-        .limit(40)
-    ).unique().all()
-    listings = [
-        f"{s.title} - LKR {s.price:g} - {s.provider.full_name} - {s.city}"
-        for s in active_services
-    ]
+    categories: list[str] = []
+    listings: list[str] = []
+    my_bookings: list[str] = []
+    provider_context: str | None = None
+
+    if user.role == UserRole.PROVIDER:
+        my_services = db.scalars(
+            select(Service).where(Service.provider_id == user.id).order_by(Service.created_at.desc())
+        ).all()
+        pending_count = db.scalar(
+            select(func.count(Booking.id)).where(
+                Booking.provider_id == user.id, Booking.status == BookingStatus.PENDING
+            )
+        ) or 0
+        service_lines = "\n".join(f"- {s.title} ({s.status.value})" for s in my_services) or "(none listed yet)"
+        provider_context = (
+            f"This provider is {user.full_name}.\n"
+            f"Their services:\n{service_lines}\n\n"
+            f"They have {pending_count} pending booking request(s) awaiting a response."
+        )
+    else:
+        categories = list(db.scalars(select(ServiceCategory.name).order_by(ServiceCategory.name)).all())
+        active_services = db.scalars(
+            select(Service)
+            .options(joinedload(Service.provider))
+            .where(Service.status == ServiceStatus.ACTIVE)
+            .order_by(Service.created_at.desc())
+            .limit(40)
+        ).unique().all()
+        listings = [
+            f"[service_id={s.id}, provider_id={s.provider_id}] {s.title} - LKR {s.price:g} - {s.provider.full_name} - {s.city}"
+            for s in active_services
+        ]
+        recent_bookings = db.scalars(
+            select(Booking)
+            .options(joinedload(Booking.provider), joinedload(Booking.service))
+            .where(Booking.customer_id == user.id)
+            .order_by(Booking.created_at.desc())
+            .limit(15)
+        ).unique().all()
+        my_bookings = [
+            f"[booking_id={b.id}] {b.service_name} with {b.provider_name} on "
+            f"{b.booking_date.strftime('%Y-%m-%d %H:%M')} - status: {b.status.value}"
+            for b in recent_bookings
+        ]
+
     db.add(AIMessage(conversation_id=conversation.id, role="user", message=request.message))
-    reply = service.chat(request.message, history, categories, listings)
+    reply = service.chat(
+        request.message,
+        history,
+        categories,
+        listings,
+        role=user.role.value,
+        provider_context=provider_context,
+        my_bookings=my_bookings,
+        db=db,
+        current_user=user,
+    )
     db.add(AIMessage(conversation_id=conversation.id, role="assistant", message=reply))
     conversation.updated_at = datetime.now(timezone.utc)
     db.commit()

@@ -1,7 +1,15 @@
-from openai import OpenAI
+import json
+from datetime import datetime, timezone
 
-from app.ai.prompt import REVIEW_SUMMARY_PROMPT, SYSTEM_PROMPT
+from openai import OpenAI
+from sqlalchemy.orm import Session
+
+from app.ai.prompt import PROVIDER_SYSTEM_PROMPT, REVIEW_SUMMARY_PROMPT, SYSTEM_PROMPT
+from app.ai.tools import TOOL_DEFINITIONS, execute_tool
 from app.core.config import settings
+from app.models.user import User
+
+_MAX_TOOL_ROUNDS = 4
 
 
 class AIService:
@@ -10,22 +18,70 @@ class AIService:
     def __init__(self) -> None:
         self.client = OpenAI(api_key=settings.OPENAI_API_KEY) if settings.OPENAI_API_KEY else None
 
-    def chat(self, message: str, history: list[dict[str, str]], categories: list[str], listings: list[str] | None = None) -> str:
+    def chat(
+        self,
+        message: str,
+        history: list[dict[str, str]],
+        categories: list[str],
+        listings: list[str] | None = None,
+        *,
+        role: str = "customer",
+        provider_context: str | None = None,
+        my_bookings: list[str] | None = None,
+        db: Session | None = None,
+        current_user: User | None = None,
+    ) -> str:
         if not self.client:
             return "I can help you find a service. Tell me what needs fixing and where you need it."
         try:
-            listings_block = "\n".join(f"- {item}" for item in listings) if listings else "(none currently active)"
-            context = (
-                f"Available Smart Hire categories: {', '.join(categories) or 'not loaded'}.\n\n"
-                f"Available listings (title - price - provider - city):\n{listings_block}\n\n"
-                "To book, ask the customer to choose a recommendation and explicitly provide a future "
-                "date and time. Keep answers focused on Smart Hire services."
-            )
-            response = self.client.chat.completions.create(
-                model="gpt-4.1-mini",
-                messages=[{"role": "system", "content": SYSTEM_PROMPT + "\n" + context}, *history[-10:], {"role": "user", "content": message}],
-            )
-            return response.choices[0].message.content or "Could you share a little more detail?"
+            now = datetime.now(timezone.utc)
+            date_line = f"Right now it's {now.strftime('%A, %B %d, %Y, %H:%M')} UTC."
+
+            if role == "provider":
+                system = PROVIDER_SYSTEM_PROMPT
+                context = f"{date_line}\n\n{provider_context or 'No account context available.'}"
+            else:
+                listings_block = "\n".join(f"- {item}" for item in listings) if listings else "(none currently active)"
+                bookings_block = "\n".join(f"- {item}" for item in my_bookings) if my_bookings else "(no bookings yet)"
+                system = SYSTEM_PROMPT
+                context = (
+                    f"{date_line}\n\n"
+                    f"Available Smart Hire categories: {', '.join(categories) or 'not loaded'}.\n\n"
+                    f"Available listings (service_id, provider_id, title - price - provider - city):\n{listings_block}\n\n"
+                    f"Your bookings (booking_id, service, provider, date, status):\n{bookings_block}"
+                )
+
+            messages: list[dict] = [
+                {"role": "system", "content": system + "\n\n" + context},
+                *history[-10:],
+                {"role": "user", "content": message},
+            ]
+
+            use_tools = role == "customer" and db is not None and current_user is not None
+
+            for _ in range(_MAX_TOOL_ROUNDS):
+                response = self.client.chat.completions.create(
+                    model="gpt-4.1-mini",
+                    messages=messages,
+                    tools=TOOL_DEFINITIONS if use_tools else None,
+                )
+                reply_message = response.choices[0].message
+
+                if not reply_message.tool_calls:
+                    return reply_message.content or "Could you share a little more detail?"
+
+                messages.append(reply_message.model_dump(exclude_none=True))
+                for call in reply_message.tool_calls:
+                    try:
+                        arguments = json.loads(call.function.arguments or "{}")
+                    except json.JSONDecodeError:
+                        arguments = {}
+                    result = execute_tool(call.function.name, arguments, db, current_user)  # type: ignore[arg-type]
+                    messages.append(
+                        {"role": "tool", "tool_call_id": call.id, "content": json.dumps(result)}
+                    )
+
+            return "I ran into some back-and-forth there — mind rephrasing what you'd like to do?"
         except Exception:
             return "I could not reach the AI service right now. Please describe the issue, preferred location, and timing."
 
