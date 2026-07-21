@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 from datetime import datetime
 
@@ -7,7 +7,7 @@ class ReviewBase(BaseModel):
     customer_id: int
     provider_id: int
     service_id: int
-    rating: int
+    rating: int = Field(ge=1, le=5)
     comment: Optional[str] = None
 
 class ReviewCreate(ReviewBase):

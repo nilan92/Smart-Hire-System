@@ -1,4 +1,70 @@
-<section class="placeholder-page">
-  <p>Reviews module</p>
-  <h1>Reviews</h1>
-</section>
+<div class="page-heading">
+  <div>
+    <span>Reviews</span>
+    <h1>Your Reviews</h1>
+    <p>Rate providers after a completed booking and see what you've already reviewed.</p>
+  </div>
+</div>
+
+@if (store.loading() || loadingReviews()) {
+  <app-loading-spinner label="Loading your reviews..." />
+} @else {
+  @if (activeBooking(); as booking) {
+    <app-submit-review-form
+      [bookingId]="booking.id"
+      [customerId]="booking.customer_id"
+      [providerId]="booking.provider_id"
+      [serviceId]="booking.service_id"
+      (submitted)="onReviewSubmitted()"
+    />
+    <button class="link-btn" (click)="cancelReview()">Cancel</button>
+  } @else {
+    <section class="reviews-section">
+      <h2>Awaiting your review</h2>
+      @if (pendingBookings().length) {
+        <div class="pending-grid">
+          @for (booking of pendingBookings(); track booking.id) {
+            <div class="pending-card">
+              <div>
+                <h3>{{ booking.service_name }}</h3>
+                <p>with {{ booking.provider_name }}</p>
+              </div>
+              <button (click)="startReview(booking.id)">Write a review</button>
+            </div>
+          }
+        </div>
+      } @else {
+        <app-empty-state
+          title="Nothing to review right now"
+          message="Once a booking is marked completed, it will show up here so you can leave a review."
+        />
+      }
+    </section>
+
+    <section class="reviews-section">
+      <h2>Reviews you've written</h2>
+      @if (myReviews().length) {
+        <div class="submitted-grid">
+          @for (review of myReviews(); track review.id) {
+            <div class="submitted-card">
+              <div class="submitted-header">
+                <div>
+                  <h3>{{ bookingFor(review)?.service_name || 'Service' }}</h3>
+                  <p>{{ bookingFor(review)?.provider_name || 'Provider' }}</p>
+                </div>
+                <app-rating-display [rating]="review.rating" [showCount]="false" />
+              </div>
+              <p class="comment">{{ review.comment || 'No comment provided.' }}</p>
+              <span class="date">{{ review.created_at | date: 'mediumDate' }}</span>
+            </div>
+          }
+        </div>
+      } @else {
+        <app-empty-state
+          title="No reviews yet"
+          message="Reviews you submit will appear here."
+        />
+      }
+    </section>
+  }
+}

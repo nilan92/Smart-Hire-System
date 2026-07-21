@@ -1,11 +1,11 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 from datetime import datetime
 
 class PaymentBase(BaseModel):
     booking_id: int
     customer_id: int
-    amount: float
+    amount: float = Field(gt=0)
     payment_method: Optional[str] = None
 
 class PaymentCreate(PaymentBase):

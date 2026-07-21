@@ -1,4 +1,58 @@
-<section class="placeholder-page">
-  <p>Payments module</p>
-  <h1>Payments</h1>
-</section>
+<div class="page-heading">
+  <div>
+    <span>Payments</span>
+    <h1>Payments</h1>
+    <p>Payments received for your completed bookings.</p>
+  </div>
+</div>
+
+<div class="stats">
+  <article>
+    <span>Total earned</span>
+    <strong>LKR {{ totalEarned().toFixed(2) }}</strong>
+  </article>
+  <article>
+    <span>Pending</span>
+    <strong>{{ pendingCount() }}</strong>
+  </article>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner label="Loading your payments..." />
+} @else if (payments().length) {
+  <div class="table-card">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Amount</th>
+            <th>Method</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (payment of payments(); track payment.id) {
+            <tr>
+              <td>{{ serviceNameFor(payment) }}</td>
+              <td>LKR {{ payment.amount.toFixed(2) }}</td>
+              <td>{{ payment.payment_method || '—' }}</td>
+              <td>
+                <span class="status" [class]="payment.status">
+                  <i></i>{{ payment.status }}
+                </span>
+              </td>
+              <td>{{ payment.created_at | date: 'MMM d, y' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+} @else {
+  <app-empty-state
+    title="No payments yet"
+    message="Payments from your completed bookings will show up here."
+  />
+}
