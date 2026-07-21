@@ -4,31 +4,108 @@
     <p>Review and moderate provider listings to ensure platform quality.</p>
   </div>
 
-  <div class="table-container">
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>Service ID</th>
-          <th>Title</th>
-          <th>Provider</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let service of services">
-          <td>#{{ service.id }}</td>
-          <td class="font-medium">{{ service.title }}</td>
-          <td>{{ service.provider }}</td>
-          <td>
-            <span class="status-badge" [ngClass]="service.status">{{ service.status }}</span>
-          </td>
-          <td class="actions-cell">
-            <button class="action-btn" (click)="updateStatus(service, 'active')" *ngIf="service.status !== 'active'">Approve</button>
-            <button class="action-btn text-red" (click)="updateStatus(service, 'rejected')" *ngIf="service.status !== 'rejected'">Reject</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  @if (loading) {
+    <div class="state-container">
+      <div class="spinner"></div>
+      <p>Loading services...</p>
+    </div>
+  }
+
+  @if (!loading && error) {
+    <div class="state-container error-state">
+      <p>{{ error }}</p>
+      <button class="btn-primary" (click)="fetchServices()">Try Again</button>
+    </div>
+  }
+
+  @if (!loading && !error) {
+    <div class="table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Service ID</th>
+            <th>Title</th>
+            <th>Provider</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let service of services">
+            <td>#{{ service.id }}</td>
+            <td class="font-medium">{{ service.title }}</td>
+            <td>{{ service.provider_name }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="service.status">{{ service.status }}</span>
+            </td>
+            <td>
+              <div class="actions-cell">
+                <button class="action-btn" (click)="view(service)">View</button>
+                <button
+                  class="action-btn"
+                  [disabled]="service.updatingStatus"
+                  (click)="updateStatus(service, 'active')"
+                  *ngIf="service.status !== 'active'"
+                >Approve</button>
+                <button
+                  class="action-btn text-red"
+                  [disabled]="service.updatingStatus"
+                  (click)="updateStatus(service, 'paused')"
+                  *ngIf="service.status !== 'paused'"
+                >Pause</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  }
 </div>
+
+@if (viewing; as service) {
+  <div class="overlay" (click)="closeView()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <header>
+        <div>
+          <span>Service #{{ service.id }}</span>
+          <h2>{{ service.title }}</h2>
+        </div>
+        <button (click)="closeView()" aria-label="Close">×</button>
+      </header>
+      <div class="modal-body">
+        <div class="detail-row">
+          <span class="label">Status</span>
+          <span class="status-badge" [ngClass]="service.status">{{ service.status }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Provider</span>
+          <span>{{ service.provider_name }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Category</span>
+          <span>{{ categoryName(service.category_id) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Price</span>
+          <span>LKR {{ service.price | number: '1.2-2' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">City</span>
+          <span>{{ service.city }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Duration</span>
+          <span>{{ service.duration }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Listed</span>
+          <span>{{ service.created_at | date: 'MMM d, y, h:mm a' }}</span>
+        </div>
+        <div class="detail-row wide">
+          <span class="label">Description</span>
+          <p>{{ service.description }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+}

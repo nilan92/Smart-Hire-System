@@ -27,7 +27,6 @@ export class AdminLayoutComponent {
     { label: 'Bookings', route: APP_ROUTES.admin.bookings },
     { label: 'Reviews', route: APP_ROUTES.admin.reviews },
     { label: 'Payments', route: APP_ROUTES.admin.payments },
-    { label: 'Test System', route: APP_ROUTES.admin.testSystem },
   ];
   readonly subtitle = computed(() => this.user()?.full_name || this.user()?.email || 'Admin');
 

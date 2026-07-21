@@ -1,23 +1,28 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
+import { environment } from '../../../../environments/environment';
+import { API_ENDPOINTS } from '../../../core/utils/api-endpoints';
 import { BookingStore } from '../../../core/services/booking.service';
 import { MarketplaceServiceStore } from '../../../core/services/marketplace.service';
-import { BookingStatus } from '../../../core/models/booking.models';
+import { Booking, BookingStatus, Payment } from '../../../core/models/booking.models';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { ErrorMessage } from '../../../shared/components/error-message/error-message';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
+import { PaymentStatusComponent } from '../../payments/payment-status/payment-status';
 
 type FilterTab = 'all' | 'upcoming' | 'completed' | 'cancelled';
 
 @Component({
   selector: 'app-customer-bookings',
-  imports: [CommonModule, FormsModule, LoadingSpinner, ErrorMessage, EmptyState],
+  imports: [CommonModule, FormsModule, LoadingSpinner, ErrorMessage, EmptyState, PaymentStatusComponent],
   templateUrl: './bookings.html',
   styleUrl: './bookings.scss',
 })
 export class CustomerBookings implements OnInit {
+  private readonly http = inject(HttpClient);
   readonly store = inject(BookingStore);
   readonly marketplace = inject(MarketplaceServiceStore);
 
@@ -30,6 +35,15 @@ export class CustomerBookings implements OnInit {
   readonly bookingDate = signal('');
   readonly bookingTime = signal('');
   readonly notes = signal('');
+
+  readonly payments = signal<Payment[]>([]);
+  readonly payingBookingId = signal<number | null>(null);
+
+  readonly paidBookingIds = computed(() => new Set(this.payments().map((p) => p.booking_id)));
+
+  readonly payingBooking = computed<Booking | undefined>(() =>
+    this.store.bookings().find((b) => b.id === this.payingBookingId()),
+  );
 
   readonly activeServices = computed(() =>
     this.marketplace.services().filter((service) => service.status === 'active'),
@@ -49,6 +63,14 @@ export class CustomerBookings implements OnInit {
   ngOnInit(): void {
     this.store.loadCustomerBookings();
     this.marketplace.loadMarketplace();
+    this.fetchPayments();
+  }
+
+  fetchPayments(): void {
+    this.http.get<Payment[]>(`${environment.apiUrl}${API_ENDPOINTS.payments.myCustomerPayments}`).subscribe({
+      next: (payments) => this.payments.set(payments),
+      error: () => {},
+    });
   }
 
   setTab(tab: FilterTab): void {
@@ -106,11 +128,35 @@ export class CustomerBookings implements OnInit {
     return status === 'pending' || status === 'accepted';
   }
 
+  canPay(booking: Booking): boolean {
+    return booking.status === 'completed' && !this.paidBookingIds().has(booking.id);
+  }
+
+  isPaid(bookingId: number): boolean {
+    return this.paidBookingIds().has(bookingId);
+  }
+
   statusLabel(status: BookingStatus): string {
     return status.replace('_', ' ');
   }
 
   minDate(): string {
     return new Date().toISOString().slice(0, 10);
+  }
+
+  amountFor(booking: Booking): number {
+    return this.marketplace.services().find((s) => s.id === booking.service_id)?.price ?? 0;
+  }
+
+  openPayment(bookingId: number): void {
+    this.payingBookingId.set(bookingId);
+  }
+
+  closePayment(): void {
+    this.payingBookingId.set(null);
+  }
+
+  onPaid(payment: Payment): void {
+    this.payments.update((items) => [payment, ...items]);
   }
 }

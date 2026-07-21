@@ -167,25 +167,25 @@ th {
     background: #d9455c; 
 }
 
-.row-actions { 
-    display: flex; 
-    gap: 5px; 
-    justify-content: flex-end; 
+.actions-row {
+    display: flex;
+    gap: 5px;
+    justify-content: flex-end;
 }
 
-.row-actions button { 
-    border: 1px solid #dfe7e4; 
-    background: white; 
-    border-radius: 7px; 
-    padding: 7px 10px; 
-    cursor: pointer; 
-    font-weight: 700; 
-    font-size: .8rem; 
+.actions-row button {
+    border: 1px solid #dfe7e4;
+    background: white;
+    border-radius: 7px;
+    padding: 7px 10px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: .8rem;
 }
 
-.row-actions .delete { 
-    color: #c94e5e; 
-    border-color: #f1d3d7; 
+.actions-row .delete {
+    color: #c94e5e;
+    border-color: #f1d3d7;
 }
 
 .overlay { 

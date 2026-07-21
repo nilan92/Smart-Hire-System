@@ -1,5 +1,8 @@
-<div class="payment-container">
+<div class="payment-container" [class.embedded]="embedded">
   <div class="payment-card">
+    @if (embedded) {
+      <button class="close-btn" (click)="closed.emit()" aria-label="Close">×</button>
+    }
     <div class="academic-notice">
       <svg class="icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
         <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -9,6 +12,9 @@
 
     <header class="payment-header">
       <h2>Complete Your Payment</h2>
+      @if (serviceName) {
+        <p class="service-name">{{ serviceName }}</p>
+      }
       <p class="amount">Total: <strong>LKR {{ amount.toFixed(2) }}</strong></p>
     </header>
 
@@ -69,7 +75,11 @@
         <h3>Payment Successful!</h3>
         <p>Your payment of <strong>LKR {{ amount.toFixed(2) }}</strong> was received.</p>
         <p class="transaction-id">Transaction ID: {{ transactionId }}</p>
-        <button class="pay-btn outline" [routerLink]="['/customer/profile']">Return to Bookings</button>
+        @if (embedded) {
+          <button class="pay-btn outline" (click)="closed.emit()">Done</button>
+        } @else {
+          <button class="pay-btn outline" [routerLink]="['/customer/bookings']">Return to Bookings</button>
+        }
       </div>
     }
 
@@ -81,7 +91,7 @@
           </svg>
         </div>
         <h3>Payment Failed</h3>
-        <p>There was an issue processing your payment. Please try again.</p>
+        <p>{{ errorMessage || 'There was an issue processing your payment. Please try again.' }}</p>
         <button class="pay-btn outline" (click)="paymentStatus = 'pending'">Try Again</button>
       </div>
     }

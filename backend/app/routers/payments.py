@@ -1,3 +1,4 @@
+import secrets
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -5,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_roles
-from app.models.booking import Booking
+from app.models.booking import Booking, BookingStatus
 from app.models.payment import Payment
 from app.models.user import User, UserRole
 from app.schemas.payment import PaymentCreate, PaymentResponse, PaymentUpdate
@@ -40,12 +41,22 @@ def create_payment(
         raise HTTPException(status_code=404, detail="Booking not found")
     if booking.customer_id != current_user.id:
         raise HTTPException(status_code=403, detail="You can only pay for your own bookings")
+    if booking.status != BookingStatus.COMPLETED:
+        raise HTTPException(status_code=400, detail="You can only pay for completed bookings")
 
+    existing = db.query(Payment).filter(Payment.booking_id == payment.booking_id).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="This booking has already been paid")
+
+    # Simulated gateway: there is no external processor to await a callback
+    # from, so a successful create is a successful, completed payment.
     db_payment = Payment(
         booking_id=booking.id,
         customer_id=current_user.id,
         amount=payment.amount,
         payment_method=payment.payment_method,
+        status="completed",
+        transaction_id=f"TXN-{secrets.token_hex(6).upper()}",
     )
     db.add(db_payment)
     db.commit()
@@ -75,6 +86,15 @@ def get_payments_by_booking(
     if current_user.role != UserRole.ADMIN and current_user.id not in (booking.customer_id, booking.provider_id):
         raise HTTPException(status_code=403, detail="Not authorized to view these payments")
     return db.query(Payment).filter(Payment.booking_id == booking_id).all()
+
+
+@router.get("/customer/me", response_model=List[PaymentResponse])
+def get_my_payments(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(UserRole.CUSTOMER)),
+):
+    """Payments the current customer has made."""
+    return db.query(Payment).filter(Payment.customer_id == current_user.id).order_by(Payment.created_at.desc()).all()
 
 
 @router.get("/provider/me", response_model=List[PaymentResponse])

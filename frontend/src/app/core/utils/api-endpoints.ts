@@ -47,5 +47,6 @@ export const API_ENDPOINTS = {
     create: '/payments/',
     byBooking: (bookingId: number) => `/payments/booking/${bookingId}`,
     myProviderPayments: '/payments/provider/me',
+    myCustomerPayments: '/payments/customer/me',
   },
 } as const;
