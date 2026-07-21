@@ -63,16 +63,127 @@
 
 ## Next Steps for Future Agents
 - Wire the `SubmitReviewFormComponent` to `POST /api/reviews/`.
-- Build the payment flow page connected to real `POST /api/payments/`.
 - Integrate real Stripe/PayPal checkout SDKs for production.
 
-## Public Landing Page (2026-07-19)
-- Added a responsive public home page at `/` in `frontend/src/app/features/home/` using the established teal, green, and white auth-page theme.
-- The page includes a fixed responsive navbar, hero and service preview, service categories, three-step workflow, CTA, and footer.
-- The navbar and CTAs link to `/login`, `/register`, and landing-page sections; its mobile menu uses an Angular signal.
-- Changed the root route from a login redirect to a lazy-loaded `Home` component and added `APP_ROUTES.home`.
-- Login and registration brand logos now navigate back to `/`.
-- Verified with `npm run build`; the production build passes (existing Sass deprecation and bundle/style warning budgets remain).
+## Update (July 21, 2026) — Member 1: Authentication & User Management
+
+### 🔐 Account Status & Verification System
+
+#### Backend: `backend/app/core/dependencies.py`
+- **Removed** status blocking from `get_current_user` — it now returns the user regardless of status so `GET /api/auth/me` always delivers the latest status to the frontend.
+- **Added** `require_active_user` dependency — raises HTTP 403 with clear messages for `SUSPENDED` ("Your account has been suspended. Please contact support.") and `DEACTIVATED` ("This account has been deactivated.") users.
+- **Updated** `require_roles` to chain through `require_active_user` — all role-protected endpoints are automatically status-gated.
+- **Status policy**: `ACTIVE` ✅ full access | `PENDING` ✅ full access (visual label only) | `SUSPENDED` ❌ login + actions blocked | `DEACTIVATED` ❌ login + actions blocked.
+
+#### Backend: `backend/app/services/auth_service.py`
+- Login blocks only `SUSPENDED` and `DEACTIVATED` accounts (HTTP 403). `PENDING` accounts can now log in.
+
+#### Backend: Action Endpoints — `require_active_user` applied to:
+- `bookings.py` — all booking create/read/accept/cancel endpoints
+- `payments.py` — all payment create/read endpoints
+- `reviews.py` — all review create/read endpoints
+- `notifications.py` — list and mark-read endpoints
+- `ai/router.py` — all AI chat, conversation, recommendation endpoints
+- `users.py` — profile update endpoint (GET /me stays open for status reads)
+
+---
+
+### 🔄 Admin → Customer/Provider Real-Time Sync
+
+#### Backend: `backend/app/routers/admin.py`
+- Added `created_at: Optional[datetime]` and `verification_status: Optional[str]` to `AdminUserResponse` schema — fixes `Invalid Date` in the Joined column.
+- Added `PUT /api/admin/users/{user_id}/email-verification` — toggles `email_verified` for any user.
+- Added `PUT /api/admin/users/{user_id}/provider-verification` — approves/rejects provider verification (`verified` / `rejected` / `pending` / `unverified`).
+
+#### Frontend: `frontend/src/app/features/admin/user-management/`
+- `user-management.html` — Added **Provider Verification** column with interactive dropdown (`Verified 🟢`, `Pending 🟡`, `Unverified ⚪`, `Rejected 🔴`). Added **Email Verified** toggle chips (`✓ Verified` / `Not Verified`).
+- `user-management.ts` — Wired `updateEmailVerification()` and `updateProviderVerification()` to new admin endpoints.
+
+---
+
+### 👤 Customer Profile Page (`/customer/profile`)
+
+#### `frontend/src/app/features/customer/profile/profile.ts`
+- Injected `ChangeDetectorRef` — calls `.detectChanges()` in all HTTP subscribe callbacks.
+- `ngOnInit` force-fetches fresh user data via `loadCurrentUser()` — Admin status changes reflect immediately on page load.
+- Added `getStatusClass()` helper — maps `active/pending/suspended/deactivated` → badge CSS classes.
+
+#### `frontend/src/app/features/customer/profile/profile.html`
+- Added **5-column details grid**: User ID, Email, Role, Account Status (dynamic badge), Email Verified (dynamic badge).
+- Account Status badge uses `[ngClass]="getStatusClass(user?.status)"` — shows real-time Admin changes.
+- Email Verified badge: `VERIFIED ✓` 🟢 or `NOT VERIFIED` 🔴 dynamically.
+- Added **🔒 Security & Reset Password** card with new password, confirm password, show/hide toggle.
+
+#### `frontend/src/app/features/customer/profile/profile.scss`
+- Added badge classes: `.badge-active`, `.badge-verified`, `.badge-pending`, `.badge-unverified`, `.badge-rejected`.
+
+---
+
+### 🛠️ Provider Profile Page (`/provider/profile`)
+
+#### `frontend/src/app/features/provider/profile/profile.ts`
+- Injected `ChangeDetectorRef` — calls `.detectChanges()` in all HTTP subscribe callbacks.
+- Added `getStatusClass()` — dynamic Account Status badge mapping.
+- Added `getVerificationClass()` — maps `verified/pending/unverified/rejected` → badge CSS classes.
+- Added `changePassword()` method with password reset form and show/hide toggle.
+
+#### `frontend/src/app/features/provider/profile/profile.html`
+- **Account Status** badge now uses `[ngClass]="getStatusClass(user?.status)"` — no longer hardcoded `badge-active`.
+- Added **Email Verified** card: `VERIFIED ✓` 🟢 / `NOT VERIFIED` 🔴.
+- **Provider Verification** badge uses `getVerificationClass(providerProfile?.verification_status)`.
+- Added **🔒 Security & Reset Password** card.
+
+---
+
+### 🏠 Customer Dashboard (`/customer/dashboard`)
+
+#### `frontend/src/app/features/customer/dashboard/dashboard.ts`
+- Injected `ChangeDetectorRef` — calls `.detectChanges()` after `loadCurrentUser()` resolves.
+
+#### `frontend/src/app/features/customer/dashboard/dashboard.html`
+- **Welcome banner status chip** — dynamically bound to `user?.status`: `ACTIVE CUSTOMER`, `PENDING CUSTOMER`, `SUSPENDED CUSTOMER`, `DEACTIVATED CUSTOMER`.
+- **Account Verification stat card** — dynamically bound to `user?.email_verified`: `Verified ⭐` 🟢 / `Unverified ✉️` 🟡.
+
+---
+
+### 🔑 Password Reset (Customer & Provider)
+
+#### Backend: `backend/app/schemas/user.py`
+- Added `password: str | None = Field(default=None, min_length=8)` to `UserUpdate` schema.
+
+#### Backend: `backend/app/services/user_service.py`
+- `update_profile` now hashes and updates `user.hashed_password` when `password` field is provided.
+
+#### Frontend: `frontend/src/app/core/models/auth.models.ts`
+- Added `password?: string | null` to `UserProfileUpdate` interface — fixes TS2353 compiler error.
+
+---
+
+### 🏗️ Provider Profile Auto-Initialization
+
+#### Backend: `backend/app/services/provider_service.py`
+- `get_current_profile` auto-creates a default `ProviderProfile` row with `verification_status = UNVERIFIED` if none exists — eliminates HTTP 404 for new providers accessing `/provider/profile`.
+
+---
+
+### 🧭 Sidebar Navigation
+
+#### `frontend/src/app/shared/layouts/customer-layout/customer-layout.ts`
+- Removed `Profile` and `Notifications` links from Customer sidebar (centralized in Navbar dropdowns).
+
+#### `frontend/src/app/shared/layouts/provider-layout/provider-layout.ts`
+- Removed `Profile` and `Notifications` links from Provider sidebar (centralized in Navbar dropdowns).
+
+---
+
+### ✅ Test Results
+All **24 backend tests pass** across:
+- `test_admin.py` (2) — category management, service moderation
+- `test_auth.py` (11) — registration, login, suspended/deactivated blocking, JWT validation
+- `test_reviews_payments.py` (4) — review/payment ownership and validation
+- `test_services.py` (3) — provider CRUD, favourites, role enforcement
+- `test_users.py` (4) — profile access, update, public provider response
+
 
 ## Reviews, Payments & Admin: Real Data, Real Workflow (2026-07-21)
 

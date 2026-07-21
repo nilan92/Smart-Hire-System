@@ -61,10 +61,15 @@ class AuthService:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password",
             )
-        if user.status in {AccountStatus.SUSPENDED, AccountStatus.DEACTIVATED, AccountStatus.PENDING}:
+        if user.status == AccountStatus.SUSPENDED:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Account is not active",
+                detail="Account suspended",
+            )
+        if user.status == AccountStatus.DEACTIVATED:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Account deactivated",
             )
         token = create_access_token(subject=user.id, role=user.role.value)
         return token, user

@@ -71,7 +71,7 @@
           <button class="outline" [class.saved]="store.isFavourite(service.id)" (click)="store.toggleFavourite(service.id)">
             {{ store.isFavourite(service.id) ? '♥ Saved' : '♡ Save to favourites' }}
           </button>
-          <a routerLink="/customer/bookings">Book this service →</a>
+          <a [routerLink]="['/customer/bookings']" [queryParams]="{ service_id: service.id }">Book this service →</a>
         </div>
       </div>
     </div>

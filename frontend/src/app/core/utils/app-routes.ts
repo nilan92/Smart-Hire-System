@@ -2,6 +2,7 @@ export const APP_ROUTES = {
   home: '/',
   login: '/login',
   register: '/register',
+  accountBlocked: '/account-blocked',
   unauthorized: '/unauthorized',
   notFound: '/not-found',
   customer: {

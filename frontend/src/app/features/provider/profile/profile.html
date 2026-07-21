@@ -1,67 +1,139 @@
-<app-page-header title="Provider Profile" subtitle="Manage your public provider information and account details." />
+<app-page-header title="Provider Profile" subtitle="Manage your public provider information and account security settings." />
 
 @if (loading) {
   <app-loading-spinner label="Loading provider profile..." />
 } @else {
-  <section class="profile-panel">
-    <div class="details-grid">
-      <div>
-        <span class="label">Email</span>
-        <strong>{{ user?.email }}</strong>
-      </div>
-      <div>
-        <span class="label">Account status</span>
-        <strong>{{ user?.status }}</strong>
-      </div>
-      <div>
-        <span class="label">Verification</span>
-        <strong>{{ providerProfile?.verification_status }}</strong>
-      </div>
-      <div>
-        <span class="label">Rating</span>
-        <strong>{{ providerProfile?.avg_rating || '0.00' }} / 5</strong>
-      </div>
-      <div>
-        <span class="label">Total reviews</span>
-        <strong>{{ providerProfile?.total_reviews || 0 }}</strong>
-      </div>
-    </div>
+  <div class="profile-container">
+    <!-- Provider Information & Stats Card -->
+    <section class="profile-panel">
+      <h3>Provider Information</h3>
 
-    <form [formGroup]="form" (ngSubmit)="save()" novalidate>
-      <label>
-        Full name
-        <input type="text" formControlName="full_name" autocomplete="name" />
-        @if (form.controls.full_name.touched && form.controls.full_name.invalid) {
-          <small>Name must be at least 2 characters.</small>
+      <div class="details-grid">
+        <div>
+          <span class="label">Email</span>
+          <strong>{{ user?.email }}</strong>
+        </div>
+        <div>
+          <span class="label">Account Status</span>
+          <strong class="status-badge" [ngClass]="getStatusClass(user?.status)">
+            {{ user?.status | uppercase }}
+          </strong>
+        </div>
+        <div>
+          <span class="label">Email Verified</span>
+          <strong class="status-badge" [ngClass]="user?.email_verified ? 'badge-verified' : 'badge-unverified'">
+            {{ user?.email_verified ? 'VERIFIED ✓' : 'NOT VERIFIED' }}
+          </strong>
+        </div>
+        <div>
+          <span class="label">Verification</span>
+          <strong class="status-badge" [ngClass]="getVerificationClass(providerProfile?.verification_status)">
+            {{ (providerProfile?.verification_status || 'UNVERIFIED') | uppercase }}
+          </strong>
+        </div>
+        <div>
+          <span class="label">Rating</span>
+          <strong>★ {{ providerProfile?.avg_rating || '0.00' }} / 5</strong>
+        </div>
+        <div>
+          <span class="label">Total Reviews</span>
+          <strong>{{ providerProfile?.total_reviews || 0 }}</strong>
+        </div>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <div class="field-row">
+          <label>
+            Full Name
+            <input type="text" formControlName="full_name" autocomplete="name" />
+            @if (form.controls.full_name.touched && form.controls.full_name.invalid) {
+              <small>Name must be at least 2 characters.</small>
+            }
+          </label>
+
+          <label>
+            Phone Number
+            <input type="tel" formControlName="phone" autocomplete="tel" placeholder="+94 77 123 4567" />
+          </label>
+        </div>
+
+        <label>
+          Bio & Description
+          <textarea formControlName="bio" rows="4" placeholder="Tell customers about your skills and experience..."></textarea>
+        </label>
+
+        <label>
+          Years of Experience
+          <input type="number" formControlName="years_experience" min="0" />
+          @if (form.controls.years_experience.touched && form.controls.years_experience.invalid) {
+            <small>Experience cannot be negative.</small>
+          }
+        </label>
+
+        @if (message) {
+          <app-error-message [message]="message.includes('Unable') ? message : ''" />
+          @if (!message.includes('Unable')) {
+            <p class="success">{{ message }}</p>
+          }
         }
-      </label>
 
-      <label>
-        Phone
-        <input type="tel" formControlName="phone" autocomplete="tel" />
-      </label>
+        <button type="submit" class="btn btn-primary" [disabled]="saving">
+          {{ saving ? 'Saving...' : 'Save Profile Changes' }}
+        </button>
+      </form>
+    </section>
 
-      <label>
-        Bio
-        <textarea formControlName="bio" rows="5"></textarea>
-      </label>
+    <!-- Security & Password Reset Card -->
+    <section class="profile-panel security-panel">
+      <div class="panel-header">
+        <h3>🔒 Security & Reset Password</h3>
+        <p>Update your password to keep your Smart Hire provider account secure.</p>
+      </div>
 
-      <label>
-        Years of experience
-        <input type="number" formControlName="years_experience" min="0" />
-        @if (form.controls.years_experience.touched && form.controls.years_experience.invalid) {
-          <small>Experience cannot be negative.</small>
+      <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" novalidate>
+        <div class="field-row">
+          <label>
+            New Password
+            <div class="password-input-wrap">
+              <input 
+                [type]="showPassword ? 'text' : 'password'" 
+                formControlName="new_password" 
+                autocomplete="new-password" 
+                placeholder="At least 8 characters" 
+              />
+              <button type="button" class="toggle-pwd-btn" (click)="toggleShowPassword()">
+                {{ showPassword ? 'Hide' : 'Show' }}
+              </button>
+            </div>
+            @if (passwordForm.controls.new_password.touched && passwordForm.controls.new_password.invalid) {
+              <small>Password must be at least 8 characters long.</small>
+            }
+          </label>
+
+          <label>
+            Confirm New Password
+            <input 
+              [type]="showPassword ? 'text' : 'password'" 
+              formControlName="confirm_password" 
+              autocomplete="new-password" 
+              placeholder="Re-enter new password" 
+            />
+            @if (passwordForm.controls.confirm_password.touched && passwordForm.controls.confirm_password.invalid) {
+              <small>Please confirm your password.</small>
+            }
+          </label>
+        </div>
+
+        @if (passwordMessage) {
+          <p [ngClass]="passwordMessage.includes('successfully') ? 'success' : 'field-error'">
+            {{ passwordMessage }}
+          </p>
         }
-      </label>
 
-      @if (message) {
-        <app-error-message [message]="message.includes('Unable') ? message : ''" />
-        @if (!message.includes('Unable')) {
-          <p class="success">{{ message }}</p>
-        }
-      }
-
-      <button type="submit" [disabled]="saving">{{ saving ? 'Saving...' : 'Save profile' }}</button>
-    </form>
-  </section>
+        <button type="submit" class="btn btn-primary" [disabled]="passwordSaving">
+          {{ passwordSaving ? 'Updating...' : 'Update Password' }}
+        </button>
+      </form>
+    </section>
+  </div>
 }

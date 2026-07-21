@@ -15,6 +15,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
   },
   {
+    path: 'account-blocked',
+    loadComponent: () =>
+      import('./features/auth/account-blocked/account-blocked').then((m) => m.AccountBlocked),
+  },
+  {
     path: 'unauthorized',
     loadComponent: () =>
       import('./features/auth/unauthorized/unauthorized').then((m) => m.Unauthorized),

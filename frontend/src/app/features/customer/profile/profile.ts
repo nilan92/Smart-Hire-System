@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -11,7 +12,8 @@ import { PageHeader } from '../../../shared/components/page-header/page-header';
 
 @Component({
   selector: 'app-customer-profile',
-  imports: [ErrorMessage, LoadingSpinner, PageHeader, ReactiveFormsModule],
+  standalone: true,
+  imports: [CommonModule, ErrorMessage, LoadingSpinner, PageHeader, ReactiveFormsModule],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
@@ -19,15 +21,25 @@ export class CustomerProfile implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   user: User | null = this.authService.currentUser();
-  loading = !this.user;
+  loading = true;
   saving = false;
   message = '';
+
+  passwordSaving = false;
+  passwordMessage = '';
+  showPassword = false;
 
   readonly form = this.fb.nonNullable.group({
     full_name: ['', [Validators.required, Validators.minLength(2)]],
     phone: [''],
+  });
+
+  readonly passwordForm = this.fb.nonNullable.group({
+    new_password: ['', [Validators.required, Validators.minLength(8)]],
+    confirm_password: ['', [Validators.required, Validators.minLength(8)]],
   });
 
   ngOnInit(): void {
@@ -40,15 +52,22 @@ export class CustomerProfile implements OnInit {
       this.patchForm(this.user);
     }
 
+    this.loadCurrentUser();
+  }
+
+  loadCurrentUser(): void {
+    this.loading = true;
     this.authService.loadCurrentUser().subscribe({
       next: (user) => {
         this.user = user;
         this.patchForm(user);
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.message = this.user ? 'Showing your saved profile.' : 'Unable to load profile.';
         this.loading = false;
+        this.cdr.detectChanges();
       },
     });
   }
@@ -60,17 +79,67 @@ export class CustomerProfile implements OnInit {
     }
 
     this.saving = true;
+    this.message = '';
     this.authService.updateUserProfile(this.form.getRawValue()).subscribe({
       next: (user) => {
         this.user = user;
         this.message = 'Profile updated successfully.';
         this.saving = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.message = 'Unable to update profile. Please try again.';
         this.saving = false;
+        this.cdr.detectChanges();
       },
     });
+  }
+
+  changePassword(): void {
+    this.passwordMessage = '';
+
+    if (this.passwordForm.invalid) {
+      this.passwordForm.markAllAsTouched();
+      this.passwordMessage = 'Password must be at least 8 characters long.';
+      return;
+    }
+
+    const { new_password, confirm_password } = this.passwordForm.getRawValue();
+
+    if (new_password !== confirm_password) {
+      this.passwordMessage = 'Passwords do not match.';
+      return;
+    }
+
+    this.passwordSaving = true;
+    this.authService.updateUserProfile({ password: new_password }).subscribe({
+      next: () => {
+        this.passwordMessage = 'Password updated successfully!';
+        this.passwordSaving = false;
+        this.passwordForm.reset();
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.passwordMessage = 'Unable to update password. Please try again.';
+        this.passwordSaving = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  toggleShowPassword(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  getStatusClass(status?: string): string {
+    const s = (status || 'active').toLowerCase();
+    const map: Record<string, string> = {
+      active: 'badge-active',
+      pending: 'badge-pending',
+      suspended: 'badge-rejected',
+      deactivated: 'badge-unverified',
+    };
+    return map[s] ?? 'badge-active';
   }
 
   private patchForm(user: User): void {

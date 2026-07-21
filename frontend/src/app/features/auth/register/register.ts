@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -10,11 +10,12 @@ import { RegisterRequest } from '../../../core/models/auth.models';
 
 @Component({
   selector: 'app-register',
+  standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
-export class Register {
+export class Register implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
@@ -41,6 +42,24 @@ export class Register {
     initialValue: this.form.controls.role.value,
   });
   readonly isProvider = computed(() => this.selectedRole() === 'provider');
+
+  ngOnInit(): void {
+    if (this.authService.getToken()) {
+      const user = this.authService.currentUser();
+      if (user) {
+        this.router.navigateByUrl(this.authService.getRoleRedirect(user), { replaceUrl: true });
+      } else {
+        this.authService.loadCurrentUser().subscribe({
+          next: (loadedUser) => {
+            this.router.navigateByUrl(this.authService.getRoleRedirect(loadedUser), { replaceUrl: true });
+          },
+          error: () => {
+            this.authService.logout();
+          }
+        });
+      }
+    }
+  }
 
   submit(): void {
     this.errorMessage = '';

@@ -28,6 +28,8 @@ class AdminUserResponse(BaseModel):
     role: str
     status: str
     email_verified: bool
+    created_at: Optional[datetime] = None
+    verification_status: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -215,6 +217,10 @@ def seed_test_data(db: Session = Depends(get_db)):
     return {"message": "Test database seeded successfully!"}
 
 
+class VerificationStatusUpdate(BaseModel):
+    verification_status: str
+
+
 # ---------------------------------------------------------------------------
 # User Management
 # ---------------------------------------------------------------------------
@@ -225,7 +231,30 @@ def list_users(
     limit: int = Query(default=50, ge=1, le=200),
     db: Session = Depends(get_db),
 ):
-    return db.query(User).offset(skip).limit(limit).all()
+    users = db.query(User).offset(skip).limit(limit).all()
+    results = []
+    for u in users:
+        ver_status = None
+        if u.provider_profile:
+            ver_status = (
+                u.provider_profile.verification_status.value
+                if hasattr(u.provider_profile.verification_status, 'value')
+                else str(u.provider_profile.verification_status)
+            )
+        results.append(
+            AdminUserResponse(
+                id=u.id,
+                email=u.email,
+                full_name=u.full_name,
+                phone=u.phone,
+                role=u.role.value if hasattr(u.role, 'value') else str(u.role),
+                status=u.status.value if hasattr(u.status, 'value') else str(u.status),
+                email_verified=u.email_verified,
+                created_at=u.created_at,
+                verification_status=ver_status,
+            )
+        )
+    return results
 
 
 @router.put("/users/{user_id}/status", response_model=AdminUserResponse, dependencies=[_admin_dep])
@@ -246,7 +275,72 @@ def update_user_status(
     user.status = AccountStatus(body.status)
     db.commit()
     db.refresh(user)
-    return user
+    ver_status = user.provider_profile.verification_status if user.provider_profile else None
+    return AdminUserResponse(
+        id=user.id,
+        email=user.email,
+        full_name=user.full_name,
+        phone=user.phone,
+        role=user.role.value if hasattr(user.role, 'value') else str(user.role),
+        status=user.status.value if hasattr(user.status, 'value') else str(user.status),
+        email_verified=user.email_verified,
+        created_at=user.created_at,
+        verification_status=ver_status,
+    )
+
+
+@router.put("/users/{user_id}/email-verification", response_model=AdminUserResponse, dependencies=[_admin_dep])
+def toggle_user_email_verification(
+    user_id: int,
+    db: Session = Depends(get_db),
+):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user.email_verified = not user.email_verified
+    db.commit()
+    db.refresh(user)
+    ver_status = user.provider_profile.verification_status if user.provider_profile else None
+    return AdminUserResponse(
+        id=user.id,
+        email=user.email,
+        full_name=user.full_name,
+        phone=user.phone,
+        role=user.role.value if hasattr(user.role, 'value') else str(user.role),
+        status=user.status.value if hasattr(user.status, 'value') else str(user.status),
+        email_verified=user.email_verified,
+        created_at=user.created_at,
+        verification_status=ver_status,
+    )
+
+
+@router.put("/users/{user_id}/provider-verification", response_model=AdminUserResponse, dependencies=[_admin_dep])
+def update_provider_verification(
+    user_id: int,
+    body: VerificationStatusUpdate,
+    db: Session = Depends(get_db),
+):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if not user.provider_profile:
+        raise HTTPException(status_code=400, detail="User does not have a provider profile")
+
+    user.provider_profile.verification_status = body.verification_status
+    db.commit()
+    db.refresh(user)
+
+    return AdminUserResponse(
+        id=user.id,
+        email=user.email,
+        full_name=user.full_name,
+        phone=user.phone,
+        role=user.role.value if hasattr(user.role, 'value') else str(user.role),
+        status=user.status.value if hasattr(user.status, 'value') else str(user.status),
+        email_verified=user.email_verified,
+        created_at=user.created_at,
+        verification_status=user.provider_profile.verification_status,
+    )
 
 
 # ---------------------------------------------------------------------------

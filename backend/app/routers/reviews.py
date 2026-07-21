@@ -5,7 +5,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, require_active_user
 from app.models.booking import Booking, BookingStatus
 from app.models.provider_profile import ProviderProfile
 from app.models.review import Review
@@ -36,7 +36,7 @@ def _recalculate_provider_rating(db: Session, provider_id: int) -> None:
 def create_review(
     review: ReviewCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_user),
 ):
     if current_user.role != UserRole.CUSTOMER:
         raise HTTPException(status_code=403, detail="Only customers can leave reviews")
@@ -88,7 +88,7 @@ def get_service_reviews(service_id: int, db: Session = Depends(get_db)):
 @router.get("/customer/me", response_model=List[ReviewResponse])
 def get_my_reviews(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_user),
 ):
     """Reviews the current customer has written."""
     return db.query(Review).filter(Review.customer_id == current_user.id).all()

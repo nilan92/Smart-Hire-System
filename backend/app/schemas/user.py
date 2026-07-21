@@ -27,6 +27,7 @@ class CurrentUserResponse(UserResponse):
 class UserUpdate(BaseModel):
     full_name: str | None = Field(default=None, min_length=2, max_length=150)
     phone: str | None = Field(default=None, max_length=20)
+    password: str | None = Field(default=None, min_length=8)
 
 
 UserProfileUpdate = UserUpdate

@@ -11,8 +11,10 @@ interface User {
   role: 'admin' | 'provider' | 'customer';
   status: 'active' | 'pending' | 'suspended' | 'deactivated';
   email_verified: boolean;
-  created_at: string;
+  verification_status?: 'unverified' | 'pending' | 'verified' | 'rejected';
+  created_at?: string;
   updatingStatus?: boolean;
+  updatingVerification?: boolean;
 }
 
 @Component({
@@ -80,10 +82,10 @@ export class UserManagementComponent implements OnInit {
   onStatusChange(user: User, newStatus: string): void {
     user.updatingStatus = true;
     this.http
-      .put(`${environment.apiUrl}/admin/users/${user.id}/status`, { status: newStatus })
+      .put<User>(`${environment.apiUrl}/admin/users/${user.id}/status`, { status: newStatus })
       .subscribe({
-        next: () => {
-          user.status = newStatus as User['status'];
+        next: (updated) => {
+          user.status = updated.status;
           user.updatingStatus = false;
           this.cdr.detectChanges();
         },
@@ -91,6 +93,40 @@ export class UserManagementComponent implements OnInit {
           console.error('Failed to update user status:', err);
           user.updatingStatus = false;
           this.cdr.detectChanges();
+        }
+      });
+  }
+
+  onVerificationChange(user: User, newVerStatus: string): void {
+    user.updatingVerification = true;
+    this.http
+      .put<User>(`${environment.apiUrl}/admin/users/${user.id}/provider-verification`, {
+        verification_status: newVerStatus
+      })
+      .subscribe({
+        next: (updated) => {
+          user.verification_status = updated.verification_status;
+          user.updatingVerification = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to update provider verification:', err);
+          user.updatingVerification = false;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  toggleEmailVerification(user: User): void {
+    this.http
+      .put<User>(`${environment.apiUrl}/admin/users/${user.id}/email-verification`, {})
+      .subscribe({
+        next: (updated) => {
+          user.email_verified = updated.email_verified;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to toggle email verification:', err);
         }
       });
   }
@@ -114,12 +150,25 @@ export class UserManagementComponent implements OnInit {
     return map[status] ?? 'badge-grey';
   }
 
+  getVerificationBadgeClass(verStatus?: string): string {
+    const map: Record<string, string> = {
+      verified: 'badge-success',
+      pending: 'badge-warning',
+      unverified: 'badge-grey',
+      rejected: 'badge-danger'
+    };
+    return map[verStatus ?? 'unverified'] ?? 'badge-grey';
+  }
+
   getInitial(user: User): string {
     return (user.full_name || user.email || 'U')[0].toUpperCase();
   }
 
-  formatDate(dateStr: string): string {
-    return new Date(dateStr).toLocaleDateString('en-US', {
+  formatDate(dateStr?: string): string {
+    if (!dateStr) return 'Registered';
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return 'Registered';
+    return date.toLocaleDateString('en-US', {
       year: 'numeric', month: 'short', day: 'numeric'
     });
   }

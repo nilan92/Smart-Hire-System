@@ -53,6 +53,7 @@ export interface TokenResponse {
 export interface UserProfileUpdate {
   full_name?: string | null;
   phone?: string | null;
+  password?: string | null;
 }
 
 export interface ProviderProfileUpdate {

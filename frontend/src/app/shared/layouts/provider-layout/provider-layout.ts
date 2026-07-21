@@ -20,12 +20,10 @@ export class ProviderLayout {
   readonly menuOpen = signal(false);
   readonly links: SidebarLink[] = [
     { label: 'Dashboard', route: APP_ROUTES.provider.dashboard },
-    { label: 'Profile', route: APP_ROUTES.provider.profile },
     { label: 'My Services', route: APP_ROUTES.provider.services },
     { label: 'Service Areas', route: APP_ROUTES.provider.serviceAreas },
     { label: 'Booking Requests', route: APP_ROUTES.provider.bookingRequests },
     { label: 'Availability', route: APP_ROUTES.provider.availability },
-    { label: 'Notifications', route: APP_ROUTES.provider.notifications },
     { label: 'Reviews', route: APP_ROUTES.provider.reviews },
     { label: 'Payments', route: APP_ROUTES.provider.payments },
     { label: 'AI Insights', route: APP_ROUTES.provider.aiInsights },

@@ -1,18 +1,246 @@
-<section class="dashboard-placeholder">
-  <p>Provider dashboard</p>
-  <h1>Manage your Smart Hire provider workspace</h1>
-  <div class="placeholder-grid">
-    <article>
-      <span>Services</span>
-      <strong>Prepare your service listings</strong>
-    </article>
-    <article>
-      <span>Requests</span>
-      <strong>Review incoming booking work</strong>
-    </article>
-    <article>
-      <span>Payments</span>
-      <strong>Track provider payment activity</strong>
-    </article>
+<app-page-header
+  title="Provider Workspace"
+  subtitle="Manage your service listings, incoming job requests, and earnings performance."
+></app-page-header>
+
+<app-loading-spinner *ngIf="loading"></app-loading-spinner>
+<app-error-message *ngIf="errorMessage" [message]="errorMessage"></app-error-message>
+
+<div class="dashboard-container" *ngIf="!loading">
+  <!-- Welcome & Profile Banner -->
+  <section class="welcome-banner">
+    <div class="banner-content">
+      <div class="user-greeting">
+        <h2>Welcome back, {{ user?.full_name || 'Provider' }}! 👋</h2>
+        <p>Here is an overview of your active service workspace for today.</p>
+      </div>
+      <div class="verification-chip" [ngClass]="getVerificationBadgeClass(providerProfile?.verification_status)">
+        <span class="status-dot"></span>
+        <span class="status-text">{{ (providerProfile?.verification_status || 'verified') | uppercase }} ACCOUNT</span>
+      </div>
+    </div>
+    
+    <div class="quick-actions">
+      <a routerLink="/provider/services" class="btn btn-primary">
+        <span>➕</span> Add New Service
+      </a>
+      <a routerLink="/provider/service-areas" class="btn btn-secondary">
+        <span>📍</span> Service Areas
+      </a>
+      <a routerLink="/provider/profile" class="btn btn-outline">
+        <span>👤</span> Edit Profile
+      </a>
+    </div>
+  </section>
+
+  <!-- Metrics Grid (4 Stat Cards) -->
+  <section class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon icon-pending">📥</div>
+      <div class="stat-info">
+        <span class="stat-label">Pending Requests</span>
+        <strong class="stat-value">{{ pendingRequestsCount }}</strong>
+        <span class="stat-subtext">Action required</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon icon-completed">✅</div>
+      <div class="stat-info">
+        <span class="stat-label">Completed Jobs</span>
+        <strong class="stat-value">{{ completedJobsCount }}</strong>
+        <span class="stat-subtext">Total finished work</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon icon-revenue">💰</div>
+      <div class="stat-info">
+        <span class="stat-label">Total Earnings</span>
+        <strong class="stat-value">${{ totalRevenue | number:'1.2-2' }}</strong>
+        <span class="stat-subtext">Est. payout balance</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon icon-rating">⭐</div>
+      <div class="stat-info">
+        <span class="stat-label">Rating & Reviews</span>
+        <strong class="stat-value">{{ providerProfile?.avg_rating || '5.0' }}</strong>
+        <span class="stat-subtext">{{ providerProfile?.total_reviews || 0 }} total reviews</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Grid (Pending Requests + Active Services) -->
+  <div class="content-grid">
+    <!-- Left Column: Pending Booking Requests -->
+    <div class="main-column">
+      <div class="card-section">
+        <div class="section-header">
+          <div class="header-title">
+            <h3>Incoming Booking Requests</h3>
+            <span class="count-badge" *ngIf="pendingRequestsCount > 0">{{ pendingRequestsCount }}</span>
+          </div>
+          <a routerLink="/provider/booking-requests" class="link-action">View All</a>
+        </div>
+
+        <!-- Empty State for Pending Requests -->
+        <div class="empty-state" *ngIf="pendingBookings.length === 0">
+          <div class="empty-icon">📮</div>
+          <h4>No Pending Requests</h4>
+          <p>You have responded to all job requests. New customer requests will appear here instantly.</p>
+        </div>
+
+        <!-- Requests List -->
+        <div class="requests-list" *ngIf="pendingBookings.length > 0">
+          <div class="request-item" *ngFor="let item of pendingBookings">
+            <div class="request-main">
+              <div class="customer-avatar">
+                {{ item.customer_name.charAt(0).toUpperCase() }}
+              </div>
+              <div class="request-details">
+                <h4>{{ item.service_name }}</h4>
+                <p class="customer-meta">
+                  <span>👤 {{ item.customer_name }}</span> • 
+                  <span>📅 {{ item.booking_date }}</span>
+                </p>
+                <p class="request-notes" *ngIf="item.notes">
+                  <em>"{{ item.notes }}"</em>
+                </p>
+              </div>
+            </div>
+
+            <div class="request-actions">
+              <button class="btn btn-sm btn-accept" (click)="acceptRequest(item.id)">
+                Accept
+              </button>
+              <button class="btn btn-sm btn-decline" (click)="rejectRequest(item.id)">
+                Decline
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Booking History Table -->
+      <div class="card-section">
+        <div class="section-header">
+          <h3>Recent Booking History</h3>
+          <a routerLink="/provider/booking-requests" class="link-action">Full Log</a>
+        </div>
+
+        <div class="table-responsive" *ngIf="recentBookings.length > 0">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Service</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of recentBookings">
+                <td class="font-weight-600">{{ item.customer_name }}</td>
+                <td>{{ item.service_name }}</td>
+                <td class="text-muted">{{ item.booking_date }}</td>
+                <td>
+                  <span class="badge" [ngClass]="getStatusBadgeClass(item.status)">
+                    {{ item.status | uppercase }}
+                  </span>
+                </td>
+                <td>
+                  <button 
+                    *ngIf="item.status === 'accepted' || item.status === 'in_progress'" 
+                    class="btn btn-xs btn-complete"
+                    (click)="completeBooking(item.id)"
+                  >
+                    Mark Done
+                  </button>
+                  <span *ngIf="item.status !== 'accepted' && item.status !== 'in_progress'" class="text-muted">–</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="empty-state" *ngIf="recentBookings.length === 0">
+          <p class="text-muted">No booking activity recorded yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Active Services & Shortcuts -->
+    <div class="side-column">
+      <!-- Active Service Listings Overview -->
+      <div class="card-section">
+        <div class="section-header">
+          <h3>My Service Listings</h3>
+          <a routerLink="/provider/services" class="link-action">Manage</a>
+        </div>
+
+        <div class="services-list" *ngIf="services.length > 0">
+          <div class="service-item" *ngFor="let s of services.slice(0, 4)">
+            <div class="service-info">
+              <h4 class="service-title">{{ s.title }}</h4>
+              <p class="service-meta">${{ s.price }} • {{ s.city }}</p>
+            </div>
+            <span class="badge" [ngClass]="s.status === 'active' ? 'badge-completed' : 'badge-neutral'">
+              {{ s.status | uppercase }}
+            </span>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="services.length === 0">
+          <div class="empty-icon">🛠️</div>
+          <p>No active service listings created yet.</p>
+          <a routerLink="/provider/services" class="btn btn-sm btn-primary">Create Service</a>
+        </div>
+      </div>
+
+      <!-- Provider Tools Shortcuts -->
+      <div class="card-section shortcuts-card">
+        <h3>Provider Tools & Utilities</h3>
+        <div class="shortcut-links">
+          <a routerLink="/provider/availability" class="shortcut-item">
+            <span class="shortcut-icon">⏰</span>
+            <div class="shortcut-text">
+              <strong>Weekly Availability</strong>
+              <small>Set working hours & shifts</small>
+            </div>
+            <span class="arrow">→</span>
+          </a>
+
+          <a routerLink="/provider/service-areas" class="shortcut-item">
+            <span class="shortcut-icon">🗺️</span>
+            <div class="shortcut-text">
+              <strong>Service Coverage</strong>
+              <small>Set districts & cities</small>
+            </div>
+            <span class="arrow">→</span>
+          </a>
+
+          <a routerLink="/provider/ai-insights" class="shortcut-item">
+            <span class="shortcut-icon">🤖</span>
+            <div class="shortcut-text">
+              <strong>AI Review Summary</strong>
+              <small>Generate client feedback insights</small>
+            </div>
+            <span class="arrow">→</span>
+          </a>
+
+          <a routerLink="/provider/reviews" class="shortcut-item">
+            <span class="shortcut-icon">💬</span>
+            <div class="shortcut-text">
+              <strong>Customer Reviews</strong>
+              <small>Read customer feedback</small>
+            </div>
+            <span class="arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
-</section>
+</div>
