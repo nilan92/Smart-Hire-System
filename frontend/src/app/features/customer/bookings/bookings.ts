@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
 import { environment } from '../../../../environments/environment';
 import { API_ENDPOINTS } from '../../../core/utils/api-endpoints';
@@ -17,12 +18,14 @@ type FilterTab = 'all' | 'upcoming' | 'completed' | 'cancelled';
 
 @Component({
   selector: 'app-customer-bookings',
+  standalone: true,
   imports: [CommonModule, FormsModule, LoadingSpinner, ErrorMessage, EmptyState, PaymentStatusComponent],
   templateUrl: './bookings.html',
   styleUrl: './bookings.scss',
 })
 export class CustomerBookings implements OnInit {
   private readonly http = inject(HttpClient);
+  private readonly route = inject(ActivatedRoute);
   readonly store = inject(BookingStore);
   readonly marketplace = inject(MarketplaceServiceStore);
 
@@ -64,6 +67,28 @@ export class CustomerBookings implements OnInit {
     this.store.loadCustomerBookings();
     this.marketplace.loadMarketplace();
     this.fetchPayments();
+
+    // Check for service_id passed in query params (from Browse Services or Dashboard)
+    this.route.queryParams.subscribe((params) => {
+      if (params['service_id']) {
+        const id = Number(params['service_id']);
+        if (id) {
+          this.serviceId.set(id);
+          
+          // Set default date to tomorrow and default time to 10:00 AM
+          if (!this.bookingDate()) {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            this.bookingDate.set(tomorrow.toISOString().slice(0, 10));
+          }
+          if (!this.bookingTime()) {
+            this.bookingTime.set('10:00');
+          }
+          
+          this.openForm();
+        }
+      }
+    });
   }
 
   fetchPayments(): void {

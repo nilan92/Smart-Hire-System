@@ -215,7 +215,7 @@
               <h4 class="service-title">{{ s.title }}</h4>
               <p class="service-meta">Rs. {{ s.price }} • {{ s.city }} • ⭐ {{ s.rating }}</p>
             </div>
-            <a [routerLink]="['/customer/services']" class="btn btn-xs btn-primary">Book</a>
+            <a [routerLink]="['/customer/bookings']" [queryParams]="{ service_id: s.id }" class="btn btn-xs btn-primary">Book</a>
           </div>
         </div>
       </div>

@@ -29,7 +29,7 @@
         </div>
         <div class="modal-actions">
           <button class="outline" (click)="store.toggleFavourite(service.id)">♥ Remove from favourites</button>
-          <a routerLink="/customer/bookings">Book this service →</a>
+          <a [routerLink]="['/customer/bookings']" [queryParams]="{ service_id: service.id }">Book this service →</a>
         </div>
       </div>
     </div>

@@ -5,7 +5,7 @@
         class="nav-link"
         [routerLink]="link.route"
         routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }"
+        [routerLinkActiveOptions]="{ paths: 'exact', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }"
         (click)="closeMenu.emit()"
       >
         {{ link.label }}
