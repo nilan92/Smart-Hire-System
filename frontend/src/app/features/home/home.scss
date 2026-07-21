@@ -26,15 +26,11 @@
   text-decoration: none;
 }
 .brand-icon {
-  display: grid;
-  place-items: center;
+  display: block;
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: linear-gradient(145deg, #078365, #075e54);
-  color: #fff;
-  font-size: 0.78rem;
-  font-weight: 900;
+  object-fit: cover;
   box-shadow: 0 7px 16px rgba(7, 94, 84, 0.22);
 }
 .brand-copy strong,

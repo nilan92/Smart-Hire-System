@@ -1,7 +1,7 @@
 <header class="landing-header">
   <nav class="landing-nav" aria-label="Main navigation">
     <a class="brand" routerLink="/" aria-label="Smart Hire home" (click)="closeMenu()">
-      <span class="brand-icon">SH</span><span class="brand-copy"><strong>SMART HIRE</strong><small>Service Marketplace</small></span>
+      <img class="brand-icon" src="/android-chrome-192x192.png" alt="Smart Hire" /><span class="brand-copy"><strong>SMART HIRE</strong><small>Service Marketplace</small></span>
     </a>
     <button class="menu-toggle" type="button" aria-label="Toggle navigation" [attr.aria-expanded]="menuOpen()" (click)="toggleMenu()"><span></span><span></span><span></span></button>
     <div class="nav-links" [class.open]="menuOpen()">
@@ -39,4 +39,4 @@
   </section>
   <section class="cta-section" id="benefits"><div><span class="eyebrow light">Ready when you are</span><h2>Make your next task the easy one.</h2><p>Join Smart Hire today and connect with the people who can help.</p></div><a class="cta-button" routerLink="/register">Create your free account <span>→</span></a></section>
 </main>
-<footer><a class="brand footer-brand" routerLink="/"><span class="brand-icon">SH</span><strong>SMART HIRE</strong></a><p>Reliable services. Trusted people. Smarter hiring.</p><span>© 2026 Smart Hire</span></footer>
+<footer><a class="brand footer-brand" routerLink="/"><img class="brand-icon" src="/android-chrome-192x192.png" alt="Smart Hire" /><strong>SMART HIRE</strong></a><p>Reliable services. Trusted people. Smarter hiring.</p><span>© 2026 Smart Hire</span></footer>
