@@ -37,7 +37,14 @@ describe('CustomerLayout', () => {
     const fixture = TestBed.createComponent(CustomerLayout);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('Profile');
     expect(fixture.nativeElement.querySelector('router-outlet')).toBeTruthy();
+
+    // "My Profile" lives inside the navbar's profile dropdown, collapsed by default.
+    const profileButton: HTMLElement = fixture.nativeElement.querySelector('.profile-btn');
+    expect(profileButton).toBeTruthy();
+    profileButton.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('My Profile');
   });
 });
