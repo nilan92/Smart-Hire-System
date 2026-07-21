@@ -49,4 +49,11 @@ export const API_ENDPOINTS = {
     myProviderPayments: '/payments/provider/me',
     myCustomerPayments: '/payments/customer/me',
   },
+  ai: {
+    chat: '/ai/chat',
+    recommend: '/ai/recommend',
+    conversations: '/ai/conversations',
+    conversation: (conversationId: number) => `/ai/conversations/${conversationId}`,
+    summarizeReviews: '/ai/reviews/summarize',
+  },
 } as const;

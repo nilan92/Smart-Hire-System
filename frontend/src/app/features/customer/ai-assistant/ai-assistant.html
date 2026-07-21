@@ -1,4 +1,15 @@
-<section class="placeholder-page">
-  <p>AI module</p>
-  <h1>AI Assistant</h1>
+<section class="ai-page">
+  <aside class="history">
+    <div><p class="eyebrow">Smart Hire AI</p><h2>Your conversations</h2><small>{{ analytics().conversation_count }} chats · {{ analytics().message_count }} saved messages</small></div>
+    <button (click)="newConversation()">+ New chat</button>
+    @for (item of history(); track item.id) { <button class="history-item" (click)="openConversation(item.id)">{{ item.title }}</button> }
+  </aside>
+  <main class="assistant">
+    <header><p class="eyebrow">AI assistant</p><h1>Find the right service, faster.</h1><p>Tell us about the problem and receive a category recommendation with active local providers.</p></header>
+    <div class="messages">@for (item of messages(); track $index) { <article [class.user]="item.role === 'user'" class="message"><strong>{{ item.role === 'user' ? 'You' : 'Smart Hire AI' }}</strong><p>{{ item.message }}</p></article> } @if (loading()) { <article class="message"><strong>Smart Hire AI</strong><p>Thinking…</p></article> }</div>
+    @if (recommendation(); as result) { <section class="recommendation"><span>Recommended category</span><h2>{{ result.category_name }}</h2><p>{{ result.reason }}</p><div class="providers">@for (service of result.services; track service.id) { <article><div><strong>{{ service.title }}</strong><p>{{ service.provider_name }} · {{ service.city }}</p></div><div><b>{{ service.price | currency:'LKR':'symbol':'1.0-0' }}</b><small>★ {{ service.rating }}</small><button class="book" (click)="startBooking(service)">Book this service</button></div></article> } @empty { <p>No active services are listed in this category yet.</p> }</div></section> }
+    @if (bookingService(); as service) { <section class="booking-panel"><div><span>Booking request</span><h2>{{ service.title }}</h2><p>Request {{ service.provider_name }}. The provider must still accept the booking.</p></div><label>Date<input type="date" [ngModel]="bookingDate()" (ngModelChange)="bookingDate.set($event)" /></label><label>Time<input type="time" [ngModel]="bookingTime()" (ngModelChange)="bookingTime.set($event)" /></label><div class="booking-actions"><button class="secondary" (click)="cancelBooking()">Cancel</button><button [disabled]="bookingSubmitting()" (click)="submitBooking()">{{ bookingSubmitting() ? 'Sending…' : 'Confirm booking request' }}</button></div>@if (bookingError()) { <p class="error">{{ bookingError() }}</p> }</section> }
+    @if (bookingConfirmation()) { <p class="confirmation">{{ bookingConfirmation() }}</p> }
+    <div class="composer"><textarea [ngModel]="draft()" (ngModelChange)="draft.set($event)" (keydown.enter)="$event.preventDefault(); send()" placeholder="Example: My kitchen sink is leaking and I need help in Colombo."></textarea><div><button class="secondary" [disabled]="loading() || !draft().trim()" (click)="findRecommendation()">Recommend a service</button><button [disabled]="loading() || !draft().trim()" (click)="send()">Send message</button></div></div>
+  </main>
 </section>
