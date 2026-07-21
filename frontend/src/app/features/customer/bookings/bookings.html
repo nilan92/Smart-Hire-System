@@ -1,4 +1,151 @@
-<section class="placeholder-page">
-  <p>Bookings module</p>
-  <h1>My Bookings</h1>
-</section>
+<div class="page-heading">
+  <div>
+    <span>Bookings</span>
+    <h1>My Bookings</h1>
+    <p>Track every service you've booked, from request to completion.</p>
+  </div>
+  <button (click)="openForm()">+ New booking</button>
+</div>
+
+<nav class="tabs" aria-label="Filter bookings">
+  <button [class.active]="tab() === 'all'" (click)="setTab('all')">All</button>
+  <button [class.active]="tab() === 'upcoming'" (click)="setTab('upcoming')">Upcoming</button>
+  <button [class.active]="tab() === 'completed'" (click)="setTab('completed')">Completed</button>
+  <button [class.active]="tab() === 'cancelled'" (click)="setTab('cancelled')">Cancelled / Rejected</button>
+</nav>
+
+@if (store.loading()) {
+  <app-loading-spinner label="Loading your bookings..." />
+} @else if (store.error()) {
+  <app-error-message [message]="store.error()" />
+} @else if (filteredBookings().length) {
+  <div class="table-card">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Provider</th>
+            <th>Date &amp; time</th>
+            <th>Status</th>
+            <th>Notes</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (booking of filteredBookings(); track booking.id) {
+            <tr>
+              <td>{{ booking.service_name }}</td>
+              <td>{{ booking.provider_name }}</td>
+              <td>{{ booking.booking_date | date: 'MMM d, y · h:mm a' }}</td>
+              <td>
+                <span class="status" [class]="booking.status">
+                  <i></i>{{ statusLabel(booking.status) }}
+                </span>
+              </td>
+              <td class="notes">{{ booking.notes || '—' }}</td>
+              <td>
+                <div class="actions-row">
+                  @if (canCancel(booking.status)) {
+                    <button class="delete" (click)="cancelBooking(booking.id)">Cancel</button>
+                  }
+                  @if (canPay(booking)) {
+                    <button (click)="openPayment(booking.id)">Pay now</button>
+                  } @else if (isPaid(booking.id)) {
+                    <span class="status completed"><i></i>Paid</span>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+} @else {
+  <app-empty-state
+    title="No bookings here yet"
+    message="Book a service and it will show up in this list."
+  />
+}
+
+@if (showForm()) {
+  <div class="overlay" (click)="closeForm()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <header>
+        <div>
+          <span>New booking</span>
+          <h2>Book a service</h2>
+        </div>
+        <button (click)="closeForm()" aria-label="Close">×</button>
+      </header>
+      <form (ngSubmit)="submitBooking()">
+        <label class="wide">
+          Service
+          <select [ngModel]="serviceId()" (ngModelChange)="serviceId.set($event)" name="serviceId" required>
+            <option [value]="0" disabled>Select a service</option>
+            @for (service of activeServices(); track service.id) {
+              <option [value]="service.id">{{ service.title }} — {{ service.providerName }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          Date
+          <input
+            type="date"
+            [min]="minDate()"
+            [ngModel]="bookingDate()"
+            (ngModelChange)="bookingDate.set($event)"
+            name="bookingDate"
+            required
+          />
+        </label>
+        <label>
+          Time
+          <input
+            type="time"
+            [ngModel]="bookingTime()"
+            (ngModelChange)="bookingTime.set($event)"
+            name="bookingTime"
+            required
+          />
+        </label>
+        <label class="wide">
+          Notes (optional)
+          <textarea
+            rows="3"
+            placeholder="Any details the provider should know..."
+            [ngModel]="notes()"
+            (ngModelChange)="notes.set($event)"
+            name="notes"
+          ></textarea>
+        </label>
+        @if (formError()) {
+          <app-error-message class="wide" [message]="formError()" />
+        }
+        <div class="form-actions">
+          <button type="button" (click)="closeForm()">Cancel</button>
+          <button type="submit" [disabled]="submitting()">
+            {{ submitting() ? 'Booking...' : 'Confirm booking' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (payingBooking(); as booking) {
+  <div class="overlay" (click)="closePayment()">
+    <div (click)="$event.stopPropagation()">
+      <app-payment-status
+        [embedded]="true"
+        [bookingId]="booking.id"
+        [customerId]="booking.customer_id"
+        [amount]="amountFor(booking)"
+        [serviceName]="booking.service_name"
+        (paid)="onPaid($event)"
+        (closed)="closePayment()"
+      />
+    </div>
+  </div>
+}

@@ -1,8 +1,9 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { RatingDisplayComponent } from '../rating-display/rating-display';
 import { environment } from '../../../../environments/environment';
+import { API_ENDPOINTS } from '../../../core/utils/api-endpoints';
 
 @Component({
   selector: 'app-provider-review-list',
@@ -12,25 +13,27 @@ import { environment } from '../../../../environments/environment';
   styleUrls: ['./provider-review-list.scss']
 })
 export class ProviderReviewListComponent implements OnInit {
-  @Input() providerId: number = 2; // Default for demo
+  @Input({ required: true }) providerId!: number;
   reviews: any[] = [];
   loading = true;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.fetchReviews();
   }
 
   fetchReviews(): void {
-    this.http.get<any[]>(`${environment.apiUrl}/reviews/provider/${this.providerId}`).subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}${API_ENDPOINTS.reviews.byProvider(this.providerId)}`).subscribe({
       next: (data) => {
         this.reviews = data;
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error(err);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }

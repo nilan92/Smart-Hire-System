@@ -115,10 +115,145 @@ Requires bearer token and `provider` role. Allows only `bio` and `years_experien
 
 Public. Returns public provider details and provider profile. Private account fields and password hash are not returned.
 
+## Reviews
+
+A review can only be created once a booking is `completed`, by the customer on that booking, and only once per booking.
+
+### POST `/reviews/`
+
+Requires bearer token and `customer` role.
+
+```json
+{
+  "booking_id": 12,
+  "customer_id": 1,
+  "provider_id": 1,
+  "service_id": 1,
+  "rating": 5,
+  "comment": "Great work"
+}
+```
+
+`customer_id`/`provider_id`/`service_id` are accepted for schema compatibility but are ignored server-side — they're always derived from the booking and the authenticated user, so a caller cannot spoof them. `rating` must be `1`–`5`.
+
+Success: `200` with the created review. Also recalculates the provider's `avg_rating`/`total_reviews` on their provider profile.
+
+Common errors: `400` booking not completed, review already exists for this booking; `403` not a customer, or the booking isn't yours; `404` booking not found; `422` rating out of range.
+
+### GET `/reviews/`
+
+Public. Lists all reviews (paginated via `skip`/`limit`).
+
+### GET `/reviews/provider/{provider_id}`
+
+Public. Reviews for a given provider.
+
+### GET `/reviews/service/{service_id}`
+
+Public. Reviews for a given service.
+
+### GET `/reviews/customer/me`
+
+Requires bearer token and `customer` role. Reviews the current customer has written.
+
+### GET `/reviews/{review_id}`
+
+Public. A single review by id.
+
+## Payments
+
+Payment is only accepted once a booking is `completed`. This is a simulated gateway — there is no external processor, so a successful `POST` is an immediately `completed` payment with a generated `transaction_id`, not a `pending` one awaiting a callback.
+
+### POST `/payments/`
+
+Requires bearer token and `customer` role.
+
+```json
+{
+  "booking_id": 12,
+  "customer_id": 1,
+  "amount": 1500,
+  "payment_method": "card"
+}
+```
+
+`customer_id` is accepted for schema compatibility but ignored server-side (derived from the authenticated user). `amount` must be `> 0`.
+
+Success: `200` with the created payment (`status: "completed"`, real `transaction_id`).
+
+Common errors: `400` booking not completed, or already paid; `401` no token; `403` not a customer, or the booking isn't yours; `404` booking not found; `422` amount `<= 0`.
+
+### GET `/payments/`
+
+Requires bearer token and `admin` role. Lists all payments (paginated).
+
+### GET `/payments/booking/{booking_id}`
+
+Requires bearer token. Visible to the booking's customer, the booking's provider, or an admin.
+
+### GET `/payments/customer/me`
+
+Requires bearer token and `customer` role. Payments the current customer has made.
+
+### GET `/payments/provider/me`
+
+Requires bearer token and `provider` role. Payments received across the current provider's bookings.
+
+### GET `/payments/{payment_id}`
+
+Requires bearer token. Visible to the payment's customer, the related booking's provider, or an admin.
+
+### PUT `/payments/{payment_id}`
+
+Requires bearer token and `admin` role. Updates `status` (`pending`/`completed`/`failed`/`refunded`) and/or `transaction_id`.
+
+```json
+{ "status": "refunded" }
+```
+
+## Admin
+
+All `/admin/*` routes require bearer token and `admin` role.
+
+### GET `/admin/dashboard-stats`
+
+Platform totals: `total_payments`, `total_reviews`, `total_users`, `total_bookings`, `total_services`, `avg_review_rating`, `total_revenue` (sum of `completed` payments).
+
+### Users
+
+- `GET /admin/users` — paginated list.
+- `PUT /admin/users/{id}/status` — body `{ "status": "active" | "pending" | "suspended" | "deactivated" }`.
+
+### Categories
+
+- `GET /admin/categories` — each category includes a real `service_count` (services currently in that category).
+- `POST /admin/categories` — body `{ "name": "...", "description": "...", "icon": "🛠️" }`. `400` if the name already exists.
+- `DELETE /admin/categories/{id}` — `400` if any service still references the category.
+
+### Services
+
+- `GET /admin/services` — every service regardless of status, with `provider_name`.
+- `PUT /admin/services/{id}/status` — body `{ "status": "active" | "paused" | "draft" }`.
+
+### Payments
+
+- `GET /admin/payments` — every payment with `customer_email` joined in, plus `created_at`/`updated_at`.
+- `PUT /admin/payments/{id}/status` — body `{ "status": "pending" | "completed" | "failed" | "refunded" }`.
+
+### Reviews
+
+- `GET /admin/reviews` — paginated list.
+- `DELETE /admin/reviews/{id}` — removes a review (does not currently recalculate the provider's rating — see Reviews section above for how rating recalculation happens on create).
+
+### Seed data
+
+- `POST /admin/seed-test-data` — inserts fixed demo users/services/bookings/payments/reviews (idempotent, skips existing rows by unique key). Presentation/demo aid only; not required for normal app operation.
+
 ## Status Codes
 
 - `200` success
 - `201` created
+- `400` business-rule violation (e.g. booking not completed, already paid/reviewed, category still in use)
 - `401` missing, invalid, or expired token
 - `403` wrong role or inactive account
 - `404` provider profile or public provider not found

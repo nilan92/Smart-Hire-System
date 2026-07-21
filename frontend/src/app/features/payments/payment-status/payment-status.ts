@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -6,6 +6,8 @@ import { RouterLink } from '@angular/router';
 import { ToastService } from '../../../core/services/toast.service';
 import confetti from 'canvas-confetti';
 import { environment } from '../../../../environments/environment';
+import { API_ENDPOINTS } from '../../../core/utils/api-endpoints';
+import { Payment } from '../../../core/models/booking.models';
 
 @Component({
   selector: 'app-payment-status',
@@ -15,14 +17,20 @@ import { environment } from '../../../../environments/environment';
   styleUrls: ['./payment-status.scss']
 })
 export class PaymentStatusComponent implements OnInit {
-  // Hardcoded for demo, normally pulled from route params
-  bookingId: number = 301; // Matches seeded Test Data
-  customerId: number = 101; // Matches seeded Test Data
-  amount: number = 150.00; 
-  
+  // Demo defaults so the standalone /payments/status route still works on its own.
+  @Input() bookingId: number = 301;
+  @Input() customerId: number = 101;
+  @Input() amount: number = 150.00;
+  @Input() serviceName: string | null = null;
+  @Input() embedded = false;
+
+  @Output() paid = new EventEmitter<Payment>();
+  @Output() closed = new EventEmitter<void>();
+
   selectedMethod: string = 'card';
   paymentStatus: 'pending' | 'processing' | 'completed' | 'failed' = 'pending';
   transactionId: string = '';
+  errorMessage: string = '';
 
   constructor(
     private http: HttpClient,
@@ -39,8 +47,6 @@ export class PaymentStatusComponent implements OnInit {
 
     // Simulate network delay for academic demo
     setTimeout(() => {
-      this.transactionId = 'TXN-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-      
       const payload = {
         booking_id: this.bookingId,
         customer_id: this.customerId,
@@ -48,13 +54,14 @@ export class PaymentStatusComponent implements OnInit {
         payment_method: this.selectedMethod
       };
 
-      this.http.post(`${environment.apiUrl}/payments/`, payload).subscribe({
-        next: (res: any) => {
+      this.http.post<Payment>(`${environment.apiUrl}${API_ENDPOINTS.payments.create}`, payload).subscribe({
+        next: (payment) => {
+          this.transactionId = payment.transaction_id ?? `PMT-${payment.id}`;
           this.paymentStatus = 'completed';
           this.cdr.detectChanges();
-          
+
           this.toast.show('Payment Processed Successfully!', 'success');
-          
+
           // Fire Confetti!
           confetti({
             particleCount: 150,
@@ -62,10 +69,13 @@ export class PaymentStatusComponent implements OnInit {
             origin: { y: 0.6 },
             colors: ['#16a34a', '#dcfce7', '#60a5fa', '#3b82f6']
           });
+
+          this.paid.emit(payment);
         },
         error: (err) => {
           console.error(err);
           this.paymentStatus = 'failed';
+          this.errorMessage = err.error?.detail || 'Payment failed. Please try again.';
           this.cdr.detectChanges();
         }
       });

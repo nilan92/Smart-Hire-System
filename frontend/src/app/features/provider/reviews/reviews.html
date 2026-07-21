@@ -1,4 +1,22 @@
-<section class="placeholder-page">
-  <p>Reviews module</p>
-  <h1>Reviews</h1>
-</section>
+<div class="page-heading">
+  <div>
+    <span>Reviews</span>
+    <h1>Your Reviews</h1>
+    <p>See what customers are saying about your services.</p>
+  </div>
+</div>
+
+<div class="stats">
+  <article>
+    <span>Average rating</span>
+    <app-rating-display [rating]="avgRating()" [showCount]="false" />
+  </article>
+  <article>
+    <span>Total reviews</span>
+    <strong>{{ totalReviews() }}</strong>
+  </article>
+</div>
+
+@if (providerId(); as id) {
+  <app-provider-review-list [providerId]="id" />
+}

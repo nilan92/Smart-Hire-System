@@ -1,4 +1,37 @@
-<section class="placeholder-page">
-  <p>Services module</p>
-  <h1>Favourites</h1>
-</section>
+<header class="page-heading"><div><span class="eyebrow">Your shortlist</span><h1>Favourite services</h1><p>Keep the professionals you trust close at hand.</p></div><a routerLink="/customer/services">Browse more services</a></header>
+@if (store.favourites().length) {
+  <div class="summary"><span>♥</span><div><strong>{{ store.favourites().length }} saved {{ store.favourites().length === 1 ? 'service' : 'services' }}</strong><small>Your favourites are saved on this device.</small></div></div>
+  <section class="favourite-list">@for (service of store.favourites(); track service.id) {
+    <article><div class="service-icon">{{ store.categoryIcon(service.categoryId) }}</div><div class="details"><span>{{ store.categoryName(service.categoryId) }}</span><h2>{{ service.title }}</h2><p>{{ service.description }}</p><div class="meta"><strong>★ {{ service.rating }}</strong><span>{{ service.providerName }}</span><span>⌖ {{ service.city }}</span></div></div><div class="actions"><button class="remove" (click)="store.toggleFavourite(service.id)" aria-label="Remove favourite">♥</button><div><small>Starts from</small><strong>{{ service.price | currency:'LKR':'symbol':'1.0-0' }}</strong></div><button class="view" (click)="view(service)">View service →</button></div></article>
+  }</section>
+} @else { <section class="empty"><div>♡</div><h2>Your favourites list is waiting</h2><p>Save services while browsing and they will appear here.</p><a routerLink="/customer/services">Explore services</a></section> }
+
+@if (viewingService(); as service) {
+  <div class="overlay" (click)="closeView()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-visual">
+        <span class="category-pill">{{ store.categoryName(service.categoryId) }}</span>
+        <button class="close-btn" (click)="closeView()" aria-label="Close">×</button>
+        <span class="visual-icon">{{ store.categoryIcon(service.categoryId) }}</span>
+      </div>
+      <div class="modal-body">
+        <div class="rating">★ {{ service.rating }} <span>({{ service.reviewCount }} reviews)</span></div>
+        <h2>{{ service.title }}</h2>
+        <p class="description">{{ service.description }}</p>
+        <div class="provider">
+          <span>{{ service.providerName.charAt(0) }}</span>
+          <div><strong>{{ service.providerName }}</strong><small>✓ Verified provider · {{ service.city }}</small></div>
+        </div>
+        <div class="detail-grid">
+          <div><small>Price</small><strong>{{ service.price | currency:'LKR':'symbol':'1.0-0' }}</strong></div>
+          <div><small>Duration</small><strong>{{ service.duration }}</strong></div>
+          <div><small>Location</small><strong>{{ service.city }}</strong></div>
+        </div>
+        <div class="modal-actions">
+          <button class="outline" (click)="store.toggleFavourite(service.id)">♥ Remove from favourites</button>
+          <a routerLink="/customer/bookings">Book this service →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+}

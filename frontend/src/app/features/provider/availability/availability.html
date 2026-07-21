@@ -1,4 +1,62 @@
-<section class="placeholder-page">
-  <p>Bookings module</p>
-  <h1>Availability</h1>
-</section>
+<div class="page-heading">
+  <div>
+    <span>Bookings</span>
+    <h1>Availability</h1>
+    <p>Set the days and hours customers can book you.</p>
+  </div>
+</div>
+
+<div class="layout">
+  <form class="add-slot" (ngSubmit)="addSlot()">
+    <h2>Add a time slot</h2>
+    <label>
+      Day
+      <select [ngModel]="dayOfWeek()" (ngModelChange)="dayOfWeek.set($event)" name="dayOfWeek">
+        @for (day of days; track day; let i = $index) {
+          <option [value]="i">{{ day }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Start time
+      <input type="time" [ngModel]="startTime()" (ngModelChange)="startTime.set($event)" name="startTime" required />
+    </label>
+    <label>
+      End time
+      <input type="time" [ngModel]="endTime()" (ngModelChange)="endTime.set($event)" name="endTime" required />
+    </label>
+    @if (formError()) {
+      <app-error-message [message]="formError()" />
+    }
+    <button type="submit">+ Add slot</button>
+  </form>
+
+  <div class="schedule">
+    @if (store.loading()) {
+      <app-loading-spinner label="Loading your availability..." />
+    } @else if (store.error()) {
+      <app-error-message [message]="store.error()" />
+    } @else if (store.slots().length) {
+      @for (day of days; track day; let i = $index) {
+        <div class="day-row">
+          <div class="day-name">{{ day }}</div>
+          <div class="slots">
+            @for (slot of slotsByDay().get(i); track slot.id) {
+              <span class="slot-chip">
+                {{ formatTime(slot.start_time) }} – {{ formatTime(slot.end_time) }}
+                <button (click)="removeSlot(slot.id)" aria-label="Remove slot">×</button>
+              </span>
+            } @empty {
+              <span class="no-slot">Not available</span>
+            }
+          </div>
+        </div>
+      }
+    } @else {
+      <app-empty-state
+        title="No availability set"
+        message="Add time slots so customers know when they can book you."
+      />
+    }
+  </div>
+</div>

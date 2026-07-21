@@ -1,0 +1,42 @@
+<header class="landing-header">
+  <nav class="landing-nav" aria-label="Main navigation">
+    <a class="brand" routerLink="/" aria-label="Smart Hire home" (click)="closeMenu()">
+      <span class="brand-icon">SH</span><span class="brand-copy"><strong>SMART HIRE</strong><small>Service Marketplace</small></span>
+    </a>
+    <button class="menu-toggle" type="button" aria-label="Toggle navigation" [attr.aria-expanded]="menuOpen()" (click)="toggleMenu()"><span></span><span></span><span></span></button>
+    <div class="nav-links" [class.open]="menuOpen()">
+      <a href="#services" (click)="closeMenu()">Services</a><a href="#how-it-works" (click)="closeMenu()">How it works</a><a href="#benefits" (click)="closeMenu()">Why Smart Hire</a>
+      <span class="nav-divider" aria-hidden="true"></span><a class="login-link" routerLink="/login" (click)="closeMenu()">Log in</a><a class="register-link" routerLink="/register" (click)="closeMenu()">Get started</a>
+    </div>
+  </nav>
+</header>
+<main>
+  <section class="hero">
+    <div class="hero-content">
+      <span class="eyebrow">Trusted local services, one click away</span>
+      <h1>The right help.<br /><em>Right when you need it.</em></h1>
+      <p class="hero-copy">Find reliable professionals for every task, compare their services, and manage your bookings in one simple place.</p>
+      <div class="hero-actions"><a class="primary-button" routerLink="/register">Find a professional <span>→</span></a><a class="secondary-button" routerLink="/register">Become a provider</a></div>
+      <div class="trust-row"><span><b>✓</b> Verified providers</span><span><b>✓</b> Simple booking</span><span><b>✓</b> Secure platform</span></div>
+    </div>
+    <div class="hero-visual" aria-label="Popular Smart Hire services">
+      <div class="glow glow-one"></div><div class="glow glow-two"></div>
+      <div class="service-preview">
+        <div class="preview-top"><span>Popular near you</span><span class="status">Available today</span></div>
+        <article class="featured-service"><div class="service-icon">⌂</div><div><small>HOME SERVICES</small><h2>Expert help for your home</h2><p>Skilled, trusted, and ready when you are.</p></div></article>
+        <div class="mini-services"><div><span>⚡</span><strong>Electrical</strong><small>24 providers</small></div><div><span>✦</span><strong>Cleaning</strong><small>31 providers</small></div><div><span>⌁</span><strong>Plumbing</strong><small>18 providers</small></div></div>
+        <div class="provider-card"><span class="avatar">AP</span><span><strong>Top-rated professionals</strong><small><b>★ 4.9</b> average customer rating</small></span><span class="arrow">→</span></div>
+      </div>
+    </div>
+  </section>
+  <section class="services-section" id="services">
+    <div class="section-heading"><div><span class="eyebrow">Explore services</span><h2>Help for every part of life</h2></div><p>From everyday fixes to specialist projects, discover professionals who can get the job done.</p></div>
+    <div class="service-grid"><article><span class="card-icon">⌂</span><h3>Home maintenance</h3><p>Repairs, installations, and skilled help around your home.</p></article><article><span class="card-icon">✦</span><h3>Cleaning services</h3><p>Trusted cleaners for homes, offices, and special occasions.</p></article><article><span class="card-icon">⚒</span><h3>Professional skills</h3><p>Experienced specialists ready to support your next project.</p></article><article><span class="card-icon">◎</span><h3>Personal services</h3><p>Convenient care and assistance tailored to your needs.</p></article></div>
+  </section>
+  <section class="steps-section" id="how-it-works">
+    <div class="section-heading centered"><span class="eyebrow">How it works</span><h2>From search to solved in three steps</h2></div>
+    <div class="steps"><article><span>01</span><h3>Tell us what you need</h3><p>Browse services and find the right professional for your task.</p></article><article><span>02</span><h3>Choose with confidence</h3><p>Compare profiles, experience, availability, and customer reviews.</p></article><article><span>03</span><h3>Book and manage</h3><p>Send your request and keep every detail organized in your dashboard.</p></article></div>
+  </section>
+  <section class="cta-section" id="benefits"><div><span class="eyebrow light">Ready when you are</span><h2>Make your next task the easy one.</h2><p>Join Smart Hire today and connect with the people who can help.</p></div><a class="cta-button" routerLink="/register">Create your free account <span>→</span></a></section>
+</main>
+<footer><a class="brand footer-brand" routerLink="/"><span class="brand-icon">SH</span><strong>SMART HIRE</strong></a><p>Reliable services. Trusted people. Smarter hiring.</p><span>© 2026 Smart Hire</span></footer>

@@ -5,7 +5,7 @@ import { roleGuard } from './core/guards/role.guard';
 import { APP_ROUTES } from './core/utils/app-routes';
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'login' },
+  { path: '', loadComponent: () => import('./features/home/home').then((m) => m.Home) },
   {
     path: 'login',
     loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),

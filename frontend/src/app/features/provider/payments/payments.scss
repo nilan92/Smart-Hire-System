@@ -1,1 +1,8 @@
 @import '../services/services.scss';
+
+.status.pending { background: #fdf1da; color: #92610a; }
+.status.pending i { background: #d68a13; }
+.status.completed { background: #e4f5ef; color: #157259; }
+.status.completed i { background: #29a67e; }
+.status.failed, .status.refunded { background: #fbe6e9; color: #a8283c; }
+.status.failed i, .status.refunded i { background: #d9455c; }

@@ -88,7 +88,7 @@
               <th>Status</th>
               <th>Method</th>
               <th>Transaction ID</th>
-              <th>Date</th>
+              <th>Date &amp; Time</th>
               <th>Change Status</th>
             </tr>
           </thead>
@@ -106,7 +106,7 @@
                 </td>
                 <td class="method-cell">{{ payment.payment_method }}</td>
                 <td class="txn-cell">{{ payment.transaction_id }}</td>
-                <td class="date-cell">{{ formatDate(payment.created_at) }}</td>
+                <td class="date-cell">{{ payment.created_at | date: 'MMM d, y, h:mm a' }}</td>
                 <td>
                   <div class="select-wrapper" [class.updating]="payment.updatingStatus">
                     <select
