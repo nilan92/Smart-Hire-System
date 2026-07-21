@@ -188,6 +188,10 @@ Omit `conversation_id` to create a new conversation. The response contains the p
 
 A floating chat widget (bottom-right, all customer/provider pages) and the full `/customer/ai-assistant` page both call this same endpoint.
 
+**Request also accepts** `use_mcp: bool = false` — when `true`, the three customer tool calls above are executed through the standalone MCP server (see "MCP Server" below) over the real MCP protocol instead of calling `app/ai/tools.py` directly in-process. The full-page assistant sends `true`; the floating widget leaves it `false` (in-process is faster — a genuine MCP round trip spawns a subprocess per tool call).
+
+**Response also includes** `recommended_services: RecommendedService[] | null` — for customer replies, any active service whose title is mentioned in the assistant's reply text is included here (same shape as `/ai/recommend`'s service list), so the floating widget can render a clickable service card under the reply instead of the customer having to go find it themselves.
+
 ### GET `/ai/conversations`
 
 Returns the signed-in user's conversation list only, ordered by most recently updated conversation.
@@ -289,6 +293,28 @@ Requires bearer token and `admin` role. Updates `status` (`pending`/`completed`/
 ```json
 { "status": "refunded" }
 ```
+
+## Messages
+
+Simple per-booking messaging between the customer and provider on a real booking — not open-ended messaging with arbitrary users. Every endpoint requires a bearer token; access is restricted to the booking's own `customer_id`/`provider_id` (`403` otherwise).
+
+### GET `/messages/threads`
+
+Returns one conversation entry per booking the signed-in user is a participant of (customer sees their bookings, provider sees theirs), each with the other party's name, the service name, the booking's current status, the last message preview (`null` if none yet), and an `unread_count`. Sorted by most recent activity (last message time, or booking creation time if no messages yet).
+
+### GET `/messages/bookings/{booking_id}`
+
+Returns the full message history for that booking, oldest first. As a side effect, marks every message not sent by the caller as read (so opening a thread clears its unread badge).
+
+### POST `/messages/bookings/{booking_id}`
+
+```json
+{ "body": "Can you come at 9am instead of 9:30?" }
+```
+
+Creates a message from the signed-in user and notifies the other party (a real row in `notifications`, same mechanism as booking status changes). `body` is 1–2000 characters.
+
+Common errors: `403` caller isn't the booking's customer or provider; `404` booking not found.
 
 ## Admin
 
