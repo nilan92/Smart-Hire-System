@@ -16,7 +16,7 @@
 } @else if (store.notifications().length) {
   <ul class="notification-list">
     @for (item of store.notifications(); track item.id) {
-      <li [class.unread]="!item.is_read" (click)="markRead(item.id)">
+      <li [class.unread]="!item.is_read" (click)="open(item)">
         <span class="dot"></span>
         <div class="body">
           <div class="row">

@@ -3,6 +3,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MarketplaceService, ServiceStatus } from '../../../core/models/service.models';
 import { MarketplaceServiceStore } from '../../../core/services/marketplace.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-provider-services',
@@ -12,10 +13,19 @@ import { MarketplaceServiceStore } from '../../../core/services/marketplace.serv
 })
 export class ProviderServices implements OnInit {
   private readonly fb = inject(FormBuilder);
+  private readonly auth = inject(AuthService);
   readonly store = inject(MarketplaceServiceStore);
   readonly showForm = signal(false);
   readonly editingId = signal<number | null>(null);
-  ngOnInit(): void { this.store.loadProviderData(); }
+  readonly avgRating = signal(0);
+
+  ngOnInit(): void {
+    this.store.loadProviderData();
+    this.auth.loadProviderProfile().subscribe({
+      next: (profile) => this.avgRating.set(Number(profile.avg_rating) || 0),
+      error: () => {},
+    });
+  }
   readonly providerServices = computed(() => this.store.services());
   readonly activeCount = computed(() => this.providerServices().filter((service) => service.status === 'active').length);
   readonly form = this.fb.nonNullable.group({ title: ['', [Validators.required, Validators.minLength(4)]], categoryId: [1, Validators.required], description: ['', [Validators.required, Validators.minLength(10)]], price: [2500, [Validators.required, Validators.min(0)]], city: ['Colombo', Validators.required], duration: ['1–2 hours', Validators.required], status: ['active' as ServiceStatus, Validators.required] });
