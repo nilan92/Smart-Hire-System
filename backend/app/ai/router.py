@@ -55,7 +55,7 @@ def chat(request: ChatRequest, user: User = Depends(require_active_user), db: Se
         categories = list(db.scalars(select(ServiceCategory.name).order_by(ServiceCategory.name)).all())
         active_services = db.scalars(
             select(Service)
-            .options(joinedload(Service.provider))
+            .options(joinedload(Service.provider).joinedload(User.provider_profile))
             .where(Service.status == ServiceStatus.ACTIVE)
             .order_by(Service.created_at.desc())
             .limit(40)
@@ -88,11 +88,28 @@ def chat(request: ChatRequest, user: User = Depends(require_active_user), db: Se
         my_bookings=my_bookings,
         db=db,
         current_user=user,
+        use_mcp=request.use_mcp,
     )
     db.add(AIMessage(conversation_id=conversation.id, role="assistant", message=reply))
     conversation.updated_at = datetime.now(timezone.utc)
     db.commit()
-    return ChatResponse(conversation_id=conversation.id, reply=reply)
+
+    recommended_services = None
+    if user.role != UserRole.PROVIDER:
+        matched = [s for s in active_services if s.title.lower() in reply.lower()][:3]
+        if matched:
+            recommended_services = [
+                RecommendedService(
+                    id=s.id,
+                    title=s.title,
+                    provider_name=s.provider.full_name,
+                    city=s.city,
+                    price=float(s.price),
+                    rating=float(s.provider.provider_profile.avg_rating) if s.provider.provider_profile else 0,
+                )
+                for s in matched
+            ]
+    return ChatResponse(conversation_id=conversation.id, reply=reply, recommended_services=recommended_services)
 
 @router.get("/conversations", response_model=list[ConversationResponse])
 def conversations(user: User = Depends(require_active_user), db: Session = Depends(get_db)):

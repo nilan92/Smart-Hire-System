@@ -1,168 +1,166 @@
-<div class="dashboard-container">
-  <header class="dashboard-header">
-    <h1>Admin Dashboard</h1>
-    <p>Overview of platform activity and statistics</p>
-  </header>
+<app-page-header
+  title="Admin Dashboard"
+  subtitle="Monitor platform health, users, bookings, and revenue at a glance."
+></app-page-header>
 
-  <div *ngIf="loading" class="loading-state">
-    <div class="spinner"></div>
-    <p>Loading statistics...</p>
+<app-loading-spinner *ngIf="loading" label="Loading statistics..."></app-loading-spinner>
+<app-error-message *ngIf="error" [message]="error"></app-error-message>
+
+<div class="dashboard-container" *ngIf="!loading && !error">
+  <!-- Welcome Banner -->
+  <section class="welcome-banner">
+    <div class="banner-content">
+      <div class="user-greeting">
+        <h2>Welcome back, {{ user?.full_name || 'Admin' }}! 👋</h2>
+        <p>Here's what's happening across Smart Hire today.</p>
+      </div>
+      <div class="verification-chip status-verified">
+        <span class="status-dot"></span>
+        <span class="status-text">ADMINISTRATOR</span>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <a routerLink="/admin/users" class="btn btn-primary">
+        <span>👥</span> Manage Users
+      </a>
+      <a routerLink="/admin/payments" class="btn btn-secondary">
+        <span>💳</span> Manage Payments
+      </a>
+      <a routerLink="/admin/reviews" class="btn btn-outline">
+        <span>💬</span> Moderate Reviews
+      </a>
+    </div>
+  </section>
+
+  <!-- Metrics Grid -->
+  <section class="stats-grid">
+    <div class="stat-card clickable" routerLink="/admin/users">
+      <div class="stat-icon icon-users">👥</div>
+      <div class="stat-info">
+        <span class="stat-label">Total Users</span>
+        <strong class="stat-value">{{ stats.total_users }}</strong>
+        <span class="stat-subtext">Customers &amp; providers</span>
+      </div>
+    </div>
+
+    <div class="stat-card clickable" routerLink="/admin/bookings">
+      <div class="stat-icon icon-bookings">📅</div>
+      <div class="stat-info">
+        <span class="stat-label">Total Bookings</span>
+        <strong class="stat-value">{{ stats.total_bookings }}</strong>
+        <span class="stat-subtext">All-time hires</span>
+      </div>
+    </div>
+
+    <div class="stat-card clickable" routerLink="/admin/services">
+      <div class="stat-icon icon-services">🛠️</div>
+      <div class="stat-info">
+        <span class="stat-label">Total Services</span>
+        <strong class="stat-value">{{ stats.total_services }}</strong>
+        <span class="stat-subtext">Active listings</span>
+      </div>
+    </div>
+
+    <div class="stat-card clickable" routerLink="/admin/payments">
+      <div class="stat-icon icon-payments">💳</div>
+      <div class="stat-info">
+        <span class="stat-label">Total Payments</span>
+        <strong class="stat-value">{{ stats.total_payments }}</strong>
+        <span class="stat-subtext">Processed transactions</span>
+      </div>
+    </div>
+
+    <div class="stat-card highlight-green clickable" routerLink="/admin/payments">
+      <div class="stat-icon icon-revenue">💰</div>
+      <div class="stat-info">
+        <span class="stat-label">Total Revenue</span>
+        <strong class="stat-value revenue">LKR {{ stats.total_revenue | number:'1.0-0' }}</strong>
+        <span class="stat-subtext">Platform earnings</span>
+      </div>
+    </div>
+
+    <div class="stat-card clickable" routerLink="/admin/reviews">
+      <div class="stat-icon icon-reviews">💬</div>
+      <div class="stat-info">
+        <span class="stat-label">Total Reviews</span>
+        <strong class="stat-value">{{ stats.total_reviews }}</strong>
+        <span class="stat-subtext">Customer feedback</span>
+      </div>
+    </div>
+
+    <div class="stat-card clickable" routerLink="/admin/reviews">
+      <div class="stat-icon icon-rating">⭐</div>
+      <div class="stat-info">
+        <span class="stat-label">Avg Review Rating</span>
+        <strong class="stat-value">{{ stats.avg_review_rating | number:'1.1-1' }} <span class="stat-sub">/ 5</span></strong>
+        <span class="stat-subtext">Across all providers</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chart -->
+  <div class="card-section">
+    <div class="section-header">
+      <h3>Revenue &amp; Bookings Overview</h3>
+    </div>
+    <div class="canvas-wrapper">
+      <canvas baseChart
+        [data]="lineChartData"
+        [options]="lineChartOptions"
+        [type]="'line'">
+      </canvas>
+    </div>
   </div>
 
-  <div *ngIf="error" class="error-state">
-    <p>{{ error }}</p>
-  </div>
+  <!-- Quick links -->
+  <div class="card-section shortcuts-card">
+    <h3>Management Tools</h3>
+    <div class="shortcut-links">
+      <a routerLink="/admin/users" class="shortcut-item">
+        <span class="shortcut-icon">👥</span>
+        <div class="shortcut-text">
+          <strong>Manage Users</strong>
+          <small>View, suspend, or verify accounts</small>
+        </div>
+        <span class="arrow">→</span>
+      </a>
 
-  <div *ngIf="!loading && !error">
+      <a routerLink="/admin/payments" class="shortcut-item">
+        <span class="shortcut-icon">💳</span>
+        <div class="shortcut-text">
+          <strong>Manage Payments</strong>
+          <small>Track transactions &amp; payouts</small>
+        </div>
+        <span class="arrow">→</span>
+      </a>
 
-    <!-- Row 1: Core counts -->
-    <div class="stats-grid">
-      <div class="stat-card clickable" routerLink="/admin/users">
-        <div class="icon-wrapper bg-blue">
-          <svg class="icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
-          </svg>
+      <a routerLink="/admin/reviews" class="shortcut-item">
+        <span class="shortcut-icon">💬</span>
+        <div class="shortcut-text">
+          <strong>Moderate Reviews</strong>
+          <small>Handle flagged or disputed reviews</small>
         </div>
-        <div class="stat-content">
-          <h3>Total Users</h3>
-          <p class="stat-number">{{ stats.total_users }}</p>
-        </div>
-      </div>
+        <span class="arrow">→</span>
+      </a>
 
-      <div class="stat-card clickable" routerLink="/admin/bookings">
-        <div class="icon-wrapper bg-orange">
-          <svg class="icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-            <line x1="16" y1="2" x2="16" y2="6"/>
-            <line x1="8" y1="2" x2="8" y2="6"/>
-            <line x1="3" y1="10" x2="21" y2="10"/>
-          </svg>
+      <a routerLink="/admin/services" class="shortcut-item">
+        <span class="shortcut-icon">🛠️</span>
+        <div class="shortcut-text">
+          <strong>Moderate Services</strong>
+          <small>Approve or remove listings</small>
         </div>
-        <div class="stat-content">
-          <h3>Total Bookings</h3>
-          <p class="stat-number">{{ stats.total_bookings }}</p>
-        </div>
-      </div>
+        <span class="arrow">→</span>
+      </a>
 
-      <div class="stat-card clickable" routerLink="/admin/services">
-        <div class="icon-wrapper bg-teal">
-          <svg class="icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-          </svg>
+      <a routerLink="/admin/test-system" class="shortcut-item">
+        <span class="shortcut-icon">🧪</span>
+        <div class="shortcut-text">
+          <strong>Test System</strong>
+          <small>Run platform diagnostics</small>
         </div>
-        <div class="stat-content">
-          <h3>Total Services</h3>
-          <p class="stat-number">{{ stats.total_services }}</p>
-        </div>
-      </div>
+        <span class="arrow">→</span>
+      </a>
     </div>
-
-    <!-- Row 2: Your scope — payments & reviews -->
-    <div class="stats-grid">
-      <div class="stat-card clickable" routerLink="/admin/payments">
-        <div class="icon-wrapper bg-green">
-          <svg class="icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-            <line x1="1" y1="10" x2="23" y2="10"/>
-          </svg>
-        </div>
-        <div class="stat-content">
-          <h3>Total Payments</h3>
-          <p class="stat-number">{{ stats.total_payments }}</p>
-        </div>
-      </div>
-
-      <div class="stat-card highlight-green" routerLink="/admin/payments" style="cursor:pointer">
-        <div class="icon-wrapper bg-green">
-          <svg class="icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <line x1="12" y1="1" x2="12" y2="23"/>
-            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-          </svg>
-        </div>
-        <div class="stat-content">
-          <h3>Total Revenue</h3>
-          <p class="stat-number revenue">LKR {{ stats.total_revenue | number:'1.0-0' }}</p>
-        </div>
-      </div>
-
-      <div class="stat-card clickable" routerLink="/admin/reviews">
-        <div class="icon-wrapper bg-purple">
-          <svg class="icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-          </svg>
-        </div>
-        <div class="stat-content">
-          <h3>Total Reviews</h3>
-          <p class="stat-number">{{ stats.total_reviews }}</p>
-        </div>
-      </div>
-
-      <div class="stat-card clickable" routerLink="/admin/reviews">
-        <div class="icon-wrapper bg-yellow">
-          <svg class="icon-svg" fill="currentColor" viewBox="0 0 24 24">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-          </svg>
-        </div>
-        <div class="stat-content">
-          <h3>Avg Review Rating</h3>
-          <p class="stat-number">{{ stats.avg_review_rating | number:'1.1-1' }} <span class="stat-sub">/ 5</span></p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Chart -->
-    <div class="chart-section">
-      <div class="chart-container">
-        <h3>Revenue &amp; Bookings Overview</h3>
-        <div class="canvas-wrapper">
-          <canvas baseChart
-            [data]="lineChartData"
-            [options]="lineChartOptions"
-            [type]="'line'">
-          </canvas>
-        </div>
-      </div>
-    </div>
-
-    <!-- Quick links -->
-    <section class="admin-actions">
-      <h2>Management Tools</h2>
-      <div class="action-buttons">
-        <button class="btn-action" routerLink="/admin/users">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/>
-          </svg>
-          Manage Users
-        </button>
-        <button class="btn-action" routerLink="/admin/payments">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-            <line x1="1" y1="10" x2="23" y2="10"/>
-          </svg>
-          Manage Payments
-        </button>
-        <button class="btn-action" routerLink="/admin/reviews">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-          </svg>
-          Moderate Reviews
-        </button>
-        <button class="btn-action" routerLink="/admin/services">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-          </svg>
-          Moderate Services
-        </button>
-        <button class="btn-action" routerLink="/admin/test-system">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
-          </svg>
-          Test System
-        </button>
-      </div>
-    </section>
   </div>
 </div>

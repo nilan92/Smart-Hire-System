@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from openai import OpenAI
 from sqlalchemy.orm import Session
 
+from app.ai.mcp_client import execute_tool_via_mcp
 from app.ai.prompt import PROVIDER_SYSTEM_PROMPT, REVIEW_SUMMARY_PROMPT, SYSTEM_PROMPT
 from app.ai.tools import TOOL_DEFINITIONS, execute_tool
 from app.core.config import settings
@@ -30,6 +31,7 @@ class AIService:
         my_bookings: list[str] | None = None,
         db: Session | None = None,
         current_user: User | None = None,
+        use_mcp: bool = False,
     ) -> str:
         if not self.client:
             return "I can help you find a service. Tell me what needs fixing and where you need it."
@@ -76,7 +78,10 @@ class AIService:
                         arguments = json.loads(call.function.arguments or "{}")
                     except json.JSONDecodeError:
                         arguments = {}
-                    result = execute_tool(call.function.name, arguments, db, current_user)  # type: ignore[arg-type]
+                    if use_mcp and current_user is not None:
+                        result = execute_tool_via_mcp(call.function.name, arguments, current_user.email)
+                    else:
+                        result = execute_tool(call.function.name, arguments, db, current_user)  # type: ignore[arg-type]
                     messages.append(
                         {"role": "tool", "tool_call_id": call.id, "content": json.dumps(result)}
                     )

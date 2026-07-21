@@ -11,7 +11,7 @@ export interface Recommendation { category_id: number; category_name: string; re
 export class AiService {
   private readonly http = inject(HttpClient);
   private readonly api = environment.apiUrl;
-  chat(message: string, conversation_id?: number) { return this.http.post<{ conversation_id: number; reply: string }>(`${this.api}${API_ENDPOINTS.ai.chat}`, { message, conversation_id }); }
+  chat(message: string, conversation_id?: number, use_mcp?: boolean) { return this.http.post<{ conversation_id: number; reply: string; recommended_services?: Recommendation['services'] }>(`${this.api}${API_ENDPOINTS.ai.chat}`, { message, conversation_id, use_mcp }); }
   recommend(description: string) { return this.http.post<Recommendation>(`${this.api}${API_ENDPOINTS.ai.recommend}`, { description }); }
   conversations() { return this.http.get<AiConversation[]>(`${this.api}${API_ENDPOINTS.ai.conversations}`); }
   analysis() { return this.http.get<{ conversation_count: number; message_count: number; latest_conversation_at: string | null }>(`${this.api}${API_ENDPOINTS.ai.conversations}/analysis`); }

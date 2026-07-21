@@ -1,19 +1,26 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions } from 'chart.js';
 import { environment } from '../../../../environments/environment';
+import { AuthService } from '../../../core/services/auth.service';
+import { PageHeader } from '../../../shared/components/page-header/page-header';
+import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
+import { ErrorMessage } from '../../../shared/components/error-message/error-message';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, BaseChartDirective],
+  imports: [CommonModule, RouterModule, BaseChartDirective, PageHeader, LoadingSpinner, ErrorMessage],
   templateUrl: './admin-dashboard.html',
   styleUrls: ['./admin-dashboard.scss']
 })
 export class AdminDashboardComponent implements OnInit {
+  private readonly authService = inject(AuthService);
+  user = this.authService.currentUser();
+
   stats: any = {
     total_payments: 0,
     total_reviews: 0,
@@ -23,7 +30,6 @@ export class AdminDashboardComponent implements OnInit {
   };
 
   loading = true;
-  isLoading = true;
 
   // Chart Data — populated from GET /admin/revenue-timeseries once it loads.
   public lineChartData: ChartConfiguration<'line'>['data'] = {
@@ -34,15 +40,15 @@ export class AdminDashboardComponent implements OnInit {
         label: 'Platform Revenue (LKR)',
         fill: true,
         tension: 0.4,
-        borderColor: '#3b82f6',
-        backgroundColor: 'rgba(59, 130, 246, 0.2)'
+        borderColor: '#0f766e',
+        backgroundColor: 'rgba(15, 118, 110, 0.15)'
       },
       {
         data: [],
         label: 'Total Bookings',
         fill: false,
         tension: 0.4,
-        borderColor: '#10b981',
+        borderColor: '#f59e0b',
       }
     ]
   };
@@ -57,9 +63,7 @@ export class AdminDashboardComponent implements OnInit {
 
   error = '';
 
-  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {
-    console.log('AdminDashboard initialized');
-  }
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.fetchStats();

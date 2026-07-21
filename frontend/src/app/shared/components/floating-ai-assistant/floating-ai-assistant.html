@@ -13,6 +13,20 @@
       <div class="messages">
         @for (m of messages(); track $index) {
           <div class="bubble" [class.user]="m.role === 'user'">{{ m.message }}</div>
+          @if (m.services?.length) {
+            <div class="rec-cards">
+              @for (s of m.services; track s.id) {
+                <div class="rec-card">
+                  <div class="rec-info">
+                    <strong>{{ s.title }}</strong>
+                    <small>{{ s.provider_name }} · {{ s.city }}</small>
+                    <small>LKR {{ s.price | number:'1.0-0' }} · ★ {{ s.rating }}</small>
+                  </div>
+                  <button type="button" (click)="viewAndBook()">View &amp; book</button>
+                </div>
+              }
+            </div>
+          }
         }
         @if (loading()) {
           <div class="bubble assistant typing">

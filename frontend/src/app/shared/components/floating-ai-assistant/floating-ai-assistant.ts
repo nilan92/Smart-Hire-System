@@ -2,12 +2,14 @@ import { CommonModule } from '@angular/common';
 import { AfterViewChecked, Component, ElementRef, ViewChild, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { AiService } from '../../../core/services/ai.service';
+import { Router } from '@angular/router';
+import { AiService, Recommendation } from '../../../core/services/ai.service';
 import { AuthService } from '../../../core/services/auth.service';
 
 interface ChatBubble {
   role: 'user' | 'assistant';
   message: string;
+  services?: Recommendation['services'];
 }
 
 const GREETINGS: Record<string, string> = {
@@ -25,6 +27,7 @@ const GREETINGS: Record<string, string> = {
 export class FloatingAiAssistant implements AfterViewChecked {
   private readonly ai = inject(AiService);
   private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
   @ViewChild('scrollAnchor') private scrollAnchor?: ElementRef<HTMLDivElement>;
 
   readonly open = signal(false);
@@ -63,7 +66,7 @@ export class FloatingAiAssistant implements AfterViewChecked {
     this.ai.chat(text, this.conversationId).subscribe({
       next: (res) => {
         this.conversationId = res.conversation_id;
-        this.messages.update((m) => [...m, { role: 'assistant', message: res.reply }]);
+        this.messages.update((m) => [...m, { role: 'assistant', message: res.reply, services: res.recommended_services }]);
         this.loading.set(false);
         this.shouldScroll = true;
       },
@@ -73,5 +76,10 @@ export class FloatingAiAssistant implements AfterViewChecked {
         this.shouldScroll = true;
       },
     });
+  }
+
+  viewAndBook(): void {
+    this.open.set(false);
+    this.router.navigateByUrl('/customer/services');
   }
 }

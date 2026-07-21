@@ -4,13 +4,7 @@ from pydantic import BaseModel, Field
 class ChatRequest(BaseModel):
     message: str = Field(min_length=2, max_length=2000)
     conversation_id: int | None = None
-
-class ChatResponse(BaseModel):
-    conversation_id: int
-    reply: str
-
-class RecommendationRequest(BaseModel):
-    description: str = Field(min_length=3, max_length=1000)
+    use_mcp: bool = False
 
 class RecommendedService(BaseModel):
     id: int
@@ -19,6 +13,14 @@ class RecommendedService(BaseModel):
     city: str
     price: float
     rating: float
+
+class ChatResponse(BaseModel):
+    conversation_id: int
+    reply: str
+    recommended_services: list[RecommendedService] | None = None
+
+class RecommendationRequest(BaseModel):
+    description: str = Field(min_length=3, max_length=1000)
 
 class RecommendationResponse(BaseModel):
     category_id: int
