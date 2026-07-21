@@ -95,3 +95,9 @@ dist/
 .env.local
 .env.*
 !.env.example
+
+#################################################
+# Local Claude Code context (never push)
+#################################################
+
+CLAUDE.md
