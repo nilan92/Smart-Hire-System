@@ -66,11 +66,12 @@
 - Integrate real Stripe/PayPal checkout SDKs for production.
 
 ## Update (July 21, 2026)
-- **Sidebar Active Route Highlighting Fix**: Updated `Sidebar` component (`sidebar.html` and `sidebar.scss`) with `[routerLinkActiveOptions]="{ paths: 'exact', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }"`. Configured active styling (`.nav-link.active`) with a left emerald accent border (`#0f766e`) and mint background fill (`#f0fdf4`) so that active pages are clearly highlighted even when navigating with query parameters.
-- **Service Selection to Booking Flow**: Connected the "Book this service" actions from `Browse Services`, `Customer Dashboard`, and `Favourites` (`favourites.html`) to pass `queryParams: { service_id: service.id }` to `/customer/bookings`. `CustomerBookings` detects the selected service ID, auto-populates the service dropdown, pre-fills default date/time, and opens the booking creation form automatically.
-- **Authenticated User Auto-Redirect**: Updated `Login` and `Register` components (`login.ts` and `register.ts`) with `ngOnInit` checks to auto-redirect logged-in users to their respective role main page (`/customer/dashboard`, `/provider/dashboard`, or `/admin/dashboard`).
-- **Customer Dashboard Component (`/customer/dashboard`)**: Built a full-featured, responsive customer workspace in `frontend/src/app/features/customer/dashboard/`.
-- **Provider Dashboard Component (`/provider/dashboard`)**: Built a full-featured, responsive provider workspace in `frontend/src/app/features/provider/dashboard/`.
+- **Sidebar Navigation Streamlining**: Removed duplicate `Profile` and `Notifications` links from Customer (`customer-layout.ts`) and Provider (`provider-layout.ts`) sidebar navigation arrays. Both features are now centralized exclusively in the top-right Navbar interactive dropdowns, resulting in a cleaner sidebar dedicated to core workspace tools.
+- **Provider Notifications Route Fix**: Updated `Navbar` component (`navbar.ts` and `navbar.html`) to use `getNotificationsLink()`. Clicking "View all notifications →" in the notifications dropdown routes Providers to `/provider/notifications` (and Customers to `/customer/notifications`).
+- **Navbar Notifications & Profile Dropdowns**: Upgraded `Navbar` component (`navbar.ts`, `navbar.html`, `navbar.scss`) to include top-right interactive dropdown menus (hidden for `admin` role).
+- **Sidebar Active Route Highlighting Fix**: Updated `Sidebar` component with `queryParams: 'ignored'` options and left emerald accent border (`#0f766e`).
+- **Service Selection to Booking Flow**: Connected the "Book this service" actions from `Browse Services`, `Customer Dashboard`, and `Favourites` (`favourites.html`) to pass `queryParams: { service_id: service.id }` to `/customer/bookings`.
+- **Authenticated User Auto-Redirect**: Updated `Login` and `Register` components (`login.ts` and `register.ts`) with `ngOnInit` checks to auto-redirect logged-in users.
 - **Provider Dashboard Color Palette Synchronization**: Updated `dashboard.scss` to strictly align with the project's established teal, emerald, and slate design system (`#075e54`, `#0f766e`, `#128c7e`, `#ccfbf1`, `#f0fdf4`, `#0f172a`, `#64748b`).
 - **Provider Dashboard Loading Fix**: Resolved infinite loading spinner by replacing blocking `forkJoin` with independent RxJS subscriptions (`take(1)` piped observables) using `environment.apiUrl` (`http://127.0.0.1:8000/api`) instead of hardcoded `localhost`.
 

@@ -1,12 +1,144 @@
 <header class="navbar">
-  <button type="button" class="menu-button" aria-label="Open navigation" (click)="menuToggle.emit()">Menu</button>
-  <a class="brand" routerLink="/">
-    <span class="brand-mark">SH</span>
-    <span>Smart Hire</span>
-  </a>
-  <div class="account">
-    <span class="name">{{ user?.full_name || user?.email || 'Account' }}</span>
-    <span class="role">{{ user?.role || 'user' }}</span>
-    <button type="button" (click)="logout.emit()">Logout</button>
+  <!-- Left Brand & Mobile Menu Trigger -->
+  <div class="nav-brand-group">
+    <button type="button" class="menu-button" aria-label="Open navigation" (click)="menuToggle.emit()">
+      <span class="menu-icon">☰</span> Menu
+    </button>
+    <a class="brand" routerLink="/">
+      <span class="brand-mark">SH</span>
+      <span class="brand-text">Smart Hire</span>
+    </a>
+  </div>
+
+  <!-- Right Actions (Notifications & User Profile Dropdowns) -->
+  <div class="nav-actions">
+    <!-- 1. Notifications Bell Dropdown (Hidden for Admin) -->
+    <div class="dropdown-wrap" *ngIf="user?.role !== 'admin'">
+      <button 
+        type="button" 
+        class="icon-btn bell-btn" 
+        [class.active]="notificationsOpen()"
+        aria-label="View notifications" 
+        (click)="toggleNotifications($event)"
+      >
+        <span class="bell-icon">🔔</span>
+        <span class="badge-dot" *ngIf="unreadCount() > 0">{{ unreadCount() }}</span>
+      </button>
+
+      <!-- Notifications Panel -->
+      <div class="dropdown-panel notifications-panel" *ngIf="notificationsOpen()">
+        <div class="panel-header">
+          <div class="title-wrap">
+            <h4>Notifications</h4>
+            <span class="count-pill" *ngIf="unreadCount() > 0">{{ unreadCount() }} unread</span>
+          </div>
+          <button type="button" class="text-link" (click)="markAllRead($event)" *ngIf="unreadCount() > 0">
+            Mark all read
+          </button>
+        </div>
+
+        <div class="panel-body">
+          <div class="notification-list" *ngIf="notifications().length > 0">
+            <div 
+              *ngFor="let item of notifications()" 
+              class="notification-item" 
+              [class.unread]="!item.is_read"
+              (click)="markAsRead(item.id, $event)"
+            >
+              <span class="item-dot" *ngIf="!item.is_read"></span>
+              <div class="item-content">
+                <strong class="item-title">{{ item.title }}</strong>
+                <p class="item-msg">{{ item.message }}</p>
+                <small class="item-time">{{ item.created_at }}</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="empty-panel" *ngIf="notifications().length === 0">
+            <span class="empty-icon">🔔</span>
+            <p>No new notifications</p>
+          </div>
+        </div>
+
+        <div class="panel-footer">
+          <a [routerLink]="getNotificationsLink()" (click)="closeDropdowns()">
+            View all notifications →
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. User Profile Dropdown -->
+    <div class="dropdown-wrap">
+      <button 
+        type="button" 
+        class="profile-btn" 
+        [class.active]="profileOpen()"
+        (click)="toggleProfile($event)"
+      >
+        <div class="avatar-circle">
+          {{ getInitials(user?.full_name) }}
+        </div>
+        <div class="profile-info-compact">
+          <span class="name">{{ user?.full_name || user?.email || 'User' }}</span>
+          <span class="role-chip" [ngClass]="'role-' + (user?.role || 'customer')">
+            {{ (user?.role || 'customer') | uppercase }}
+          </span>
+        </div>
+        <span class="chevron" [class.open]="profileOpen()">▼</span>
+      </button>
+
+      <!-- User Profile Panel -->
+      <div class="dropdown-panel profile-panel" *ngIf="profileOpen()">
+        <div class="user-header">
+          <div class="avatar-circle lg">
+            {{ getInitials(user?.full_name) }}
+          </div>
+          <div class="user-details">
+            <strong class="user-name">{{ user?.full_name || 'Smart Hire User' }}</strong>
+            <span class="user-email">{{ user?.email }}</span>
+            <span class="role-badge" [ngClass]="'role-' + (user?.role || 'customer')">
+              {{ (user?.role || 'customer') | uppercase }}
+            </span>
+          </div>
+        </div>
+
+        <div class="menu-divider"></div>
+
+        <div class="menu-links">
+          <a [routerLink]="getWorkspaceLink()" (click)="closeDropdowns()" class="menu-item">
+            <span class="menu-icon">📊</span>
+            <div class="menu-text">
+              <strong>Workspace Dashboard</strong>
+              <small>View metrics & bookings</small>
+            </div>
+          </a>
+
+          <a *ngIf="user?.role !== 'admin'" [routerLink]="getProfileLink()" (click)="closeDropdowns()" class="menu-item">
+            <span class="menu-icon">👤</span>
+            <div class="menu-text">
+              <strong>My Profile</strong>
+              <small>Manage account information</small>
+            </div>
+          </a>
+
+          <a *ngIf="user?.role === 'customer'" routerLink="/customer/ai-assistant" (click)="closeDropdowns()" class="menu-item">
+            <span class="menu-icon">🤖</span>
+            <div class="menu-text">
+              <strong>AI Assistant</strong>
+              <small>Get pro recommendations</small>
+            </div>
+          </a>
+        </div>
+
+        <div class="menu-divider"></div>
+
+        <div class="logout-wrap">
+          <button type="button" class="logout-btn" (click)="onLogout()">
+            <span class="logout-icon">🚪</span> Sign Out
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </header>

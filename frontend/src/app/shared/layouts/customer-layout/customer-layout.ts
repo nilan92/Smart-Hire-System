@@ -20,11 +20,9 @@ export class CustomerLayout {
   readonly menuOpen = signal(false);
   readonly links: SidebarLink[] = [
     { label: 'Dashboard', route: APP_ROUTES.customer.dashboard },
-    { label: 'Profile', route: APP_ROUTES.customer.profile },
     { label: 'Browse Services', route: APP_ROUTES.customer.browseServices },
     { label: 'Favourites', route: APP_ROUTES.customer.favourites },
     { label: 'My Bookings', route: APP_ROUTES.customer.bookings },
-    { label: 'Notifications', route: APP_ROUTES.customer.notifications },
     { label: 'Reviews', route: APP_ROUTES.customer.reviews },
     { label: 'AI Assistant', route: APP_ROUTES.customer.aiAssistant },
   ];
