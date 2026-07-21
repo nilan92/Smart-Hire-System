@@ -192,17 +192,15 @@ Administrators can:
 
 ## AI Features
 
-The project may include:
+The implemented AI module provides:
 
-- AI service recommendation
-- AI provider matching
-- AI customer-support assistant
-- AI booking assistant
-- AI review summarization
-- AI conversation history
-- Semantic service search using embeddings
+- An authenticated customer assistant with persisted conversation history.
+- Database-backed service-category recommendations and active provider/service results.
+- A customer-confirmed booking handoff: the assistant recommends a service, then the customer explicitly selects a future date and time before a normal booking request is created.
+- Provider-owned AI review summaries stored against the selected service.
+- Per-user conversation/message counts for the customer history view.
 
-At least one AI-powered feature must be fully implemented for the assignment.
+Provider matching is available as an API capability. Semantic search using embeddings remains a future enhancement.
 
 ---
 
@@ -345,17 +343,18 @@ Every member must complete work across:
 ## Member 5 – AI Features (Damith)
 
 ### Frontend
-- AI Assistant
-- Service recommendation page
-- AI provider matching
-- Review summary page
+- Customer AI assistant with saved conversations
+- Recommended-category and active-service cards
+- Customer-confirmed booking request panel
+- Provider AI Insights review-summary page
 
 ### Backend
-- OpenAI integration
-- AI recommendation
-- AI chat
+- Backend-only OpenAI integration with a safe fallback response
+- Category-validated AI recommendation and active-service lookup
+- AI chat with recent conversation context
 - AI review summarization
-- AI conversation logging
+- AI conversation and message logging
+- Conversation analysis counts for the signed-in user
 
 ### Database
 - ai_conversations
@@ -851,6 +850,9 @@ POST /api/ai/recommend
 POST /api/ai/provider-match
 POST /api/ai/chat
 POST /api/ai/reviews/summarize
+GET  /api/ai/conversations
+GET  /api/ai/conversations/analysis
+GET  /api/ai/conversations/{conversation_id}
 ```
 
 API paths may be refined during implementation, but frontend and backend developers must follow the agreed API contract.

@@ -140,6 +140,13 @@ Folder:
 
 - `frontend/src/app/features/customer/ai-assistant/`
 
+Delivered functionality:
+
+- Authenticated AI chat with saved conversation history.
+- Recommendation cards based on active database services.
+- Customer-confirmed booking request from a recommended service.
+- Saved-chat and message counts for the current user.
+
 ## Provider Pages
 
 ### Dashboard
@@ -245,6 +252,10 @@ Owner: AI module member
 Route:
 
 - `/provider/ai-insights`
+
+Delivered functionality:
+
+- Providers can select one of their services and generate a stored AI review summary.
 
 Folder:
 

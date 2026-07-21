@@ -160,6 +160,61 @@ Requires bearer token and `customer` role. Reviews the current customer has writ
 
 Public. A single review by id.
 
+## AI
+
+All AI endpoints are served under `/api/ai` and require a bearer token. OpenAI is called only from the FastAPI backend; API keys are never sent to Angular.
+
+### POST `/ai/chat`
+
+Creates or continues the signed-in user's conversation and stores both the user message and the assistant reply.
+
+```json
+{
+  "message": "My kitchen sink is leaking. I need help in Colombo.",
+  "conversation_id": 12
+}
+```
+
+Omit `conversation_id` to create a new conversation. The response contains the persistent `conversation_id` and the assistant `reply`. The assistant uses the most recent saved messages and the current service categories as context; it does not invent bookings, prices, providers, or availability.
+
+### GET `/ai/conversations`
+
+Returns the signed-in user's conversation list only, ordered by most recently updated conversation.
+
+### GET `/ai/conversations/analysis`
+
+Returns the signed-in user's `conversation_count`, `message_count`, and `latest_conversation_at`. It does not expose another user's messages.
+
+### GET `/ai/conversations/{conversation_id}`
+
+Returns the full saved message history for one conversation owned by the signed-in user. Returns `404` for another user's conversation.
+
+### POST `/ai/recommend`
+
+```json
+{ "description": "My kitchen sink is leaking." }
+```
+
+Returns a category validated against `service_categories`, a short reason, and up to six active services from that category with provider, location, price, and rating information.
+
+### POST `/ai/provider-match`
+
+Accepts a customer request and a supplied list of providers, then returns the strongest supplied candidate based on rating and experience. Use `/ai/recommend` for database-backed service results.
+
+### POST `/ai/reviews/summarize`
+
+Requires the `provider` role.
+
+```json
+{ "service_id": 42 }
+```
+
+The service must belong to the signed-in provider. The API summarizes that service's written reviews and stores the result in `review_summaries`.
+
+### AI Booking Handoff
+
+The assistant can guide a customer to a recommended service but never creates a booking automatically. The customer must explicitly select a future date and time in the assistant UI. The UI then calls the existing `POST /api/bookings` endpoint, preserving its customer-role validation, active-service check, and provider notification.
+
 ## Payments
 
 Payment is only accepted once a booking is `completed`. This is a simulated gateway — there is no external processor, so a successful `POST` is an immediately `completed` payment with a generated `transaction_id`, not a `pending` one awaiting a callback.
