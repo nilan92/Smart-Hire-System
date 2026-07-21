@@ -31,8 +31,19 @@ def chat(request: ChatRequest, user: User = Depends(require_active_user), db: Se
         if message.role in {"user", "assistant"}
     ]
     categories = list(db.scalars(select(ServiceCategory.name).order_by(ServiceCategory.name)).all())
+    active_services = db.scalars(
+        select(Service)
+        .options(joinedload(Service.provider))
+        .where(Service.status == ServiceStatus.ACTIVE)
+        .order_by(Service.created_at.desc())
+        .limit(40)
+    ).unique().all()
+    listings = [
+        f"{s.title} - LKR {s.price:g} - {s.provider.full_name} - {s.city}"
+        for s in active_services
+    ]
     db.add(AIMessage(conversation_id=conversation.id, role="user", message=request.message))
-    reply = service.chat(request.message, history, categories)
+    reply = service.chat(request.message, history, categories, listings)
     db.add(AIMessage(conversation_id=conversation.id, role="assistant", message=reply))
     conversation.updated_at = datetime.now(timezone.utc)
     db.commit()

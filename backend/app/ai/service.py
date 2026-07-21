@@ -10,15 +10,16 @@ class AIService:
     def __init__(self) -> None:
         self.client = OpenAI(api_key=settings.OPENAI_API_KEY) if settings.OPENAI_API_KEY else None
 
-    def chat(self, message: str, history: list[dict[str, str]], categories: list[str]) -> str:
+    def chat(self, message: str, history: list[dict[str, str]], categories: list[str], listings: list[str] | None = None) -> str:
         if not self.client:
             return "I can help you find a service. Tell me what needs fixing and where you need it."
         try:
+            listings_block = "\n".join(f"- {item}" for item in listings) if listings else "(none currently active)"
             context = (
-                f"Available Smart Hire categories: {', '.join(categories) or 'not loaded'}. "
-                "Do not invent providers, prices, availability, or bookings. To book, ask the customer "
-                "to choose a recommendation and explicitly provide a future date and time. "
-                "Keep answers focused on Smart Hire services."
+                f"Available Smart Hire categories: {', '.join(categories) or 'not loaded'}.\n\n"
+                f"Available listings (title - price - provider - city):\n{listings_block}\n\n"
+                "To book, ask the customer to choose a recommendation and explicitly provide a future "
+                "date and time. Keep answers focused on Smart Hire services."
             )
             response = self.client.chat.completions.create(
                 model="gpt-4.1-mini",
