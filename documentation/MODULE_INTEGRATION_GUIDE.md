@@ -55,6 +55,17 @@ Use `AuthService.currentUser()` in components. Call `AuthService.loadCurrentUser
 
 Use Angular `HttpClient`. Do not manually add `Authorization` headers; `authInterceptor` does that automatically.
 
+## AI Module Integration
+
+All AI endpoints require an authenticated user. The customer assistant persists each user and assistant message in `ai_conversations` and `ai_messages`; history is available only to its owner.
+
+- `POST /api/ai/chat` accepts `{ "message": "...", "conversation_id": 12 }`; omit `conversation_id` to start a new conversation.
+- `POST /api/ai/recommend` accepts `{ "description": "..." }` and returns a validated category plus active services.
+- `GET /api/ai/conversations`, `GET /api/ai/conversations/analysis`, and `GET /api/ai/conversations/{id}` expose the signed-in user's history only.
+- `POST /api/ai/reviews/summarize` requires the `provider` role and accepts a provider-owned `service_id`.
+
+The AI assistant must never create a booking from model output alone. The Angular page displays a booking confirmation panel, and the customer explicitly supplies a future date/time. It then calls the standard protected `POST /api/bookings` endpoint so all existing ownership checks and provider notifications apply.
+
 ## Customer Routes
 
 Reserved route structure:
