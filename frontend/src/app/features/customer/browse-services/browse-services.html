@@ -37,11 +37,43 @@
           <h2>{{ service.title }}</h2>
           <p>{{ service.description }}</p>
           <div class="provider"><span>{{ service.providerName.charAt(0) }}</span><div><strong>{{ service.providerName }}</strong><small>✓ Verified provider · {{ service.city }}</small></div></div>
-          <div class="card-footer"><div><small>Starts from</small><strong>{{ service.price | currency:'LKR':'symbol':'1.0-0' }}</strong></div><button>View service →</button></div>
+          <div class="card-footer"><div><small>Starts from</small><strong>{{ service.price | currency:'LKR':'symbol':'1.0-0' }}</strong></div><button (click)="view(service)">View service →</button></div>
         </div>
       </article>
     }
   </section>
 } @else {
   <section class="empty"><span>⌕</span><h2>No services match your search</h2><p>Try another keyword, category or location.</p><button (click)="clearFilters()">Clear all filters</button></section>
+}
+
+@if (viewingService(); as service) {
+  <div class="overlay" (click)="closeView()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-visual category-{{ service.categoryId }}">
+        <span class="category-pill">{{ store.categoryName(service.categoryId) }}</span>
+        <button class="close-btn" (click)="closeView()" aria-label="Close">×</button>
+        <span class="visual-icon">{{ store.categoryIcon(service.categoryId) }}</span>
+      </div>
+      <div class="modal-body">
+        <div class="rating">★ {{ service.rating }} <span>({{ service.reviewCount }} reviews)</span></div>
+        <h2>{{ service.title }}</h2>
+        <p class="description">{{ service.description }}</p>
+        <div class="provider">
+          <span>{{ service.providerName.charAt(0) }}</span>
+          <div><strong>{{ service.providerName }}</strong><small>✓ Verified provider · {{ service.city }}</small></div>
+        </div>
+        <div class="detail-grid">
+          <div><small>Price</small><strong>{{ service.price | currency:'LKR':'symbol':'1.0-0' }}</strong></div>
+          <div><small>Duration</small><strong>{{ service.duration }}</strong></div>
+          <div><small>Location</small><strong>{{ service.city }}</strong></div>
+        </div>
+        <div class="modal-actions">
+          <button class="outline" [class.saved]="store.isFavourite(service.id)" (click)="store.toggleFavourite(service.id)">
+            {{ store.isFavourite(service.id) ? '♥ Saved' : '♡ Save to favourites' }}
+          </button>
+          <a routerLink="/customer/bookings">Book this service →</a>
+        </div>
+      </div>
+    </div>
+  </div>
 }
