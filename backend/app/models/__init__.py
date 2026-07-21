@@ -9,9 +9,14 @@ from app.models.ai_conversation import AIConversation
 from app.models.ai_message import AIMessage
 from app.models.review_summary import ReviewSummary
 from app.models.service_embedding import ServiceEmbedding
+from app.models.booking import Booking, BookingStatus
+from app.models.notification import Notification
+from app.models.payment import Payment
+from app.models.review import Review
 
 __all__ = [
     "User", "UserRole", "AccountStatus", "ProviderProfile", "VerificationStatus",
     "ServiceCategory", "Service", "ServiceStatus", "ServiceImage", "ServiceArea", "Favorite",
     "AIConversation", "AIMessage", "ReviewSummary", "ServiceEmbedding",
+    "Booking", "BookingStatus", "Notification", "Payment", "Review",
 ]

@@ -4,32 +4,88 @@
     <p>Monitor all booking activities across the platform.</p>
   </div>
 
-  <div class="table-container">
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>Booking ID</th>
-          <th>Customer</th>
-          <th>Provider</th>
-          <th>Scheduled Date</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let booking of bookings">
-          <td>#{{ booking.id }}</td>
-          <td class="font-medium">{{ booking.customer }}</td>
-          <td>{{ booking.provider }}</td>
-          <td>{{ booking.date | date:'medium' }}</td>
-          <td>
-            <span class="status-badge" [ngClass]="booking.status">{{ booking.status }}</span>
-          </td>
-          <td>
-            <button class="action-btn" (click)="viewDetails(booking)">View Details</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  @if (loading) {
+    <div class="state-container">
+      <div class="spinner"></div>
+      <p>Loading bookings...</p>
+    </div>
+  }
+
+  @if (!loading && error) {
+    <div class="state-container error-state">
+      <p>{{ error }}</p>
+      <button class="btn-primary" (click)="fetchBookings()">Try Again</button>
+    </div>
+  }
+
+  @if (!loading && !error) {
+    <div class="table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Booking ID</th>
+            <th>Customer</th>
+            <th>Provider</th>
+            <th>Scheduled Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let booking of bookings">
+            <td>#{{ booking.id }}</td>
+            <td class="font-medium">{{ booking.customer_name }}</td>
+            <td>{{ booking.provider_name }}</td>
+            <td>{{ booking.booking_date | date:'medium' }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="booking.status">{{ booking.status }}</span>
+            </td>
+            <td>
+              <button class="action-btn" (click)="viewDetails(booking)">View Details</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  }
 </div>
+
+@if (viewing; as booking) {
+  <div class="overlay" (click)="closeView()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <header>
+        <div>
+          <span>Booking #{{ booking.id }}</span>
+          <h2>{{ booking.service_name }}</h2>
+        </div>
+        <button (click)="closeView()" aria-label="Close">×</button>
+      </header>
+      <div class="modal-body">
+        <div class="detail-row">
+          <span class="label">Status</span>
+          <span class="status-badge" [ngClass]="booking.status">{{ booking.status }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Customer</span>
+          <span>{{ booking.customer_name }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Provider</span>
+          <span>{{ booking.provider_name }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Scheduled</span>
+          <span>{{ booking.booking_date | date: 'MMM d, y, h:mm a' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Requested</span>
+          <span>{{ booking.created_at | date: 'MMM d, y, h:mm a' }}</span>
+        </div>
+        <div class="detail-row wide">
+          <span class="label">Notes</span>
+          <p>{{ booking.notes || 'No notes provided.' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+}

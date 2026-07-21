@@ -12,6 +12,8 @@ interface Category {
   service_count: number;
 }
 
+const ICON_CHOICES = ['🛠️', '💧', '⚡', '✨', '📚', '💻', '🔧', '🎨', '🚗', '🌱', '📦', '🏠'];
+
 @Component({
   selector: 'app-category-management',
   standalone: true,
@@ -24,6 +26,14 @@ export class CategoryManagementComponent implements OnInit {
   loading = true;
   error = '';
   deletingId: number | null = null;
+
+  readonly iconChoices = ICON_CHOICES;
+  showAddForm = false;
+  adding = false;
+  addError = '';
+  newName = '';
+  newDescription = '';
+  newIcon = ICON_CHOICES[0];
 
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
@@ -67,18 +77,45 @@ export class CategoryManagementComponent implements OnInit {
     });
   }
 
-  addCategory(): void {
-    const name = prompt('Enter the name of the new category:');
-    if (!name?.trim()) return;
+  openAddForm(): void {
+    this.newName = '';
+    this.newDescription = '';
+    this.newIcon = ICON_CHOICES[0];
+    this.addError = '';
+    this.showAddForm = true;
+  }
 
-    this.http.post<Category>(`${environment.apiUrl}/admin/categories`, { name: name.trim() }).subscribe({
-      next: (category) => {
-        this.categories = [...this.categories, category];
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        alert(err.error?.detail || 'Could not create this category.');
-      }
-    });
+  closeAddForm(): void {
+    this.showAddForm = false;
+  }
+
+  submitAddForm(): void {
+    const name = this.newName.trim();
+    if (!name) {
+      this.addError = 'Please enter a category name.';
+      return;
+    }
+
+    this.adding = true;
+    this.addError = '';
+    this.http
+      .post<Category>(`${environment.apiUrl}/admin/categories`, {
+        name,
+        description: this.newDescription.trim() || null,
+        icon: this.newIcon,
+      })
+      .subscribe({
+        next: (category) => {
+          this.categories = [...this.categories, category];
+          this.adding = false;
+          this.showAddForm = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.adding = false;
+          this.addError = err.error?.detail || 'Could not create this category.';
+          this.cdr.detectChanges();
+        }
+      });
   }
 }

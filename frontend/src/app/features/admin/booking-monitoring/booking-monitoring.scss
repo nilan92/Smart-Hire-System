@@ -3,5 +3,54 @@
 .table-container { background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow-x: auto; border: 1px solid #e5e7eb; }
 .admin-table { width: 100%; border-collapse: collapse; text-align: left; th { background-color: #f9fafb; padding: 1rem 1.5rem; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: #6b7280; border-bottom: 1px solid #e5e7eb; } td { padding: 1rem 1.5rem; border-bottom: 1px solid #e5e7eb; color: #4b5563; font-size: 0.95rem; } tr:last-child td { border-bottom: none; } tbody tr:hover { background-color: #f9fafb; } }
 .font-medium { font-weight: 500; color: #111827 !important; }
-.status-badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; text-transform: capitalize; &.accepted { background-color: #d1fae5; color: #059669; } &.pending { background-color: #fef3c7; color: #d97706; } &.cancelled { background-color: #fee2e2; color: #dc2626; } &.completed { background-color: #dbeafe; color: #2563eb; } }
+.status-badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; text-transform: capitalize; &.accepted { background-color: #d1fae5; color: #059669; } &.pending { background-color: #fef3c7; color: #d97706; } &.cancelled, &.rejected { background-color: #fee2e2; color: #dc2626; } &.completed { background-color: #dbeafe; color: #2563eb; } &.in_progress { background-color: #ede9fe; color: #7c3aed; } }
 .action-btn { background: white; border: 1px solid #d1d5db; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; color: #374151; cursor: pointer; transition: all 0.2s ease; &:hover { background-color: #f3f4f6; border-color: #9ca3af; } }
+
+.state-container {
+  text-align: center; padding: 4rem 2rem; color: #6b7280;
+  p { font-size: 1rem; margin: 0 0 1.5rem; }
+  &.error-state { color: #ef4444; }
+}
+
+.spinner {
+  border: 4px solid rgba(0,0,0,0.08); border-left-color: #2563eb;
+  border-radius: 50%; width: 38px; height: 38px;
+  animation: spin 0.9s linear infinite; margin: 0 auto 1rem;
+}
+
+.btn-primary { background-color: #2563eb; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; &:hover { background-color: #1d4ed8; } }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.overlay {
+  position: fixed; inset: 0; background: rgba(7, 27, 24, 0.66); z-index: 1000;
+  display: grid; place-items: center; padding: 20px;
+}
+
+.modal {
+  width: min(560px, 100%); max-height: 92vh; overflow: auto;
+  background: white; border-radius: 16px;
+  font-family: 'Inter', sans-serif;
+}
+
+.modal header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 22px 24px; border-bottom: 1px solid #e5e7eb;
+}
+
+.modal header span { color: #2563eb; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.08em; font-weight: 700; }
+.modal header h2 { margin: 4px 0 0; font-size: 1.2rem; color: #111827; }
+.modal header button {
+  border: 0; background: #f3f4f6; width: 32px; height: 32px; border-radius: 50%;
+  font-size: 1.2rem; cursor: pointer; color: #374151;
+}
+
+.modal-body { padding: 20px 24px 24px; display: grid; gap: 14px; }
+
+.detail-row {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  font-size: 0.9rem;
+  &.wide { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .label { color: #6b7280; font-weight: 600; }
+  p { margin: 0; color: #4b5563; line-height: 1.5; }
+}

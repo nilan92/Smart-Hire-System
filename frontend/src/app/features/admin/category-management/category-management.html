@@ -4,7 +4,7 @@
       <h2>Category Management</h2>
       <p>Manage service categories available on the platform.</p>
     </div>
-    <button class="btn-primary" (click)="addCategory()">+ Add Category</button>
+    <button class="btn-primary" (click)="openAddForm()">+ Add Category</button>
   </div>
 
   @if (loading) {
@@ -52,3 +52,62 @@
     </div>
   }
 </div>
+
+@if (showAddForm) {
+  <div class="overlay" (click)="closeAddForm()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <header>
+        <div>
+          <span>New category</span>
+          <h2>Add a category</h2>
+        </div>
+        <button (click)="closeAddForm()" aria-label="Close">×</button>
+      </header>
+      <form (ngSubmit)="submitAddForm()">
+        <label class="wide">
+          Icon
+          <div class="icon-picker">
+            @for (icon of iconChoices; track icon) {
+              <button
+                type="button"
+                class="icon-option"
+                [class.selected]="newIcon === icon"
+                (click)="newIcon = icon"
+              >{{ icon }}</button>
+            }
+          </div>
+        </label>
+        <label class="wide">
+          Category name
+          <input
+            type="text"
+            [(ngModel)]="newName"
+            name="newName"
+            placeholder="e.g. Gardening"
+            [disabled]="adding"
+            required
+          />
+        </label>
+        <label class="wide">
+          Description (optional)
+          <textarea
+            rows="3"
+            [(ngModel)]="newDescription"
+            name="newDescription"
+            placeholder="What kind of services fall under this category?"
+            [disabled]="adding"
+          ></textarea>
+        </label>
+        @if (addError) {
+          <p class="form-error wide">{{ addError }}</p>
+        }
+        <div class="form-actions">
+          <button type="button" (click)="closeAddForm()" [disabled]="adding">Cancel</button>
+          <button type="submit" [disabled]="adding">
+            {{ adding ? 'Adding...' : 'Add category' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
