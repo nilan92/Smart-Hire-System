@@ -53,3 +53,26 @@
 - Changed the root route from a login redirect to a lazy-loaded `Home` component and added `APP_ROUTES.home`.
 - Login and registration brand logos now navigate back to `/`.
 - Verified with `npm run build`; the production build passes (existing Sass deprecation and bundle/style warning budgets remain).
+
+## Reviews, Payments & Admin: Real Data, Real Workflow (2026-07-21)
+
+**Note on the "Presentation & Test Mode" section above:** the hardcoded demo IDs (`bookingId: 301`, `customerId: 101`) and the `/payments/status` seeded-data dependency described there are gone. Payments and reviews are now driven by real bookings end to end; the seed endpoint and `/admin/test-system` page still exist but are no longer required for the app to work, and the sidebar link to them was removed (route is still reachable directly by URL).
+
+**Root cause of the change-detection bug, precisely:** this app has no `zone.js` (not in `package.json`, no polyfill entry) and never calls `provideZonelessChangeDetection()` either — it runs in whatever default Angular falls back to without zone.js. Signal reads, Angular-bound DOM events, and `@Input` changes all still trigger change detection on their own. What does **not** trigger it: mutating a plain class field inside an `HttpClient.subscribe()` callback. Every component that does this needs to inject `ChangeDetectorRef` and call `.detectChanges()` in both the `next` and `error` branches — see `admin/review-moderation.ts` or `admin/user-management.ts` for the reference pattern. `ProviderReviewListComponent` and `SubmitReviewFormComponent` were missing it and silently never rendered their fetched data; fixed with a failing-test-first repro (`provider-review-list.spec.ts`, `submit-review-form.spec.ts`).
+
+**Reviews and Payments were wired up for real:**
+- Backend: `create_review`/`create_payment` now require auth, verify the booking belongs to the caller and is `completed`, and reject duplicates. Reviews trigger a live recalculation of the provider's `avg_rating`/`total_reviews` (was never implemented before — ratings were permanently stuck at 0). Payments settle as `completed` immediately on creation (simulated gateway, no async callback to wait for) and now get a real generated `transaction_id` — previously only the seed data ever had one.
+- New endpoints: `GET /reviews/customer/me`, `GET /payments/customer/me`, `GET /payments/provider/me`, `GET/POST/DELETE /admin/categories`, `GET/PUT /admin/services/{id}/status`. See `documentation/API_CONTRACT.md`.
+- Frontend: `customer/reviews`, `provider/reviews`, and `provider/payments` were placeholder stubs with real, unused components sitting nearby (`features/reviews/*`) — wired the existing components into the actual routed pages instead of building new ones. Added a "Pay now" flow on completed bookings in `customer/bookings` that reuses `PaymentStatusComponent` (card/bank/cash selector, processing state, confetti success) via new `embedded`/`serviceName` inputs and `paid`/`closed` outputs, rather than duplicating that UI.
+- Admin `Category Management` and `Service Moderation` were **100% hardcoded fake data** with zero backend calls (fake service counts, three invented fake services, local-only add/delete). Both are now real.
+
+**Other fixes from this session, in case they resurface:**
+- A `<td>` with `display: flex` applied directly to it stops participating in the table's row-height model — if that cell is empty or shorter than its siblings, its `border-bottom` lands at the wrong height, producing a jagged divider under just that column. Always put the flex layout on an inner `<div>` inside the `<td>`, never on the `<td>` itself. Found and fixed in three tables; swept the rest of the app and confirmed no other instance.
+- `AdminPaymentResponse` (in `admin.py`) was missing `created_at`/`updated_at` entirely, so the admin payments table's date column had nothing to render regardless of frontend code — always check the response schema, not just the query, when a field "isn't showing."
+- Six spec files (`booking-monitoring`, `category-management`, `service-moderation`, `user-management`, `payment-status`, `submit-review-form`) imported a pre-rename component name and were silently failing the *entire* frontend test build, not just themselves — `ng test` gave zero useful output until these were fixed.
+- Notification list items had `cursor: pointer` styling implying they were clickable, but the click handler only ever called `markRead()` — never navigated anywhere. Now routes based on notification title/role.
+- `provider/services` had a hardcoded `4.8` average rating stat, unrelated to the provider's actual reviews.
+
+**Still open / known gaps:**
+- `features/admin/dashboard/` and `features/admin/login/` are orphaned duplicates from an old merge, unrouted — safe to delete, not yet removed.
+- Backend/frontend dev servers are typically left running via `nohup` in `scratchpad/backend.log` / `frontend.log` during agent sessions — check for an existing process before starting a duplicate one.

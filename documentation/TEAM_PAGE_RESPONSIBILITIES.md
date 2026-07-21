@@ -313,4 +313,5 @@ Admin sidebar:
 5. Bookings -> `/admin/bookings`
 6. Reviews -> `/admin/reviews`
 7. Payments -> `/admin/payments`
-8. Test System -> `/admin/test-system`
+
+`/admin/test-system` still exists as a route but was removed from the sidebar (2026-07-21) since it was demo/seeding scaffolding, not a real admin feature.
