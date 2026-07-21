@@ -1,3 +1,4 @@
+import secrets
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -55,6 +56,7 @@ def create_payment(
         amount=payment.amount,
         payment_method=payment.payment_method,
         status="completed",
+        transaction_id=f"TXN-{secrets.token_hex(6).upper()}",
     )
     db.add(db_payment)
     db.commit()

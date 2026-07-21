@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -10,7 +11,8 @@ from app.core.dependencies import require_roles
 from app.models.booking import Booking
 from app.models.payment import Payment
 from app.models.review import Review
-from app.models.service import Service
+from app.models.service import Service, ServiceStatus
+from app.models.service_category import ServiceCategory
 from app.models.user import AccountStatus, User, UserRole
 
 # ---------------------------------------------------------------------------
@@ -38,8 +40,44 @@ class AdminPaymentResponse(BaseModel):
     status: str
     payment_method: Optional[str] = None
     transaction_id: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class AdminCategoryResponse(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
+    icon: str
+    service_count: int
+
+
+class CategoryCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+    icon: str = "🛠️"
+
+
+class AdminServiceResponse(BaseModel):
+    id: int
+    provider_id: int
+    provider_name: str
+    category_id: int
+    title: str
+    description: str
+    price: float
+    city: str
+    duration: str
+    status: ServiceStatus
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ServiceStatusUpdate(BaseModel):
+    status: str
 
 
 class AdminReviewResponse(BaseModel):
@@ -232,6 +270,7 @@ def list_admin_payments(
             id=p.id, booking_id=p.booking_id, customer_id=p.customer_id,
             customer_email=email, amount=p.amount, status=p.status,
             payment_method=p.payment_method, transaction_id=p.transaction_id,
+            created_at=p.created_at, updated_at=p.updated_at,
         )
         for p, email in rows
     ]
@@ -260,6 +299,7 @@ def update_admin_payment_status(
         id=payment.id, booking_id=payment.booking_id, customer_id=payment.customer_id,
         customer_email=customer_email, amount=payment.amount, status=payment.status,
         payment_method=payment.payment_method, transaction_id=payment.transaction_id,
+        created_at=payment.created_at, updated_at=payment.updated_at,
     )
 
 
@@ -284,3 +324,101 @@ def delete_review(review_id: int, db: Session = Depends(get_db)):
     db.delete(review)
     db.commit()
     return {"message": f"Review {review_id} deleted successfully"}
+
+
+# ---------------------------------------------------------------------------
+# Category Management
+# ---------------------------------------------------------------------------
+
+@router.get("/categories", response_model=List[AdminCategoryResponse], dependencies=[_admin_dep])
+def list_admin_categories(db: Session = Depends(get_db)):
+    rows = (
+        db.query(ServiceCategory, func.count(Service.id))
+        .outerjoin(Service, Service.category_id == ServiceCategory.id)
+        .group_by(ServiceCategory.id)
+        .order_by(ServiceCategory.id)
+        .all()
+    )
+    return [
+        AdminCategoryResponse(
+            id=category.id, name=category.name, description=category.description,
+            icon=category.icon, service_count=count,
+        )
+        for category, count in rows
+    ]
+
+
+@router.post("/categories", response_model=AdminCategoryResponse, status_code=201, dependencies=[_admin_dep])
+def create_admin_category(body: CategoryCreate, db: Session = Depends(get_db)):
+    if db.query(ServiceCategory).filter(ServiceCategory.name == body.name).first():
+        raise HTTPException(status_code=400, detail="A category with this name already exists")
+    category = ServiceCategory(name=body.name, description=body.description, icon=body.icon)
+    db.add(category)
+    db.commit()
+    db.refresh(category)
+    return AdminCategoryResponse(
+        id=category.id, name=category.name, description=category.description,
+        icon=category.icon, service_count=0,
+    )
+
+
+@router.delete("/categories/{category_id}", dependencies=[_admin_dep])
+def delete_admin_category(category_id: int, db: Session = Depends(get_db)):
+    category = db.query(ServiceCategory).filter(ServiceCategory.id == category_id).first()
+    if not category:
+        raise HTTPException(status_code=404, detail="Category not found")
+    services_in_use = db.query(Service).filter(Service.category_id == category_id).count()
+    if services_in_use:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot delete: {services_in_use} service(s) still use this category",
+        )
+    db.delete(category)
+    db.commit()
+    return {"message": f"Category {category_id} deleted successfully"}
+
+
+# ---------------------------------------------------------------------------
+# Service Moderation
+# ---------------------------------------------------------------------------
+
+@router.get("/services", response_model=List[AdminServiceResponse], dependencies=[_admin_dep])
+def list_admin_services(db: Session = Depends(get_db)):
+    rows = (
+        db.query(Service, User.full_name)
+        .join(User, User.id == Service.provider_id)
+        .order_by(Service.created_at.desc())
+        .all()
+    )
+    return [
+        AdminServiceResponse(
+            id=service.id, provider_id=service.provider_id, provider_name=provider_name,
+            category_id=service.category_id, title=service.title, description=service.description,
+            price=float(service.price), city=service.city, duration=service.duration,
+            status=service.status, created_at=service.created_at,
+        )
+        for service, provider_name in rows
+    ]
+
+
+@router.put("/services/{service_id}/status", response_model=AdminServiceResponse, dependencies=[_admin_dep])
+def update_admin_service_status(service_id: int, body: ServiceStatusUpdate, db: Session = Depends(get_db)):
+    allowed = {s.value for s in ServiceStatus}
+    if body.status not in allowed:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid status. Must be one of: {', '.join(sorted(allowed))}",
+        )
+    service = db.query(Service).filter(Service.id == service_id).first()
+    if not service:
+        raise HTTPException(status_code=404, detail="Service not found")
+    service.status = ServiceStatus(body.status)
+    db.commit()
+    db.refresh(service)
+    provider_name = db.query(User.full_name).filter(User.id == service.provider_id).scalar()
+    return AdminServiceResponse(
+        id=service.id, provider_id=service.provider_id, provider_name=provider_name,
+        category_id=service.category_id, title=service.title, description=service.description,
+        price=float(service.price), city=service.city, duration=service.duration,
+        status=service.status, created_at=service.created_at,
+    )

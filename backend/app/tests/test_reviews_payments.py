@@ -123,6 +123,7 @@ def test_payment_requires_auth_and_ownership(client: TestClient, db: Session):
     body = created.json()
     assert body["customer_id"] != 999  # spoofed id ignored
     assert body["status"] == "completed"  # simulated gateway settles immediately
+    assert body["transaction_id"] and body["transaction_id"].startswith("TXN-")
 
     # Duplicate payment for the same booking rejected
     assert client.post(

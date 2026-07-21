@@ -7,26 +7,48 @@
     <button class="btn-primary" (click)="addCategory()">+ Add Category</button>
   </div>
 
-  <div class="table-container">
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Category Name</th>
-          <th>Total Services</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let cat of categories">
-          <td>#{{ cat.id }}</td>
-          <td class="font-medium">{{ cat.name }}</td>
-          <td>{{ cat.servicesCount }} services</td>
-          <td>
-            <button class="action-btn text-red" (click)="deleteCategory(cat.id)">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  @if (loading) {
+    <div class="state-container">
+      <div class="spinner"></div>
+      <p>Loading categories...</p>
+    </div>
+  }
+
+  @if (!loading && error) {
+    <div class="state-container error-state">
+      <p>{{ error }}</p>
+      <button class="btn-primary" (click)="fetchCategories()">Try Again</button>
+    </div>
+  }
+
+  @if (!loading && !error) {
+    <div class="table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Category Name</th>
+            <th>Total Services</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cat of categories">
+            <td>#{{ cat.id }}</td>
+            <td class="font-medium">{{ cat.icon }} {{ cat.name }}</td>
+            <td>{{ cat.service_count }} service{{ cat.service_count === 1 ? '' : 's' }}</td>
+            <td>
+              <button
+                class="action-btn text-red"
+                [disabled]="deletingId === cat.id"
+                (click)="deleteCategory(cat)"
+              >
+                {{ deletingId === cat.id ? 'Deleting...' : 'Delete' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  }
 </div>
