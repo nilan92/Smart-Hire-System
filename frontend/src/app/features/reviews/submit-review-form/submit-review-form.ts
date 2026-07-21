@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -27,7 +27,7 @@ export class SubmitReviewFormComponent implements OnInit {
   status: 'idle' | 'submitting' | 'success' | 'error' = 'idle';
   errorMessage: string = '';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {}
 
@@ -66,11 +66,13 @@ export class SubmitReviewFormComponent implements OnInit {
       next: () => {
         this.status = 'success';
         this.submitted.emit();
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error(err);
         this.status = 'error';
         this.errorMessage = err.error?.detail || 'Failed to submit review. Please try again.';
+        this.cdr.detectChanges();
       }
     });
   }

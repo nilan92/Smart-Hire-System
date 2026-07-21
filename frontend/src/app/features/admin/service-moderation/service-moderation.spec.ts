@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ServiceModeration } from './service-moderation';
+import { ServiceModerationComponent } from './service-moderation';
 
-describe('ServiceModeration', () => {
-  let component: ServiceModeration;
-  let fixture: ComponentFixture<ServiceModeration>;
+describe('ServiceModerationComponent', () => {
+  let component: ServiceModerationComponent;
+  let fixture: ComponentFixture<ServiceModerationComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ServiceModeration],
+      imports: [ServiceModerationComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ServiceModeration);
+    fixture = TestBed.createComponent(ServiceModerationComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

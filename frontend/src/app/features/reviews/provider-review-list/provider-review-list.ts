@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { RatingDisplayComponent } from '../rating-display/rating-display';
@@ -17,7 +17,7 @@ export class ProviderReviewListComponent implements OnInit {
   reviews: any[] = [];
   loading = true;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.fetchReviews();
@@ -28,10 +28,12 @@ export class ProviderReviewListComponent implements OnInit {
       next: (data) => {
         this.reviews = data;
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error(err);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
