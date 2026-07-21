@@ -44,15 +44,17 @@
                 </span>
               </td>
               <td class="notes">{{ booking.notes || '—' }}</td>
-              <td class="row-actions">
-                @if (canCancel(booking.status)) {
-                  <button class="delete" (click)="cancelBooking(booking.id)">Cancel</button>
-                }
-                @if (canPay(booking)) {
-                  <button (click)="openPayment(booking.id)">Pay now</button>
-                } @else if (isPaid(booking.id)) {
-                  <span class="status completed"><i></i>Paid</span>
-                }
+              <td>
+                <div class="actions-row">
+                  @if (canCancel(booking.status)) {
+                    <button class="delete" (click)="cancelBooking(booking.id)">Cancel</button>
+                  }
+                  @if (canPay(booking)) {
+                    <button (click)="openPayment(booking.id)">Pay now</button>
+                  } @else if (isPaid(booking.id)) {
+                    <span class="status completed"><i></i>Paid</span>
+                  }
+                </div>
               </td>
             </tr>
           }

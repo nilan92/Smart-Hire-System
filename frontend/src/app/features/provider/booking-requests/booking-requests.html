@@ -47,13 +47,15 @@
                 </span>
               </td>
               <td class="notes">{{ booking.notes || '—' }}</td>
-              <td class="row-actions">
-                @if (booking.status === 'pending') {
-                  <button class="accept" (click)="accept(booking.id)">Accept</button>
-                  <button class="delete" (click)="reject(booking.id)">Reject</button>
-                } @else if (booking.status === 'accepted') {
-                  <button class="accept" (click)="complete(booking.id)">Mark complete</button>
-                }
+              <td>
+                <div class="row-actions">
+                  @if (booking.status === 'pending') {
+                    <button class="accept" (click)="accept(booking.id)">Accept</button>
+                    <button class="delete" (click)="reject(booking.id)">Reject</button>
+                  } @else if (booking.status === 'accepted') {
+                    <button class="accept" (click)="complete(booking.id)">Mark complete</button>
+                  }
+                </div>
               </td>
             </tr>
           }

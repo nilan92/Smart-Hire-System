@@ -38,20 +38,22 @@
             <td>
               <span class="status-badge" [ngClass]="service.status">{{ service.status }}</span>
             </td>
-            <td class="actions-cell">
-              <button class="action-btn" (click)="view(service)">View</button>
-              <button
-                class="action-btn"
-                [disabled]="service.updatingStatus"
-                (click)="updateStatus(service, 'active')"
-                *ngIf="service.status !== 'active'"
-              >Approve</button>
-              <button
-                class="action-btn text-red"
-                [disabled]="service.updatingStatus"
-                (click)="updateStatus(service, 'paused')"
-                *ngIf="service.status !== 'paused'"
-              >Pause</button>
+            <td>
+              <div class="actions-cell">
+                <button class="action-btn" (click)="view(service)">View</button>
+                <button
+                  class="action-btn"
+                  [disabled]="service.updatingStatus"
+                  (click)="updateStatus(service, 'active')"
+                  *ngIf="service.status !== 'active'"
+                >Approve</button>
+                <button
+                  class="action-btn text-red"
+                  [disabled]="service.updatingStatus"
+                  (click)="updateStatus(service, 'paused')"
+                  *ngIf="service.status !== 'paused'"
+                >Pause</button>
+              </div>
             </td>
           </tr>
         </tbody>
