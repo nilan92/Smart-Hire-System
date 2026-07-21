@@ -7,23 +7,22 @@ import { environment } from '../../../../environments/environment';
 import { API_ENDPOINTS } from '../../../core/utils/api-endpoints';
 import { BookingStore } from '../../../core/services/booking.service';
 import { MarketplaceServiceStore } from '../../../core/services/marketplace.service';
-import { ToastService } from '../../../core/services/toast.service';
 import { Booking, BookingStatus, Payment } from '../../../core/models/booking.models';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { ErrorMessage } from '../../../shared/components/error-message/error-message';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
+import { PaymentStatusComponent } from '../../payments/payment-status/payment-status';
 
 type FilterTab = 'all' | 'upcoming' | 'completed' | 'cancelled';
 
 @Component({
   selector: 'app-customer-bookings',
-  imports: [CommonModule, FormsModule, LoadingSpinner, ErrorMessage, EmptyState],
+  imports: [CommonModule, FormsModule, LoadingSpinner, ErrorMessage, EmptyState, PaymentStatusComponent],
   templateUrl: './bookings.html',
   styleUrl: './bookings.scss',
 })
 export class CustomerBookings implements OnInit {
   private readonly http = inject(HttpClient);
-  private readonly toast = inject(ToastService);
   readonly store = inject(BookingStore);
   readonly marketplace = inject(MarketplaceServiceStore);
 
@@ -39,9 +38,6 @@ export class CustomerBookings implements OnInit {
 
   readonly payments = signal<Payment[]>([]);
   readonly payingBookingId = signal<number | null>(null);
-  readonly paymentMethod = signal('card');
-  readonly paying = signal(false);
-  readonly paymentError = signal('');
 
   readonly paidBookingIds = computed(() => new Set(this.payments().map((p) => p.booking_id)));
 
@@ -153,8 +149,6 @@ export class CustomerBookings implements OnInit {
   }
 
   openPayment(bookingId: number): void {
-    this.paymentMethod.set('card');
-    this.paymentError.set('');
     this.payingBookingId.set(bookingId);
   }
 
@@ -162,30 +156,7 @@ export class CustomerBookings implements OnInit {
     this.payingBookingId.set(null);
   }
 
-  confirmPayment(): void {
-    const booking = this.payingBooking();
-    if (!booking) return;
-
-    this.paying.set(true);
-    this.paymentError.set('');
-    this.http
-      .post<Payment>(`${environment.apiUrl}${API_ENDPOINTS.payments.create}`, {
-        booking_id: booking.id,
-        customer_id: booking.customer_id,
-        amount: this.amountFor(booking),
-        payment_method: this.paymentMethod(),
-      })
-      .subscribe({
-        next: (payment) => {
-          this.paying.set(false);
-          this.payments.update((items) => [payment, ...items]);
-          this.toast.show('Payment successful.', 'success');
-          this.closePayment();
-        },
-        error: (err) => {
-          this.paying.set(false);
-          this.paymentError.set(err?.error?.detail ?? 'Payment failed. Please try again.');
-        },
-      });
+  onPaid(payment: Payment): void {
+    this.payments.update((items) => [payment, ...items]);
   }
 }

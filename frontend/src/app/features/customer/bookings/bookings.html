@@ -134,37 +134,16 @@
 
 @if (payingBooking(); as booking) {
   <div class="overlay" (click)="closePayment()">
-    <div class="modal" (click)="$event.stopPropagation()">
-      <header>
-        <div>
-          <span>Payment</span>
-          <h2>Pay for {{ booking.service_name }}</h2>
-        </div>
-        <button (click)="closePayment()" aria-label="Close">×</button>
-      </header>
-      <form (ngSubmit)="confirmPayment()">
-        <label class="wide">
-          Amount
-          <input type="text" [value]="'LKR ' + amountFor(booking).toFixed(2)" disabled />
-        </label>
-        <label class="wide">
-          Payment method
-          <select [ngModel]="paymentMethod()" (ngModelChange)="paymentMethod.set($event)" name="paymentMethod">
-            <option value="card">Credit / Debit Card</option>
-            <option value="bank">Bank Transfer</option>
-            <option value="cash">Cash</option>
-          </select>
-        </label>
-        @if (paymentError()) {
-          <app-error-message class="wide" [message]="paymentError()" />
-        }
-        <div class="form-actions">
-          <button type="button" (click)="closePayment()">Cancel</button>
-          <button type="submit" [disabled]="paying()">
-            {{ paying() ? 'Processing...' : 'Confirm payment' }}
-          </button>
-        </div>
-      </form>
+    <div (click)="$event.stopPropagation()">
+      <app-payment-status
+        [embedded]="true"
+        [bookingId]="booking.id"
+        [customerId]="booking.customer_id"
+        [amount]="amountFor(booking)"
+        [serviceName]="booking.service_name"
+        (paid)="onPaid($event)"
+        (closed)="closePayment()"
+      />
     </div>
   </div>
 }
