@@ -49,7 +49,7 @@
               <div class="item-content">
                 <strong class="item-title">{{ item.title }}</strong>
                 <p class="item-msg">{{ item.message }}</p>
-                <small class="item-time">{{ item.created_at }}</small>
+                <small class="item-time">{{ item.created_at | date: 'MMM d, h:mm a' }}</small>
               </div>
             </div>
           </div>
