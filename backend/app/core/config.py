@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
 
-    OPENAI_API_KEY: str
+    OPENAI_API_KEY: str | None = None
 
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env",
