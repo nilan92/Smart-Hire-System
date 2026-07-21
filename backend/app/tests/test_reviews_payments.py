@@ -120,7 +120,18 @@ def test_payment_requires_auth_and_ownership(client: TestClient, db: Session):
         json={"booking_id": booking["id"], "customer_id": 999, "amount": 150, "payment_method": "card"},
     )
     assert created.status_code == 200
-    assert created.json()["customer_id"] != 999  # spoofed id ignored
+    body = created.json()
+    assert body["customer_id"] != 999  # spoofed id ignored
+    assert body["status"] == "completed"  # simulated gateway settles immediately
+
+    # Duplicate payment for the same booking rejected
+    assert client.post(
+        "/api/payments/", headers=auth(customer), json={"booking_id": booking["id"], "customer_id": 1, "amount": 150}
+    ).status_code == 400
+
+    # Customer can see it via their own payments list
+    mine_customer = client.get("/api/payments/customer/me", headers=auth(customer))
+    assert mine_customer.status_code == 200 and len(mine_customer.json()) == 1
 
     # Provider can see it via their own payments list
     mine = client.get("/api/payments/provider/me", headers=auth(provider))
@@ -129,4 +140,25 @@ def test_payment_requires_auth_and_ownership(client: TestClient, db: Session):
     payment_id = created.json()["id"]
 
     # Non-admin cannot update payment status
-    assert client.put(f"/api/payments/{payment_id}", headers=auth(customer), json={"status": "completed"}).status_code == 403
+    assert client.put(f"/api/payments/{payment_id}", headers=auth(customer), json={"status": "refunded"}).status_code == 403
+
+
+def test_payment_requires_completed_booking(client: TestClient, db: Session):
+    client.post("/api/auth/register", json=register_payload("provider@example.com", "provider"))
+    client.post("/api/auth/register", json=register_payload("customer@example.com", "customer"))
+    provider, customer = login(client, "provider@example.com"), login(client, "customer@example.com")
+
+    category = ServiceCategory(name="Plumbing", description="Repairs", icon="💧")
+    db.add(category); db.commit(); db.refresh(category)
+    service = client.post(
+        "/api/services",
+        headers=auth(provider),
+        json={"category_id": category.id, "title": "Plumbing", "description": "Fast repairs for leaks", "price": 3500, "city": "Colombo", "status": "active"},
+    ).json()
+    future = (datetime.now(timezone.utc) + timedelta(days=1)).isoformat()
+    booking = client.post("/api/bookings", headers=auth(customer), json={"service_id": service["id"], "booking_date": future}).json()
+
+    # Booking still pending -> payment rejected
+    assert client.post(
+        "/api/payments/", headers=auth(customer), json={"booking_id": booking["id"], "customer_id": 1, "amount": 100}
+    ).status_code == 400
