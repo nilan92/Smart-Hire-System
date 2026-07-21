@@ -1,23 +1,17 @@
-from app.models.provider_profile import (
-    ProviderProfile,
-    VerificationStatus,
-)
-from app.models.user import (
-    AccountStatus,
-    User,
-    UserRole,
-)
+from app.models.provider_profile import ProviderProfile, VerificationStatus
+from app.models.user import AccountStatus, User, UserRole
 from app.models.favorite import Favorite
 from app.models.service import Service, ServiceStatus
 from app.models.service_area import ServiceArea
 from app.models.service_category import ServiceCategory
 from app.models.service_image import ServiceImage
+from app.models.ai_conversation import AIConversation
+from app.models.ai_message import AIMessage
+from app.models.review_summary import ReviewSummary
+from app.models.service_embedding import ServiceEmbedding
 
 __all__ = [
-    "User",
-    "UserRole",
-    "AccountStatus",
-    "ProviderProfile",
-    "VerificationStatus",
+    "User", "UserRole", "AccountStatus", "ProviderProfile", "VerificationStatus",
     "ServiceCategory", "Service", "ServiceStatus", "ServiceImage", "ServiceArea", "Favorite",
+    "AIConversation", "AIMessage", "ReviewSummary", "ServiceEmbedding",
 ]

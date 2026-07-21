@@ -42,3 +42,5 @@ class Service(Base):
     images: Mapped[list["ServiceImage"]] = relationship("ServiceImage", back_populates="service", cascade="all, delete-orphan")
     favorites: Mapped[list["Favorite"]] = relationship("Favorite", back_populates="service", cascade="all, delete-orphan")
     areas: Mapped[list["ServiceArea"]] = relationship("ServiceArea", back_populates="service")
+    service_embedding = relationship("ServiceEmbedding", back_populates="service", uselist=False, cascade="all, delete-orphan")
+    review_summary = relationship("ReviewSummary", back_populates="service", uselist=False, cascade="all, delete-orphan")
