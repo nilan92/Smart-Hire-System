@@ -1,0 +1,44 @@
+<div class="blocked-wrapper">
+  <div class="blocked-card">
+
+    <!-- Icon -->
+    <div class="blocked-icon" [ngClass]="isSuspended ? 'icon-suspended' : 'icon-deactivated'">
+      {{ isSuspended ? '🔒' : '🚫' }}
+    </div>
+
+    <!-- Title -->
+    <h1 class="blocked-title">
+      {{ isSuspended ? 'Account Suspended' : 'Account Deactivated' }}
+    </h1>
+
+    <!-- Subtitle -->
+    <p class="blocked-subtitle" *ngIf="isSuspended">
+      Your Smart Hire account has been <strong>suspended</strong> by an administrator.
+    </p>
+    <p class="blocked-subtitle" *ngIf="!isSuspended">
+      Your Smart Hire account has been <strong>deactivated</strong> and is no longer active.
+    </p>
+
+    <!-- Divider -->
+    <hr class="divider" />
+
+    <!-- Detail message -->
+    <div class="blocked-detail" *ngIf="isSuspended">
+      <p>This may be due to a policy violation or pending review.</p>
+      <p>Please contact our support team to resolve this issue and restore your access.</p>
+      <a href="mailto:support@smarthire.com" class="contact-link">📧 support@smarthire.com</a>
+    </div>
+
+    <div class="blocked-detail" *ngIf="!isSuspended">
+      <p>This account has been permanently closed.</p>
+      <p>If you believe this is a mistake, please reach out to our support team.</p>
+      <a href="mailto:support@smarthire.com" class="contact-link">📧 support@smarthire.com</a>
+    </div>
+
+    <!-- Back to login -->
+    <button class="btn-back" (click)="backToLogin()">
+      ← Back to Login
+    </button>
+
+  </div>
+</div>

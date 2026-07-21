@@ -69,9 +69,16 @@ export class Login implements OnInit {
       next: ({ user }) => {
         this.router.navigateByUrl(this.authService.getRoleRedirect(user), { replaceUrl: true });
       },
-      error: () => {
-        this.errorMessage = 'Invalid email or password. Please try again.';
-        this.loading = false;
+      error: (err) => {
+        // 403 = account suspended or deactivated → redirect to dedicated blocked page
+        if (err?.status === 403) {
+          const detail: string = err?.error?.detail ?? '';
+          const reason = detail.toLowerCase().includes('deactivated') ? 'deactivated' : 'suspended';
+          this.router.navigateByUrl(`/account-blocked?reason=${reason}`, { replaceUrl: true });
+        } else {
+          this.errorMessage = 'Invalid email or password. Please try again.';
+          this.loading = false;
+        }
       },
     });
   }
