@@ -63,16 +63,12 @@
 
 ## Next Steps for Future Agents
 - Wire the `SubmitReviewFormComponent` to `POST /api/reviews/`.
-- Build the payment flow page connected to real `POST /api/payments/`.
 - Integrate real Stripe/PayPal checkout SDKs for production.
 
-## Public Landing Page (2026-07-19)
-- Added a responsive public home page at `/` in `frontend/src/app/features/home/` using the established teal, green, and white auth-page theme.
-- The page includes a fixed responsive navbar, hero and service preview, service categories, three-step workflow, CTA, and footer.
-- The navbar and CTAs link to `/login`, `/register`, and landing-page sections; its mobile menu uses an Angular signal.
-- Changed the root route from a login redirect to a lazy-loaded `Home` component and added `APP_ROUTES.home`.
-- Login and registration brand logos now navigate back to `/`.
-- Verified with `npm run build`; the production build passes (existing Sass deprecation and bundle/style warning budgets remain).
+## Update (July 21, 2026)
+- **Provider Dashboard Component (`/provider/dashboard`)**: Built a full-featured, responsive provider workspace in `frontend/src/app/features/provider/dashboard/`. Features welcome greeting banner, verification status badge, 4 stat cards (Pending Requests, Completed Jobs, Revenue, Rating), live incoming booking requests management with Accept/Decline action buttons, active services overview, and quick utility shortcuts.
+- **Provider Dashboard Color Palette Synchronization**: Updated `dashboard.scss` to strictly align with the project's established teal, emerald, and slate design system (`#075e54`, `#0f766e`, `#128c7e`, `#ccfbf1`, `#f0fdf4`, `#0f172a`, `#64748b`).
+- **Provider Dashboard Loading Fix**: Resolved infinite loading spinner by replacing blocking `forkJoin` with independent RxJS subscriptions (`take(1)` piped observables) using `environment.apiUrl` (`http://127.0.0.1:8000/api`) instead of hardcoded `localhost`. The dashboard now immediately renders from cached user state and gracefully handles background API data fetching.
 
 ## Reviews, Payments & Admin: Real Data, Real Workflow (2026-07-21)
 
